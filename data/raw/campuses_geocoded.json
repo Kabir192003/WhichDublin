@@ -1,0 +1,83 @@
+[
+ {
+  "id": "tcd",
+  "name": "Trinity College Dublin",
+  "q": "Trinity College Dublin, College Green",
+  "lat": 53.34371,
+  "lon": -6.25443,
+  "osm": "way/311466843",
+  "osmType": "university"
+ },
+ {
+  "id": "ucd",
+  "name": "University College Dublin (Belfield)",
+  "q": "University College Dublin, Belfield",
+  "lat": 53.30685,
+  "lon": -6.22463,
+  "osm": "relation/4260436",
+  "osmType": "university"
+ },
+ {
+  "id": "dcu",
+  "name": "Dublin City University (Glasnevin)",
+  "q": "Dublin City University, Glasnevin",
+  "lat": 53.38498,
+  "lon": -6.25745,
+  "osm": "way/135230135",
+  "osmType": "university"
+ },
+ {
+  "id": "tud",
+  "name": "TU Dublin (Grangegorman)",
+  "q": "Technological University Dublin Grangegorman",
+  "lat": 53.35793,
+  "lon": -6.28731,
+  "osm": "node/5766611147",
+  "osmType": "university"
+ },
+ {
+  "id": "rcsi",
+  "name": "RCSI (St Stephen's Green)",
+  "q": "Royal College of Surgeons in Ireland, St Stephen's Green",
+  "lat": 53.33916,
+  "lon": -6.2627,
+  "osm": "relation/4203256",
+  "osmType": "university"
+ },
+ {
+  "id": "nci",
+  "name": "National College of Ireland (IFSC)",
+  "q": "National College of Ireland, Mayor Street",
+  "lat": 53.34909,
+  "lon": -6.24291,
+  "osm": "node/4077372347",
+  "osmType": "yes"
+ },
+ {
+  "id": "dbs",
+  "name": "Dublin Business School (Aungier Street)",
+  "q": "Dublin Business School, Aungier Street",
+  "lat": 53.34052,
+  "lon": -6.26544,
+  "osm": "node/651804747",
+  "osmType": "college"
+ },
+ {
+  "id": "griffith",
+  "name": "Griffith College Dublin",
+  "q": "Griffith College, Dublin 8",
+  "lat": 53.33064,
+  "lon": -6.27824,
+  "osm": "way/62231120",
+  "osmType": "college"
+ },
+ {
+  "id": "iadt",
+  "name": "IADT (D\u00fan Laoghaire)",
+  "q": "IADT",
+  "lat": 53.28014,
+  "lon": -6.15175,
+  "osm": "way/387127471",
+  "osmType": "university"
+ }
+]

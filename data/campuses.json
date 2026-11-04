@@ -1,0 +1,11 @@
+{
+  "_note": "Campus entrances, rounded to ~100 m. Coordinates are from general knowledge and MUST be verified against OpenStreetMap before publishing (see docs/DATA_SOURCES.md, source S5).",
+  "verified": false,
+  "campuses": [
+    { "id": "tcd",  "name": "Trinity College Dublin", "short": "Trinity", "lat": 53.3438, "lon": -6.2546, "area": "City centre" },
+    { "id": "ucd",  "name": "University College Dublin (Belfield)", "short": "UCD", "lat": 53.3065, "lon": -6.2210, "area": "Belfield, Dublin 4" },
+    { "id": "dcu",  "name": "Dublin City University (Glasnevin)", "short": "DCU", "lat": 53.3857, "lon": -6.2569, "area": "Glasnevin, Dublin 9" },
+    { "id": "tud",  "name": "TU Dublin (Grangegorman)", "short": "TU Dublin City", "lat": 53.3548, "lon": -6.2784, "area": "Grangegorman, Dublin 7" },
+    { "id": "rcsi", "name": "RCSI (St Stephen's Green)", "short": "RCSI", "lat": 53.3392, "lon": -6.2623, "area": "City centre" }
+  ]
+}

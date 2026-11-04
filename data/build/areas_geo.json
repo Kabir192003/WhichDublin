@@ -1,0 +1,783 @@
+{
+ "source": "OpenStreetMap contributors via Nominatim, ODbL 1.0",
+ "fetched": "2026-11-04",
+ "items": {
+  "balbriggan-co": {
+   "lat": 53.48427,
+   "lon": -6.20691,
+   "osm": "way/622801879",
+   "matched": "Lissenhall Balbriggan Motorway, Swords-Lissenhall DED 1986, Fingal, County Dublin, Leinster, Éire / ",
+   "insideDistrict": true
+  },
+  "blackrock-co": {
+   "lat": 53.30186,
+   "lon": -6.17883,
+   "osm": "node/52255686",
+   "matched": "Blackrock, Dún Laoghaire-Rathdown, County Dublin, Leinster, A94 VP03, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "booterstown-co": {
+   "lat": 53.30863,
+   "lon": -6.19665,
+   "osm": "node/52243243",
+   "matched": "Booterstown, Blackrock-Booterstown DED 1986, Blackrock, Dún Laoghaire-Rathdown, County Dublin, Leins",
+   "insideDistrict": true
+  },
+  "dalkey-co": {
+   "lat": 53.2755,
+   "lon": -6.10256,
+   "osm": "way/1097119493",
+   "matched": "Dalkey, Dalkey Hill DED 1986, Dalkey, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Irelan",
+   "insideDistrict": true
+  },
+  "donabate-co": {
+   "lat": 53.48641,
+   "lon": -6.14857,
+   "osm": "relation/14578600",
+   "matched": "Donabate, Donabate DED 1986, Donabate, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "dun-laoghaire-co": {
+   "lat": 53.29228,
+   "lon": -6.13601,
+   "osm": "node/3563872395",
+   "matched": "Dún Laoghaire, Dún Laoghaire-Rathdown, County Dublin, Leinster, A96 T860, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "glenageary-co": {
+   "lat": 53.28134,
+   "lon": -6.12848,
+   "osm": "relation/3374876",
+   "matched": "Glenagarey, Glenageary, Dun Laoghaire-Glasthule DED 1986, Dún Laoghaire, Dún Laoghaire-Rathdown, Cou",
+   "insideDistrict": true
+  },
+  "howth-co": {
+   "lat": 53.38583,
+   "lon": -6.06512,
+   "osm": "node/52253160",
+   "matched": "Howth, Fingal, County Dublin, Leinster, D13 V2F9, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "killiney-co": {
+   "lat": 53.26424,
+   "lon": -6.11484,
+   "osm": "node/1411222286",
+   "matched": "Killiney, Dún Laoghaire-Rathdown, County Dublin, Leinster, A96 CV62, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "kinsealy-co": {
+   "lat": 53.4229,
+   "lon": -6.16889,
+   "osm": "way/68233648",
+   "matched": "Kinsealy Woods, Balgriffin DED 1986, Kinsealey, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "lucan-co": {
+   "lat": 53.35672,
+   "lon": -6.45015,
+   "osm": "node/52246971",
+   "matched": "Lucan, South Dublin, County Dublin, Leinster, K78 HF83, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "lusk-co": {
+   "lat": 53.49262,
+   "lon": -6.19449,
+   "osm": "node/12439029746",
+   "matched": "Shades of Dublin, Turvey Business Centre, Donabate DED 1986, Lusk, Fingal, County Dublin, Leinster, ",
+   "insideDistrict": true
+  },
+  "malahide-co": {
+   "lat": 53.45084,
+   "lon": -6.15367,
+   "osm": "relation/14574832",
+   "matched": "Malahide, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "monkstown-co": {
+   "lat": 53.29365,
+   "lon": -6.1539,
+   "osm": "node/52257324",
+   "matched": "Monkstown, Dun Laoghaire-Salthill DED 1986, Dún Laoghaire, Dún Laoghaire-Rathdown, County Dublin, Le",
+   "insideDistrict": true
+  },
+  "portmarnock-co": {
+   "lat": 53.42196,
+   "lon": -6.13583,
+   "osm": "relation/14608605",
+   "matched": "Portmarnock, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "rathcoole-co": {
+   "lat": 53.2813,
+   "lon": -6.46794,
+   "osm": "node/52249678",
+   "matched": "Rathcoole, South Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "rush-co": {
+   "lat": 53.34288,
+   "lon": -6.26185,
+   "osm": "way/273646173",
+   "matched": "Johnny Rush's, 65, William Street South, Royal Exchange B ED, Dublin, County Dublin, Leinster, D02 T",
+   "insideDistrict": true
+  },
+  "saggart-co": {
+   "lat": 53.25877,
+   "lon": -6.44429,
+   "osm": "relation/4585071",
+   "matched": "Saggart DED 1986, South Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "sandycove-co": {
+   "lat": 53.28595,
+   "lon": -6.11558,
+   "osm": "node/10712584021",
+   "matched": "Sandycove, Dún Laoghaire-Sandycove DED 1986, Dún Laoghaire, Dún Laoghaire-Rathdown, County Dublin, L",
+   "insideDistrict": true
+  },
+  "shankill-co": {
+   "lat": 53.23023,
+   "lon": -6.12418,
+   "osm": "node/52248852",
+   "matched": "Shankill, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "stillorgan-co": {
+   "lat": 53.28884,
+   "lon": -6.19834,
+   "osm": "node/52246167",
+   "matched": "Stillorgan, Stillorgan-Merville DED 1986, Blackrock, Dún Laoghaire-Rathdown, County Dublin, Leinster",
+   "insideDistrict": true
+  },
+  "swords-co": {
+   "lat": 53.45948,
+   "lon": -6.21917,
+   "osm": "relation/14579562",
+   "matched": "Swords, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "i-f-s-c-1": {
+   "lat": 53.34939,
+   "lon": -6.24586,
+   "osm": "way/53891134",
+   "matched": "International Financial Services Centre, North Dock C Ward 1986, Dublin, County Dublin, Leinster, Éi",
+   "insideDistrict": true
+  },
+  "parnell-street-1": {
+   "lat": 53.35405,
+   "lon": -6.25754,
+   "osm": "way/192108787",
+   "matched": "Parnell Street, Hardwicke Street Flats, Rotunda A ED, Dublin, County Dublin, Leinster, Éire / Irelan",
+   "insideDistrict": true
+  },
+  "spencer-dock-1": {
+   "lat": 53.34829,
+   "lon": -6.23904,
+   "osm": "way/60437767",
+   "matched": "Spencer Dock, North Wall, North Dock B ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "summerhill-1": {
+   "lat": 53.35504,
+   "lon": -6.25481,
+   "osm": "way/1450939554",
+   "matched": "Summerhill, Mountjoy B ED, Dublin, County Dublin, Leinster, D01 TY46, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "charlemont-street-2": {
+   "lat": 53.33147,
+   "lon": -6.26169,
+   "osm": "way/228373543",
+   "matched": "Charlemont Street, Saint Kevins Ward 1986, Dublin, County Dublin, Leinster, D02 Y993, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "pearse-street-2": {
+   "lat": 53.34447,
+   "lon": -6.25112,
+   "osm": "way/372838324",
+   "matched": "Pearse Street, Mansion House A Ward 1986, Dublin, County Dublin, Leinster, D02 H308, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "townsend-street-2": {
+   "lat": 53.34564,
+   "lon": -6.25028,
+   "osm": "way/4825341",
+   "matched": "Townsend Street, Mansion House A Ward 1986, Dublin, County Dublin, Leinster, D02 R156, Éire / Irelan",
+   "insideDistrict": true
+  },
+  "clonliffe-3": {
+   "lat": 53.36406,
+   "lon": -6.25219,
+   "osm": "relation/5536559",
+   "matched": "Clonliffe East, Drumcondra South B Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "clontarf-3": {
+   "lat": 53.36081,
+   "lon": -6.19685,
+   "osm": "node/52246516",
+   "matched": "Clontarf, Clontarf East C ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "drumcondra-3": {
+   "lat": 53.36495,
+   "lon": -6.25245,
+   "osm": "relation/15509794",
+   "matched": "Drumcondra South B Ward 1986, Dublin, County Dublin, Leinster, D09 HY04, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "east-wall-3": {
+   "lat": 53.35407,
+   "lon": -6.23352,
+   "osm": "way/33492190",
+   "matched": "East Wall, North Dock B ED, Dublin, County Dublin, Leinster, D03 AY74, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "fairview-3": {
+   "lat": 53.36285,
+   "lon": -6.23666,
+   "osm": "node/1679488277",
+   "matched": "Fairview, Clontarf West D ED, Dublin, County Dublin, Leinster, D03 Y013, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "north-strand-3": {
+   "lat": 53.35843,
+   "lon": -6.24162,
+   "osm": "node/5803990461",
+   "matched": "North Strand, Ballybough A ED, Dublin, County Dublin, Leinster, D03 NH34, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ballsbridge-4": {
+   "lat": 53.32919,
+   "lon": -6.23133,
+   "osm": "node/52241705",
+   "matched": "Ballsbridge, Pembroke East E ED, Dublin, County Dublin, Leinster, D04 C7K6, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "donnybrook-4": {
+   "lat": 53.32204,
+   "lon": -6.23635,
+   "osm": "node/1419136873",
+   "matched": "Donnybrook, Rathmines East B Ward 1986, Dublin, County Dublin, Leinster, D04 T8X2, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "irishtown-4": {
+   "lat": 53.33796,
+   "lon": -6.22247,
+   "osm": "node/52242256",
+   "matched": "Irishtown, Pembroke East A ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "merrion-4": {
+   "lat": 53.31769,
+   "lon": -6.20918,
+   "osm": "node/7984530830",
+   "matched": "Merrion, Pembroke East D Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "pembroke-4": {
+   "lat": 53.33922,
+   "lon": -6.20366,
+   "osm": "relation/4653170",
+   "matched": "Pembroke East A ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ringsend-4": {
+   "lat": 53.34194,
+   "lon": -6.22639,
+   "osm": "node/52260086",
+   "matched": "Ringsend, Pembroke East A ED, Dublin, County Dublin, Leinster, D04 Y970, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "sandymount-4": {
+   "lat": 53.33183,
+   "lon": -6.21535,
+   "osm": "node/52253651",
+   "matched": "Sandymount, Pembroke East C ED, Dublin, County Dublin, Leinster, D04 FN24, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "artane-5": {
+   "lat": 53.38299,
+   "lon": -6.20527,
+   "osm": "node/52245191",
+   "matched": "Artane, Clontarf West A Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "raheny-5": {
+   "lat": 53.3802,
+   "lon": -6.17515,
+   "osm": "node/52251772",
+   "matched": "Raheny, Clontarf East A ED, Dublin, County Dublin, Leinster, D05 T9K8, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "harolds-cross-6": {
+   "lat": 53.32901,
+   "lon": -6.27543,
+   "osm": "way/61842646",
+   "matched": "Harolds Cross 110kV Station, Harold's Cross Road, Portobello, Rathmines West A ED, Dublin, County Du",
+   "insideDistrict": false
+  },
+  "milltown-6": {
+   "lat": 53.31316,
+   "lon": -6.24699,
+   "osm": "node/52251014",
+   "matched": "Milltown, Rathmines East B Ward 1986, Dublin, County Dublin, Leinster, D06 H020, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ranelagh-6": {
+   "lat": 53.32522,
+   "lon": -6.25505,
+   "osm": "node/1419161775",
+   "matched": "Ranelagh, Rathmines East D Ward 1986, Dublin, County Dublin, Leinster, D06 X7P1, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "rathgar-6": {
+   "lat": 53.31185,
+   "lon": -6.27447,
+   "osm": "node/52271749",
+   "matched": "Rathgar, Rathfarnham ED, Dublin, County Dublin, Leinster, D06 F6H9, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "rathmines-6": {
+   "lat": 53.32652,
+   "lon": -6.26486,
+   "osm": "node/52240309",
+   "matched": "Rathmines, Rathmines West B ED, Dublin, County Dublin, Leinster, D06 Y5Y8, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "templeogue-6w": {
+   "lat": 53.29787,
+   "lon": -6.30429,
+   "osm": "relation/2254798",
+   "matched": "Templeogue, Templeogue Village DED 1986, South Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "terenure-6w": {
+   "lat": 53.30693,
+   "lon": -6.29504,
+   "osm": "relation/15524144",
+   "matched": "Terenure C Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "cabra-7": {
+   "lat": 53.36695,
+   "lon": -6.29339,
+   "osm": "node/52244792",
+   "matched": "Cabra, Cabra West B Ward 1986, Dublin, County Dublin, Leinster, D07 PX98, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "north-circular-road-7": {
+   "lat": 53.35358,
+   "lon": -6.29589,
+   "osm": "way/29561733",
+   "matched": "North Circular Road, Cabra East C Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "smithfield-7": {
+   "lat": 53.34843,
+   "lon": -6.27824,
+   "osm": "way/620599809",
+   "matched": "Smithfield, Arran Quay C ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "stoneybatter-7": {
+   "lat": 53.35151,
+   "lon": -6.28304,
+   "osm": "node/698591127",
+   "matched": "Stoneybatter, Arran Quay B Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "christchurch-8": {
+   "lat": 53.34269,
+   "lon": -6.27278,
+   "osm": "way/340499805",
+   "matched": "Christchurch Square, The Liberties, Merchants Quay B ED, Dublin, County Dublin, Leinster, Éire / Ire",
+   "insideDistrict": true
+  },
+  "cork-street-8": {
+   "lat": 53.33805,
+   "lon": -6.28304,
+   "osm": "way/317101094",
+   "matched": "Cork Street, Merchants Quay C Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "inchicore-8": {
+   "lat": 53.33946,
+   "lon": -6.32092,
+   "osm": "node/1414490165",
+   "matched": "Inchicore, Ballyfermot F ED, Dublin, County Dublin, Leinster, D08 PN20, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "islandbridge-8": {
+   "lat": 53.34747,
+   "lon": -6.30846,
+   "osm": "node/52248339",
+   "matched": "Islandbridge, Phoenix Park ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "kilmainham-8": {
+   "lat": 53.34105,
+   "lon": -6.30728,
+   "osm": "node/1357859804",
+   "matched": "Kilmainham, Ushers A ED, Dublin, County Dublin, Leinster, D08 W257, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "portobello-8": {
+   "lat": 53.33126,
+   "lon": -6.26883,
+   "osm": "relation/5478230",
+   "matched": "Portobello, Wood Quay B Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "rialto-8": {
+   "lat": 53.33577,
+   "lon": -6.29693,
+   "osm": "node/1408686056",
+   "matched": "Rialto, Ushers E ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "south-circular-road-8": {
+   "lat": 53.33396,
+   "lon": -6.29203,
+   "osm": "way/563920584",
+   "matched": "South Circular Road, Ushers D ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ballymun-9": {
+   "lat": 53.39611,
+   "lon": -6.2579,
+   "osm": "relation/15524137",
+   "matched": "Ballymun C Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "beaumont-9": {
+   "lat": 53.38546,
+   "lon": -6.23325,
+   "osm": "node/52261390",
+   "matched": "Beaumont, Artane H ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "glasnevin-9": {
+   "lat": 53.37829,
+   "lon": -6.2662,
+   "osm": "node/52268679",
+   "matched": "Glasnevin, Glasnevin A ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "santry-9": {
+   "lat": 53.39716,
+   "lon": -6.24547,
+   "osm": "node/52240001",
+   "matched": "Santry, Whitehall C Ward 1896, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "whitehall-9": {
+   "lat": 53.38267,
+   "lon": -6.24319,
+   "osm": "node/1707049696",
+   "matched": "Whitehall, Drumcondra North B ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ballyfermot-10": {
+   "lat": 53.34232,
+   "lon": -6.34888,
+   "osm": "node/52245648",
+   "matched": "Ballyfermot, Ballyfermot B ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "cherry-orchard-10": {
+   "lat": 53.33724,
+   "lon": -6.37248,
+   "osm": "node/14005473247",
+   "matched": "Cherry Orchard, Cherry Orchard C Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "finglas-11": {
+   "lat": 53.38917,
+   "lon": -6.29694,
+   "osm": "node/52242583",
+   "matched": "Finglas, Ballygall A Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "crumlin-12": {
+   "lat": 53.32023,
+   "lon": -6.31617,
+   "osm": "relation/5480742",
+   "matched": "Crumlin, Walkinstown C Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "drimnagh-12": {
+   "lat": 53.32993,
+   "lon": -6.32365,
+   "osm": "node/9099275218",
+   "matched": "Drimnagh, Crumlin, Crumlin A Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "kimmage-12": {
+   "lat": 53.31606,
+   "lon": -6.29909,
+   "osm": "node/692056658",
+   "matched": "Kimmage, Kimmage D Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "walkinstown-12": {
+   "lat": 53.32161,
+   "lon": -6.33012,
+   "osm": "relation/3670425",
+   "matched": "Walkinstown, Walkinstown B ED, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "baldoyle-13": {
+   "lat": 53.39583,
+   "lon": -6.12855,
+   "osm": "node/656180806",
+   "matched": "Baldoyle, Baldoyle ED, Sutton, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "balgriffin-13": {
+   "lat": 53.40675,
+   "lon": -6.17006,
+   "osm": "relation/5362272",
+   "matched": "Balgriffin Park, Parkside, Belmayne, Grange A Ward 1986, Dublin, County Dublin, Leinster, Éire / Ire",
+   "insideDistrict": true
+  },
+  "clongriffin-13": {
+   "lat": 53.40264,
+   "lon": -6.15101,
+   "osm": "node/645165224",
+   "matched": "Clongriffin, Grange B Ward 1986, Dublin, County Dublin, Leinster, D13 AH56, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "sutton-13": {
+   "lat": 53.38939,
+   "lon": -6.10981,
+   "osm": "node/1459916148",
+   "matched": "Sutton, Fingal, County Dublin, Leinster, D13 A7X4, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "churchtown-14": {
+   "lat": 53.29581,
+   "lon": -6.25949,
+   "osm": "node/290130993",
+   "matched": "Churchtown, Churchtown-Landscape DED 1986, Dundrum, Dún Laoghaire-Rathdown, County Dublin, Leinster,",
+   "insideDistrict": true
+  },
+  "clonskeagh-14": {
+   "lat": 53.30557,
+   "lon": -6.23686,
+   "osm": "node/49305598",
+   "matched": "Clonskeagh, Clonskeagh-Milltown DED 1986, Dundrum, Dún Laoghaire-Rathdown, County Dublin, Leinster, ",
+   "insideDistrict": true
+  },
+  "goatstown-14": {
+   "lat": 53.29275,
+   "lon": -6.22934,
+   "osm": "node/1419944605",
+   "matched": "Goatstown, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ashtown-15": {
+   "lat": 53.37571,
+   "lon": -6.3329,
+   "osm": "node/11038152992",
+   "matched": "Ashtown, Ashtown A ED, Dublin, Dublin 15, Leinster, D15 WK18, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "blanchardstown-15": {
+   "lat": 53.38446,
+   "lon": -6.38294,
+   "osm": "node/52270304",
+   "matched": "Blanchardstown, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "castleknock-15": {
+   "lat": 53.37296,
+   "lon": -6.36247,
+   "osm": "node/52254164",
+   "matched": "Castleknock, Fingal, County Dublin, Leinster, D15 VY32, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "clonee-15": {
+   "lat": 53.40673,
+   "lon": -6.41871,
+   "osm": "node/12292887",
+   "matched": "Clonee, Navan Road, Blanchardstown-Blakestown DED 1986, Mulhuddart, Fingal, County Dublin, Leinster,",
+   "insideDistrict": true
+  },
+  "clonsilla-15": {
+   "lat": 53.38598,
+   "lon": -6.4225,
+   "osm": "relation/5458957",
+   "matched": "Clonsilla Civil Parish, Ongar, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "mulhuddart-15": {
+   "lat": 53.40278,
+   "lon": -6.3982,
+   "osm": "node/52253841",
+   "matched": "Mulhuddart, Fingal, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ongar-15": {
+   "lat": 53.39537,
+   "lon": -6.43878,
+   "osm": "node/1115914515",
+   "matched": "Ongar, Fingal, County Dublin, Leinster, D15 H34C, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "porterstown-15": {
+   "lat": 53.3797,
+   "lon": -6.40527,
+   "osm": "relation/5373267",
+   "matched": "Porterstown, Blanchardstown-Delwood DED 1986, Blanchardstown, Fingal, County Dublin, Leinster, Éire ",
+   "insideDistrict": true
+  },
+  "royal-canal-park-15": {
+   "lat": 53.37903,
+   "lon": -6.34838,
+   "osm": "way/45380010",
+   "matched": "The Royal Canal Way, Castleknock-Park DED 1986, Castleknock, Fingal, County Dublin, Leinster, Éire /",
+   "insideDistrict": true
+  },
+  "ballinteer-16": {
+   "lat": 53.27643,
+   "lon": -6.25284,
+   "osm": "node/52268305",
+   "matched": "Ballinteer, Ballinteer-Ludford ED, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "dundrum-16": {
+   "lat": 53.28734,
+   "lon": -6.24502,
+   "osm": "relation/2196123",
+   "matched": "Dundrum, Dundrum-Sandyford DED 1986, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "knocklyon-16": {
+   "lat": 53.28388,
+   "lon": -6.31819,
+   "osm": "relation/3276982",
+   "matched": "Knocklyon, Firhouse-Knocklyon DED 1986, Ballyboden, South Dublin, County Dublin, Leinster, D16 YV04,",
+   "insideDistrict": true
+  },
+  "rathfarnham-16": {
+   "lat": 53.29733,
+   "lon": -6.28071,
+   "osm": "relation/2772703",
+   "matched": "Rathfarnham, South Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": false
+  },
+  "malahide-road-17": {
+   "lat": 53.39445,
+   "lon": -6.18913,
+   "osm": "way/18198815",
+   "matched": "Malahide Road, Clonshaugh, Ayrfield Ward 1986, Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "cabinteely-18": {
+   "lat": 53.26128,
+   "lon": -6.15057,
+   "osm": "relation/4592074",
+   "matched": "Cabinteely, Dún Laoghaire, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "carrickmines-18": {
+   "lat": 53.25324,
+   "lon": -6.17189,
+   "osm": "node/52254161",
+   "matched": "Carrickmines, Cabinteely-Loughlinstown DED 1986, Cornelscourt, Dún Laoghaire-Rathdown, County Dublin",
+   "insideDistrict": true
+  },
+  "foxrock-18": {
+   "lat": 53.26681,
+   "lon": -6.18384,
+   "osm": "relation/4590653",
+   "matched": "Foxrock, Ballyogan, Dún Laoghaire-Rathdown, County Dublin, Leinster, D18 TD00, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "leopardstown-18": {
+   "lat": 53.27472,
+   "lon": -6.19276,
+   "osm": "node/52247279",
+   "matched": "Leopardstown, Stillorgan-Leopardstown DED 1986, Blackrock, Dún Laoghaire-Rathdown, County Dublin, Le",
+   "insideDistrict": true
+  },
+  "sandyford-18": {
+   "lat": 53.26983,
+   "lon": -6.22457,
+   "osm": "node/52260161",
+   "matched": "Sandyford, Dún Laoghaire-Rathdown, County Dublin, Leinster, D18 CY97, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "stepaside-18": {
+   "lat": 53.25311,
+   "lon": -6.21437,
+   "osm": "node/52257008",
+   "matched": "Stepaside, Dún Laoghaire-Rathdown, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "chapelizod-20": {
+   "lat": 53.34792,
+   "lon": -6.3452,
+   "osm": "node/52242390",
+   "matched": "Chapelizod, Phoenix Park ED, Dublin, County Dublin, Leinster, D20 XK72, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "palmerstown-20": {
+   "lat": 53.35598,
+   "lon": -6.3705,
+   "osm": "node/52260205",
+   "matched": "Palmerstown, South Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "clondalkin-22": {
+   "lat": 53.32196,
+   "lon": -6.39427,
+   "osm": "node/52269252",
+   "matched": "Clondalkin, South Dublin, County Dublin, Leinster, Éire / Ireland",
+   "insideDistrict": true
+  },
+  "ballycullen-24": {
+   "lat": 53.27059,
+   "lon": -6.32847,
+   "osm": "node/8372728004",
+   "matched": "Ballycullen, Firhouse Village DED 1986, Tallaght, South Dublin, County Dublin, Leinster, Éire / Irel",
+   "insideDistrict": true
+  },
+  "citywest-24": {
+   "lat": 53.29463,
+   "lon": -6.42776,
+   "osm": "node/386559",
+   "matched": "Citywest, Naas Road, Tallaght-Fettercairn DED 1986, Clondalkin, South Dublin, County Dublin, Leinste",
+   "insideDistrict": true
+  },
+  "firhouse-24": {
+   "lat": 53.28081,
+   "lon": -6.34019,
+   "osm": "node/2498370557",
+   "matched": "Firhouse, Ballycullen, Firhouse Village DED 1986, Tallaght, South Dublin, County Dublin, Leinster, É",
+   "insideDistrict": true
+  },
+  "tallaght-24": {
+   "lat": 53.28781,
+   "lon": -6.36235,
+   "osm": "node/1420913325",
+   "matched": "Tallaght, South Dublin, County Dublin, Leinster, D24 DE62, Éire / Ireland",
+   "insideDistrict": true
+  }
+ },
+ "failedDistrictCheck": [
+  [
+   "Skerries, Co. Dublin",
+   "no result"
+  ],
+  [
+   "Harolds Cross, Dublin 6",
+   "Harolds Cross 110kV Station, Harold's Cross Road, Portobello, Rathmines West A E"
+  ],
+  [
+   "Rathfarnham, Dublin 16",
+   "Rathfarnham, South Dublin, County Dublin, Leinster, Éire / Ireland"
+  ]
+ ]
+}

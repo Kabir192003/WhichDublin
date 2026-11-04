@@ -1,0 +1,1003 @@
+{
+ "source": "OpenStreetMap contributors via Nominatim, ODbL 1.0",
+ "fetched": "2026-11-04",
+ "bbox": [
+  53.22,
+  -6.45,
+  53.46,
+  -6.05
+ ],
+ "cappedTiles": [],
+ "stores": [
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.23406,
+   "lon": -6.12247,
+   "type": "supermarket",
+   "osm": "way/700649300",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.28571,
+   "lon": -6.41804,
+   "type": "supermarket",
+   "osm": "way/51335261",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.28816,
+   "lon": -6.35274,
+   "type": "supermarket",
+   "osm": "way/497275037",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.28324,
+   "lon": -6.37579,
+   "type": "supermarket",
+   "osm": "node/983302034",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.26932,
+   "lon": -6.33459,
+   "type": "supermarket",
+   "osm": "way/274160257",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.29178,
+   "lon": -6.26384,
+   "type": "supermarket",
+   "osm": "way/164365616",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.27751,
+   "lon": -6.26496,
+   "type": "supermarket",
+   "osm": "node/507962496",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.29068,
+   "lon": -6.24547,
+   "type": "supermarket",
+   "osm": "node/5494544275",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.2755,
+   "lon": -6.15696,
+   "type": "supermarket",
+   "osm": "way/52156730",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.28818,
+   "lon": -6.19849,
+   "type": "supermarket",
+   "osm": "node/1520326681",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.27889,
+   "lon": -6.13776,
+   "type": "supermarket",
+   "osm": "node/4560991248",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su,PH 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.31814,
+   "lon": -6.42024,
+   "type": "supermarket",
+   "osm": "way/1429805715",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.30161,
+   "lon": -6.37909,
+   "type": "supermarket",
+   "osm": "way/672428804",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.32789,
+   "lon": -6.39257,
+   "type": "supermarket",
+   "osm": "way/546351001",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.32206,
+   "lon": -6.33932,
+   "type": "supermarket",
+   "osm": "way/37720711",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.31054,
+   "lon": -6.34293,
+   "type": "supermarket",
+   "osm": "way/37720537",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.30944,
+   "lon": -6.28284,
+   "type": "supermarket",
+   "osm": "way/306199648",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.32533,
+   "lon": -6.25438,
+   "type": "supermarket",
+   "osm": "way/893377376",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.32568,
+   "lon": -6.26528,
+   "type": "supermarket",
+   "osm": "node/706180236",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.33658,
+   "lon": -6.28736,
+   "type": "supermarket",
+   "osm": "node/1426100407",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.34762,
+   "lon": -6.4078,
+   "type": "supermarket",
+   "osm": "node/1264001281",
+   "opening_hours": "Su 09:00-21:00; Mo-Sa 08:00-22:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.34814,
+   "lon": -6.42356,
+   "type": "supermarket",
+   "osm": "way/28177530",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.37357,
+   "lon": -6.36122,
+   "type": "supermarket",
+   "osm": "way/657032326",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.3444,
+   "lon": -6.37219,
+   "type": "supermarket",
+   "osm": "way/80990215",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.37233,
+   "lon": -6.25341,
+   "type": "supermarket",
+   "osm": "way/680995662",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.34079,
+   "lon": -6.26577,
+   "type": "supermarket",
+   "osm": "node/8017420646",
+   "opening_hours": "Mo-Sa 08:00-22:00; PH,Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.35033,
+   "lon": -6.25605,
+   "type": "supermarket",
+   "osm": "node/9892726954",
+   "opening_hours": "Mo-Sa 07:00-22:00; Su,PH 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.34319,
+   "lon": -6.28045,
+   "type": "supermarket",
+   "osm": "node/1426048603",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.35784,
+   "lon": -6.28945,
+   "type": "supermarket",
+   "osm": "node/5694827179",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.35123,
+   "lon": -6.2633,
+   "type": "supermarket",
+   "osm": "node/434379755",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.3506,
+   "lon": -6.27894,
+   "type": "supermarket",
+   "osm": "node/5941342191",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su,PH 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.35648,
+   "lon": -6.23281,
+   "type": "supermarket",
+   "osm": "way/544256109",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.35984,
+   "lon": -6.24537,
+   "type": "supermarket",
+   "osm": "way/291637245",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39627,
+   "lon": -6.40065,
+   "type": "supermarket",
+   "osm": "way/22778068",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.3839,
+   "lon": -6.41963,
+   "type": "supermarket",
+   "osm": "way/890863803",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.41013,
+   "lon": -6.44251,
+   "type": "supermarket",
+   "osm": "way/123800588",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39078,
+   "lon": -6.38522,
+   "type": "supermarket",
+   "osm": "way/689670808",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39749,
+   "lon": -6.30499,
+   "type": "supermarket",
+   "osm": "way/26943103",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39811,
+   "lon": -6.26482,
+   "type": "supermarket",
+   "osm": "way/863650007",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.40516,
+   "lon": -6.26118,
+   "type": "supermarket",
+   "osm": "node/5577354521",
+   "opening_hours": "Mo-Fr 07:00-22:00; Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.3854,
+   "lon": -6.21381,
+   "type": "supermarket",
+   "osm": "way/209438400",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39827,
+   "lon": -6.21623,
+   "type": "supermarket",
+   "osm": "way/658278363",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39384,
+   "lon": -6.2485,
+   "type": "supermarket",
+   "osm": "node/3231980113",
+   "opening_hours": "Mo-Su 09:00-20:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.38532,
+   "lon": -6.21389,
+   "type": "supermarket",
+   "osm": "node/12206710851",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.39614,
+   "lon": -6.18929,
+   "type": "supermarket",
+   "osm": "way/339626135",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.3966,
+   "lon": -6.13846,
+   "type": "supermarket",
+   "osm": "node/1667817421",
+   "opening_hours": "Mo-Sa 08:00-21:00, Su 09:30-19:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.45133,
+   "lon": -6.22727,
+   "type": "supermarket",
+   "osm": "way/451593162",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.42118,
+   "lon": -6.13793,
+   "type": "supermarket",
+   "osm": "way/491584599",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.29936,
+   "lon": -6.37331,
+   "type": "supermarket",
+   "osm": "way/28531968",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.28814,
+   "lon": -6.37706,
+   "type": "supermarket",
+   "osm": "node/1950388261",
+   "opening_hours": "Mo-Sa 09:00-22:00; PH,Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.29242,
+   "lon": -6.26732,
+   "type": "supermarket",
+   "osm": "way/228963992",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.27969,
+   "lon": -6.21321,
+   "type": "supermarket",
+   "osm": "node/1596079339",
+   "opening_hours": "Mo-Su 09:00-20:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.27731,
+   "lon": -6.14003,
+   "type": "supermarket",
+   "osm": "node/4423820389",
+   "opening_hours": "Mo-Sa 08:00-21:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.31348,
+   "lon": -6.39471,
+   "type": "supermarket",
+   "osm": "way/312014344",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su,PH 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.33548,
+   "lon": -6.34584,
+   "type": "supermarket",
+   "osm": "way/255284415",
+   "opening_hours": "Mo-Sa 09:00-20:00, Su off"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.3243,
+   "lon": -6.33603,
+   "type": "supermarket",
+   "osm": "way/262723219",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.31065,
+   "lon": -6.28222,
+   "type": "supermarket",
+   "osm": "way/242471572",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.32532,
+   "lon": -6.26489,
+   "type": "supermarket",
+   "osm": "node/1426048599",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.30154,
+   "lon": -6.182,
+   "type": "supermarket",
+   "osm": "node/6680167916",
+   "opening_hours": "Mo-Fr 09:00-22:00; Sa-Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.35181,
+   "lon": -6.4049,
+   "type": "supermarket",
+   "osm": "way/129809650",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.35654,
+   "lon": -6.37583,
+   "type": "supermarket",
+   "osm": "way/29558391",
+   "opening_hours": "Mo-Fr 09:00-22:00, Sa-Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.3761,
+   "lon": -6.3113,
+   "type": "supermarket",
+   "osm": "way/757259051",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.36325,
+   "lon": -6.2927,
+   "type": "supermarket",
+   "osm": "node/11228862359",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.35052,
+   "lon": -6.26565,
+   "type": "supermarket",
+   "osm": "node/470326920",
+   "opening_hours": "Mo-Fr 09:00-22:00; Sa,Su,PH 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.3571,
+   "lon": -6.23209,
+   "type": "supermarket",
+   "osm": "way/231852057",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.41084,
+   "lon": -6.43843,
+   "type": "supermarket",
+   "osm": "way/135032047",
+   "opening_hours": "Mo-Fr 09:00-20:00; Sa, Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.39257,
+   "lon": -6.38785,
+   "type": "supermarket",
+   "osm": "way/1124889261",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.4015,
+   "lon": -6.39612,
+   "type": "supermarket",
+   "osm": "way/282930231",
+   "opening_hours": "Mo-Sa 09:00-21:00, Su 10:00-19:00, PH 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.39863,
+   "lon": -6.30475,
+   "type": "supermarket",
+   "osm": "way/259900407",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.39836,
+   "lon": -6.25062,
+   "type": "supermarket",
+   "osm": "way/27201923",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "ALDI",
+   "lat": 53.39271,
+   "lon": -6.20351,
+   "type": "supermarket",
+   "osm": "way/741596893",
+   "opening_hours": "Su 09:00-21:00; Mo-Sa 08:00-22:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "ALDI",
+   "lat": 53.38873,
+   "lon": -6.14052,
+   "type": "supermarket",
+   "osm": "node/11200163223",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.45214,
+   "lon": -6.2438,
+   "type": "supermarket",
+   "osm": "way/569678578",
+   "opening_hours": "Mo-Fr 09:00-22:00; Sa-Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.4595,
+   "lon": -6.21653,
+   "type": "supermarket",
+   "osm": "way/516697623",
+   "opening_hours": "Mo-Sa 08:00-20:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.25637,
+   "lon": -6.1344,
+   "type": "supermarket",
+   "osm": "node/1411222305",
+   "opening_hours": "Mo-Sa 07:00-22:00; Su 08:00-22:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.287,
+   "lon": -6.35932,
+   "type": "supermarket",
+   "osm": "way/900804792",
+   "opening_hours": "Mo-Sa 08:00-22:00, Su 08:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.28702,
+   "lon": -6.37276,
+   "type": "supermarket",
+   "osm": "node/770873264",
+   "opening_hours": "Mo-Su 07:00-24:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.27283,
+   "lon": -6.31559,
+   "type": "supermarket",
+   "osm": "way/1293538212",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.28959,
+   "lon": -6.26766,
+   "type": "supermarket",
+   "osm": "node/659803043",
+   "opening_hours": "Mo-Fr 08:00-22:00,Sa 08:00-21:00,Su 10:00-20:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.29747,
+   "lon": -6.29678,
+   "type": "supermarket",
+   "osm": "node/1425374426",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.28896,
+   "lon": -6.20059,
+   "type": "supermarket",
+   "osm": "node/1420119533",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.28638,
+   "lon": -6.24134,
+   "type": "supermarket",
+   "osm": "node/1416734129",
+   "opening_hours": "Mo-Su 07:00-24:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Express",
+   "lat": 53.26215,
+   "lon": -6.16178,
+   "type": "convenience",
+   "osm": "node/474736528",
+   "opening_hours": "Mo-Su,PH 08:00-22:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.28263,
+   "lon": -6.14435,
+   "type": "supermarket",
+   "osm": "node/11979233994",
+   "opening_hours": "Mo-Sa 09:00-20:00; Su 09:00-22:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.29274,
+   "lon": -6.13912,
+   "type": "supermarket",
+   "osm": "node/610843615",
+   "opening_hours": "Mo-Fr 08:00-22:00; Sa 08:00-21:00; Su 10:00-20:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.31983,
+   "lon": -6.3939,
+   "type": "supermarket",
+   "osm": "way/128748842",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 10:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Express",
+   "lat": 53.33865,
+   "lon": -6.32185,
+   "type": "convenience",
+   "osm": "node/872685147",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-22:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Express",
+   "lat": 53.32022,
+   "lon": -6.31625,
+   "type": "convenience",
+   "osm": "node/2992569887",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.33804,
+   "lon": -6.25159,
+   "type": "supermarket",
+   "osm": "way/233217790",
+   "opening_hours": "Mo-Fr 07:00-22:00; Sa 08:00-22:00; Su 10:00-18:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.33317,
+   "lon": -6.21605,
+   "type": "supermarket",
+   "osm": "way/372477027",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.31906,
+   "lon": -6.21422,
+   "type": "supermarket",
+   "osm": "way/81355339",
+   "opening_hours": "Mo-Sa 07:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.3336,
+   "lon": -6.24344,
+   "type": "supermarket",
+   "osm": "way/84018126",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.33768,
+   "lon": -6.23286,
+   "type": "supermarket",
+   "osm": "way/96255096",
+   "opening_hours": "Mo-Fr 07:00-22:00; Sa-Su 08:00-22:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.34134,
+   "lon": -6.3529,
+   "type": "supermarket",
+   "osm": "way/55354013",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.36039,
+   "lon": -6.29967,
+   "type": "supermarket",
+   "osm": "way/150896609",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 10:00-20:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.35616,
+   "lon": -6.28671,
+   "type": "supermarket",
+   "osm": "node/325783580",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.36227,
+   "lon": -6.27309,
+   "type": "supermarket",
+   "osm": "node/956048077",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.34807,
+   "lon": -6.26523,
+   "type": "supermarket",
+   "osm": "node/311344008",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Express",
+   "lat": 53.34915,
+   "lon": -6.23929,
+   "type": "supermarket",
+   "osm": "node/11896597227",
+   "opening_hours": "Mo-Fr 07:00-22:00; Sa, Su 08:00-22:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.39046,
+   "lon": -6.40545,
+   "type": "supermarket",
+   "osm": "way/1287225408",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.38264,
+   "lon": -6.38178,
+   "type": "supermarket",
+   "osm": "way/4491088",
+   "opening_hours": "Mo-Su 07:00-23:00; PH 09:00-20:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.38943,
+   "lon": -6.31113,
+   "type": "convenience",
+   "osm": "way/963331904",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.38325,
+   "lon": -6.2151,
+   "type": "supermarket",
+   "osm": "node/1529996831",
+   "opening_hours": "24/7"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.39181,
+   "lon": -6.24957,
+   "type": "supermarket",
+   "osm": "node/2422688575",
+   "opening_hours": "Mo,Tu 09:00-20:00; We 09:00-21:00; Th,Fr 09:00-22:00; Su 10:00-20:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.38869,
+   "lon": -6.16715,
+   "type": "supermarket",
+   "osm": "node/482112992",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.40096,
+   "lon": -6.17969,
+   "type": "supermarket",
+   "osm": "node/187768500",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.38905,
+   "lon": -6.0766,
+   "type": "supermarket",
+   "osm": "node/13409073273",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.42101,
+   "lon": -6.38262,
+   "type": "supermarket",
+   "osm": "way/1460082288",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.44472,
+   "lon": -6.21503,
+   "type": "supermarket",
+   "osm": "way/736806630",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Express",
+   "lat": 53.45237,
+   "lon": -6.15412,
+   "type": "convenience",
+   "osm": "node/550381054",
+   "opening_hours": null
+  }
+ ]
+}

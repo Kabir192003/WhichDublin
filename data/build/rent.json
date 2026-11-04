@@ -1,0 +1,1605 @@
+{
+ "source": "RTB Average Monthly Rent Report via CSO (table RIQ02), CC BY 4.0",
+ "sourceUrl": "https://data.cso.ie/table/RIQ02",
+ "quarter": "2025Q4",
+ "quarterPrev": "2024Q4",
+ "tableUpdated": "2026-05-14T11:00:00.000Z",
+ "fetched": "2026-11-04",
+ "definition": "Average monthly rent (EUR) for tenancies registered with the RTB in the quarter. Whole-property rent, not room rent.",
+ "county": {
+  "cells": {
+   "all:any": 2165,
+   "all:apartment": 2154,
+   "1:any": 1741,
+   "1:apartment": 1864,
+   "2:any": 2253,
+   "2:apartment": 2284,
+   "3:any": 2586,
+   "3:apartment": 2823,
+   "4:any": 3319,
+   "4:apartment": 3115
+  },
+  "prev": {
+   "all:any": 2075
+  }
+ },
+ "areas": [
+  {
+   "id": "balbriggan-co",
+   "name": "Balbriggan",
+   "district": null,
+   "label": "Balbriggan, Co. Dublin",
+   "rent": {
+    "all:any": 1753,
+    "all:apartment": 1611,
+    "1:any": 1265,
+    "1:apartment": 1291,
+    "2:any": 1719,
+    "2:apartment": 1686,
+    "3:any": 1930
+   },
+   "prevAll": 1624,
+   "populatedCells": 7
+  },
+  {
+   "id": "blackrock-co",
+   "name": "Blackrock",
+   "district": null,
+   "label": "Blackrock, Co. Dublin",
+   "rent": {
+    "all:any": 2650,
+    "all:apartment": 2535,
+    "1:any": 2223,
+    "1:apartment": 2259,
+    "2:any": 2616,
+    "2:apartment": 2656,
+    "3:any": 3133,
+    "3:apartment": 3460,
+    "4:any": 3896
+   },
+   "prevAll": 2498,
+   "populatedCells": 9
+  },
+  {
+   "id": "booterstown-co",
+   "name": "Booterstown",
+   "district": null,
+   "label": "Booterstown, Co. Dublin",
+   "rent": {
+    "all:any": 2600
+   },
+   "prevAll": 2484,
+   "populatedCells": 1
+  },
+  {
+   "id": "dalkey-co",
+   "name": "Dalkey",
+   "district": null,
+   "label": "Dalkey, Co. Dublin",
+   "rent": {
+    "all:any": 2964,
+    "all:apartment": 2630,
+    "1:any": 2206,
+    "1:apartment": 2158,
+    "2:any": 2739,
+    "2:apartment": 2845
+   },
+   "prevAll": 2801,
+   "populatedCells": 6
+  },
+  {
+   "id": "donabate-co",
+   "name": "Donabate",
+   "district": null,
+   "label": "Donabate, Co. Dublin",
+   "rent": {
+    "all:any": 1956,
+    "all:apartment": 1630,
+    "2:any": 1805,
+    "2:apartment": 1852
+   },
+   "prevAll": 1837,
+   "populatedCells": 4
+  },
+  {
+   "id": "dun-laoghaire-co",
+   "name": "Dun Laoghaire",
+   "district": null,
+   "label": "Dun Laoghaire, Co. Dublin",
+   "rent": {
+    "all:any": 2233,
+    "all:apartment": 2206,
+    "1:any": 1709,
+    "1:apartment": 1818,
+    "2:any": 2265,
+    "2:apartment": 2282,
+    "3:any": 2891,
+    "3:apartment": 2996,
+    "4:any": 3942
+   },
+   "prevAll": 2178,
+   "populatedCells": 9
+  },
+  {
+   "id": "glenageary-co",
+   "name": "Glenageary",
+   "district": null,
+   "label": "Glenageary, Co. Dublin",
+   "rent": {
+    "all:any": 2805,
+    "all:apartment": 2624,
+    "2:any": 2550,
+    "2:apartment": 2572
+   },
+   "prevAll": 2874,
+   "populatedCells": 4
+  },
+  {
+   "id": "howth-co",
+   "name": "Howth",
+   "district": null,
+   "label": "Howth, Co. Dublin",
+   "rent": {
+    "all:any": 2414,
+    "all:apartment": 2379,
+    "1:any": 2059,
+    "1:apartment": 2063,
+    "2:any": 2520,
+    "2:apartment": 2546
+   },
+   "prevAll": 2184,
+   "populatedCells": 6
+  },
+  {
+   "id": "killiney-co",
+   "name": "Killiney",
+   "district": null,
+   "label": "Killiney, Co. Dublin",
+   "rent": {
+    "all:any": 2601,
+    "all:apartment": 2599,
+    "1:any": 2142,
+    "1:apartment": 2193,
+    "2:any": 2548,
+    "2:apartment": 2651,
+    "3:any": 3065
+   },
+   "prevAll": 2553,
+   "populatedCells": 7
+  },
+  {
+   "id": "kinsealy-co",
+   "name": "Kinsealy",
+   "district": null,
+   "label": "Kinsealy, Co. Dublin",
+   "rent": {
+    "all:any": 2216
+   },
+   "prevAll": 2137,
+   "populatedCells": 1
+  },
+  {
+   "id": "lucan-co",
+   "name": "Lucan",
+   "district": null,
+   "label": "Lucan, Co. Dublin",
+   "rent": {
+    "all:any": 2163,
+    "all:apartment": 2091,
+    "1:any": 1792,
+    "1:apartment": 1835,
+    "2:any": 2141,
+    "2:apartment": 2159,
+    "3:any": 2337,
+    "3:apartment": 2444,
+    "4:any": 2745
+   },
+   "prevAll": 2135,
+   "populatedCells": 9
+  },
+  {
+   "id": "lusk-co",
+   "name": "Lusk",
+   "district": null,
+   "label": "Lusk, Co. Dublin",
+   "rent": {
+    "all:any": 1947
+   },
+   "prevAll": 1991,
+   "populatedCells": 1
+  },
+  {
+   "id": "malahide-co",
+   "name": "Malahide",
+   "district": null,
+   "label": "Malahide, Co. Dublin",
+   "rent": {
+    "all:any": 2437,
+    "all:apartment": 2237,
+    "1:any": 1901,
+    "1:apartment": 1959,
+    "2:any": 2192,
+    "2:apartment": 2185,
+    "3:any": 2642,
+    "3:apartment": 2681,
+    "4:any": 3672
+   },
+   "prevAll": 2338,
+   "populatedCells": 9
+  },
+  {
+   "id": "monkstown-co",
+   "name": "Monkstown",
+   "district": null,
+   "label": "Monkstown, Co. Dublin",
+   "rent": {
+    "all:any": 2214,
+    "all:apartment": 1926,
+    "1:any": 1497,
+    "2:any": 2105,
+    "2:apartment": 2030
+   },
+   "prevAll": 2069,
+   "populatedCells": 5
+  },
+  {
+   "id": "portmarnock-co",
+   "name": "Portmarnock",
+   "district": null,
+   "label": "Portmarnock, Co. Dublin",
+   "rent": {
+    "all:any": 2315,
+    "all:apartment": 2055,
+    "2:any": 2025,
+    "2:apartment": 2008
+   },
+   "prevAll": 2318,
+   "populatedCells": 4
+  },
+  {
+   "id": "rathcoole-co",
+   "name": "Rathcoole",
+   "district": null,
+   "label": "Rathcoole, Co. Dublin",
+   "rent": {
+    "all:any": 1923,
+    "all:apartment": 1681,
+    "2:any": 1860
+   },
+   "prevAll": 1791,
+   "populatedCells": 3
+  },
+  {
+   "id": "rush-co",
+   "name": "Rush",
+   "district": null,
+   "label": "Rush, Co. Dublin",
+   "rent": {
+    "all:any": 1933
+   },
+   "prevAll": 1808,
+   "populatedCells": 1
+  },
+  {
+   "id": "saggart-co",
+   "name": "Saggart",
+   "district": null,
+   "label": "Saggart, Co. Dublin",
+   "rent": {
+    "all:any": 2095,
+    "all:apartment": 1915,
+    "2:any": 1877,
+    "2:apartment": 1881,
+    "3:any": 2338
+   },
+   "prevAll": 1970,
+   "populatedCells": 5
+  },
+  {
+   "id": "sandycove-co",
+   "name": "Sandycove",
+   "district": null,
+   "label": "Sandycove, Co. Dublin",
+   "rent": {
+    "all:any": 2949
+   },
+   "prevAll": 2657,
+   "populatedCells": 1
+  },
+  {
+   "id": "shankill-co",
+   "name": "Shankill",
+   "district": null,
+   "label": "Shankill, Co. Dublin",
+   "rent": {
+    "all:any": 2059,
+    "all:apartment": 1818
+   },
+   "prevAll": 2080,
+   "populatedCells": 2
+  },
+  {
+   "id": "skerries-co",
+   "name": "Skerries",
+   "district": null,
+   "label": "Skerries, Co. Dublin",
+   "rent": {
+    "all:any": 1993,
+    "all:apartment": 1765,
+    "2:any": 1757,
+    "3:any": 2190
+   },
+   "prevAll": 1800,
+   "populatedCells": 4
+  },
+  {
+   "id": "stillorgan-co",
+   "name": "Stillorgan",
+   "district": null,
+   "label": "Stillorgan, Co. Dublin",
+   "rent": {
+    "all:any": 2427,
+    "all:apartment": 2314,
+    "1:any": 2100,
+    "1:apartment": 2108,
+    "2:any": 2438,
+    "2:apartment": 2453,
+    "3:any": 2858,
+    "4:any": 3765
+   },
+   "prevAll": 2358,
+   "populatedCells": 8
+  },
+  {
+   "id": "swords-co",
+   "name": "Swords",
+   "district": null,
+   "label": "Swords, Co. Dublin",
+   "rent": {
+    "all:any": 1992,
+    "all:apartment": 1804,
+    "1:any": 1433,
+    "1:apartment": 1435,
+    "2:any": 1848,
+    "2:apartment": 1847,
+    "3:any": 2293,
+    "4:any": 2519
+   },
+   "prevAll": 1836,
+   "populatedCells": 8
+  },
+  {
+   "id": "i-f-s-c-1",
+   "name": "I.F.S.C.",
+   "district": "D1",
+   "label": "I.F.S.C., Dublin 1",
+   "rent": {
+    "all:any": 2160,
+    "all:apartment": 2160,
+    "1:any": 1854,
+    "1:apartment": 1854,
+    "2:any": 2344,
+    "2:apartment": 2344
+   },
+   "prevAll": 2075,
+   "populatedCells": 6
+  },
+  {
+   "id": "parnell-street-1",
+   "name": "Parnell Street",
+   "district": "D1",
+   "label": "Parnell Street, Dublin 1",
+   "rent": {
+    "all:any": 2035,
+    "all:apartment": 2035,
+    "1:any": 1716,
+    "1:apartment": 1716
+   },
+   "prevAll": 1797,
+   "populatedCells": 4
+  },
+  {
+   "id": "spencer-dock-1",
+   "name": "Spencer Dock",
+   "district": "D1",
+   "label": "Spencer Dock, Dublin 1",
+   "rent": {
+    "all:any": 2416,
+    "all:apartment": 2416,
+    "2:any": 2447,
+    "2:apartment": 2447
+   },
+   "prevAll": 2326,
+   "populatedCells": 4
+  },
+  {
+   "id": "summerhill-1",
+   "name": "Summerhill",
+   "district": "D1",
+   "label": "Summerhill, Dublin 1",
+   "rent": {
+    "all:any": 1813,
+    "all:apartment": 1881,
+    "1:any": 1470,
+    "1:apartment": 1509
+   },
+   "prevAll": 1665,
+   "populatedCells": 4
+  },
+  {
+   "id": "charlemont-street-2",
+   "name": "Charlemont Street",
+   "district": "D2",
+   "label": "Charlemont Street, Dublin 2",
+   "rent": {
+    "all:any": 2281,
+    "all:apartment": 2281
+   },
+   "prevAll": 2252,
+   "populatedCells": 2
+  },
+  {
+   "id": "pearse-street-2",
+   "name": "Pearse Street",
+   "district": "D2",
+   "label": "Pearse Street, Dublin 2",
+   "rent": {
+    "all:any": 1954,
+    "all:apartment": 1954
+   },
+   "prevAll": 1985,
+   "populatedCells": 2
+  },
+  {
+   "id": "townsend-street-2",
+   "name": "Townsend Street",
+   "district": "D2",
+   "label": "Townsend Street, Dublin 2",
+   "rent": {
+    "all:any": 2034,
+    "all:apartment": 2034
+   },
+   "prevAll": 1946,
+   "populatedCells": 2
+  },
+  {
+   "id": "clonliffe-3",
+   "name": "Clonliffe",
+   "district": "D3",
+   "label": "Clonliffe, Dublin 3",
+   "rent": {
+    "all:any": 1636,
+    "all:apartment": 1612,
+    "1:any": 1505,
+    "1:apartment": 1575
+   },
+   "prevAll": 1542,
+   "populatedCells": 4
+  },
+  {
+   "id": "clontarf-3",
+   "name": "Clontarf",
+   "district": "D3",
+   "label": "Clontarf, Dublin 3",
+   "rent": {
+    "all:any": 2115,
+    "all:apartment": 1989,
+    "1:any": 1540,
+    "1:apartment": 1661,
+    "2:any": 2148,
+    "2:apartment": 2134,
+    "3:any": 2821
+   },
+   "prevAll": 1971,
+   "populatedCells": 7
+  },
+  {
+   "id": "drumcondra-3",
+   "name": "Drumcondra",
+   "district": "D3",
+   "label": "Drumcondra, Dublin 3",
+   "rent": {
+    "all:any": 1816,
+    "all:apartment": 1866,
+    "1:any": 1299,
+    "1:apartment": 1501,
+    "2:any": 2025,
+    "2:apartment": 2024,
+    "3:any": 2433,
+    "4:any": 2898
+   },
+   "prevAll": 1779,
+   "populatedCells": 8
+  },
+  {
+   "id": "east-wall-3",
+   "name": "East Wall",
+   "district": "D3",
+   "label": "East Wall, Dublin 3",
+   "rent": {
+    "all:any": 2063,
+    "all:apartment": 1926,
+    "1:any": 1623,
+    "1:apartment": 1611,
+    "2:any": 2086,
+    "2:apartment": 2177
+   },
+   "prevAll": 2008,
+   "populatedCells": 6
+  },
+  {
+   "id": "fairview-3",
+   "name": "Fairview",
+   "district": "D3",
+   "label": "Fairview, Dublin 3",
+   "rent": {
+    "all:any": 1860,
+    "all:apartment": 1803,
+    "1:any": 1443,
+    "1:apartment": 1551,
+    "2:any": 2142
+   },
+   "prevAll": 1782,
+   "populatedCells": 5
+  },
+  {
+   "id": "north-strand-3",
+   "name": "North Strand",
+   "district": "D3",
+   "label": "North Strand, Dublin 3",
+   "rent": {
+    "all:any": 1891
+   },
+   "prevAll": 1824,
+   "populatedCells": 1
+  },
+  {
+   "id": "ballsbridge-4",
+   "name": "Ballsbridge",
+   "district": "D4",
+   "label": "Ballsbridge, Dublin 4",
+   "rent": {
+    "all:any": 2555,
+    "all:apartment": 2461,
+    "1:any": 1782,
+    "1:apartment": 1837,
+    "2:any": 2795,
+    "2:apartment": 2831,
+    "3:any": 3853,
+    "4:any": 4807
+   },
+   "prevAll": 2561,
+   "populatedCells": 8
+  },
+  {
+   "id": "donnybrook-4",
+   "name": "Donnybrook",
+   "district": "D4",
+   "label": "Donnybrook, Dublin 4",
+   "rent": {
+    "all:any": 2665,
+    "all:apartment": 2322,
+    "1:any": 1668,
+    "1:apartment": 1790,
+    "2:any": 2450,
+    "2:apartment": 2472,
+    "3:any": 3467
+   },
+   "prevAll": 2375,
+   "populatedCells": 7
+  },
+  {
+   "id": "irishtown-4",
+   "name": "Irishtown",
+   "district": "D4",
+   "label": "Irishtown, Dublin 4",
+   "rent": {
+    "all:any": 2319
+   },
+   "prevAll": 2140,
+   "populatedCells": 1
+  },
+  {
+   "id": "merrion-4",
+   "name": "Merrion",
+   "district": "D4",
+   "label": "Merrion, Dublin 4",
+   "rent": {
+    "all:any": 2405,
+    "all:apartment": 2402,
+    "1:any": 1892,
+    "1:apartment": 1891,
+    "2:any": 2613,
+    "2:apartment": 2650
+   },
+   "prevAll": 2193,
+   "populatedCells": 6
+  },
+  {
+   "id": "pembroke-4",
+   "name": "Pembroke",
+   "district": "D4",
+   "label": "Pembroke, Dublin 4",
+   "rent": {
+    "all:any": 2468,
+    "all:apartment": 2436,
+    "2:any": 2681,
+    "2:apartment": 2667
+   },
+   "prevAll": 2465,
+   "populatedCells": 4
+  },
+  {
+   "id": "ringsend-4",
+   "name": "Ringsend",
+   "district": "D4",
+   "label": "Ringsend, Dublin 4",
+   "rent": {
+    "all:any": 2292,
+    "all:apartment": 2323,
+    "2:any": 2183,
+    "2:apartment": 2190
+   },
+   "prevAll": 2217,
+   "populatedCells": 4
+  },
+  {
+   "id": "sandymount-4",
+   "name": "Sandymount",
+   "district": "D4",
+   "label": "Sandymount, Dublin 4",
+   "rent": {
+    "all:any": 2626,
+    "all:apartment": 2295,
+    "1:any": 1796,
+    "1:apartment": 1905,
+    "2:any": 2358,
+    "2:apartment": 2242,
+    "3:any": 3519
+   },
+   "prevAll": 2571,
+   "populatedCells": 7
+  },
+  {
+   "id": "artane-5",
+   "name": "Artane",
+   "district": "D5",
+   "label": "Artane, Dublin 5",
+   "rent": {
+    "all:any": 2285,
+    "3:any": 2514
+   },
+   "prevAll": 2137,
+   "populatedCells": 2
+  },
+  {
+   "id": "raheny-5",
+   "name": "Raheny",
+   "district": "D5",
+   "label": "Raheny, Dublin 5",
+   "rent": {
+    "all:any": 2162,
+    "all:apartment": 1945,
+    "1:any": 1574,
+    "2:any": 2029,
+    "2:apartment": 2021,
+    "3:any": 2444
+   },
+   "prevAll": 2094,
+   "populatedCells": 6
+  },
+  {
+   "id": "harolds-cross-6",
+   "name": "Harolds Cross",
+   "district": "D6",
+   "label": "Harolds Cross, Dublin 6",
+   "rent": {
+    "all:any": 2207,
+    "all:apartment": 2245,
+    "1:any": 1612,
+    "2:any": 2267
+   },
+   "prevAll": 2080,
+   "populatedCells": 4
+  },
+  {
+   "id": "milltown-6",
+   "name": "Milltown",
+   "district": "D6",
+   "label": "Milltown, Dublin 6",
+   "rent": {
+    "all:any": 2373,
+    "all:apartment": 2255,
+    "1:any": 1898,
+    "1:apartment": 1892,
+    "2:any": 2410,
+    "2:apartment": 2435
+   },
+   "prevAll": 2270,
+   "populatedCells": 6
+  },
+  {
+   "id": "ranelagh-6",
+   "name": "Ranelagh",
+   "district": "D6",
+   "label": "Ranelagh, Dublin 6",
+   "rent": {
+    "all:any": 2118,
+    "all:apartment": 1959,
+    "1:any": 1590,
+    "1:apartment": 1725,
+    "2:any": 2327,
+    "2:apartment": 2261,
+    "3:any": 3374
+   },
+   "prevAll": 2034,
+   "populatedCells": 7
+  },
+  {
+   "id": "rathgar-6",
+   "name": "Rathgar",
+   "district": "D6",
+   "label": "Rathgar, Dublin 6",
+   "rent": {
+    "all:any": 1797,
+    "all:apartment": 1814,
+    "1:any": 1496,
+    "1:apartment": 1609,
+    "2:any": 2198,
+    "2:apartment": 2323
+   },
+   "prevAll": 1732,
+   "populatedCells": 6
+  },
+  {
+   "id": "rathmines-6",
+   "name": "Rathmines",
+   "district": "D6",
+   "label": "Rathmines, Dublin 6",
+   "rent": {
+    "all:any": 1651,
+    "all:apartment": 1755,
+    "1:any": 1418,
+    "1:apartment": 1585,
+    "2:any": 1989,
+    "2:apartment": 1984,
+    "3:any": 2666,
+    "4:any": 4118
+   },
+   "prevAll": 1639,
+   "populatedCells": 8
+  },
+  {
+   "id": "templeogue-6w",
+   "name": "Templeogue",
+   "district": "D6W",
+   "label": "Templeogue, Dublin 6W",
+   "rent": {
+    "all:any": 2534
+   },
+   "prevAll": 2426,
+   "populatedCells": 1
+  },
+  {
+   "id": "terenure-6w",
+   "name": "Terenure",
+   "district": "D6W",
+   "label": "Terenure, Dublin 6W",
+   "rent": {
+    "all:any": 2184,
+    "all:apartment": 2007,
+    "1:any": 1612,
+    "1:apartment": 1744,
+    "2:any": 2073,
+    "2:apartment": 2090,
+    "3:any": 2631,
+    "4:any": 3425
+   },
+   "prevAll": 2079,
+   "populatedCells": 8
+  },
+  {
+   "id": "cabra-7",
+   "name": "Cabra",
+   "district": "D7",
+   "label": "Cabra, Dublin 7",
+   "rent": {
+    "all:any": 1643,
+    "all:apartment": 1505,
+    "1:any": 1293,
+    "2:any": 1980
+   },
+   "prevAll": 1505,
+   "populatedCells": 4
+  },
+  {
+   "id": "north-circular-road-7",
+   "name": "North Circular Road",
+   "district": "D7",
+   "label": "North Circular Road, Dublin 7",
+   "rent": {
+    "all:any": 1939,
+    "1:any": 1459,
+    "2:any": 2264
+   },
+   "prevAll": 1889,
+   "populatedCells": 3
+  },
+  {
+   "id": "smithfield-7",
+   "name": "Smithfield",
+   "district": "D7",
+   "label": "Smithfield, Dublin 7",
+   "rent": {
+    "all:any": 2057,
+    "all:apartment": 2077,
+    "1:any": 1701,
+    "1:apartment": 1721,
+    "2:any": 2199,
+    "2:apartment": 2199
+   },
+   "prevAll": 2023,
+   "populatedCells": 6
+  },
+  {
+   "id": "stoneybatter-7",
+   "name": "Stoneybatter",
+   "district": "D7",
+   "label": "Stoneybatter, Dublin 7",
+   "rent": {
+    "all:any": 1812,
+    "2:any": 1926
+   },
+   "prevAll": 1831,
+   "populatedCells": 2
+  },
+  {
+   "id": "christchurch-8",
+   "name": "Christchurch",
+   "district": "D8",
+   "label": "Christchurch, Dublin 8",
+   "rent": {
+    "all:any": 1798,
+    "all:apartment": 1798
+   },
+   "prevAll": 1797,
+   "populatedCells": 2
+  },
+  {
+   "id": "cork-street-8",
+   "name": "Cork Street",
+   "district": "D8",
+   "label": "Cork Street, Dublin 8",
+   "rent": {
+    "all:any": 1860,
+    "all:apartment": 1912,
+    "1:any": 1582,
+    "2:any": 1976
+   },
+   "prevAll": 1809,
+   "populatedCells": 4
+  },
+  {
+   "id": "inchicore-8",
+   "name": "Inchicore",
+   "district": "D8",
+   "label": "Inchicore, Dublin 8",
+   "rent": {
+    "all:any": 2027,
+    "all:apartment": 1802,
+    "1:any": 1555,
+    "1:apartment": 1569,
+    "2:any": 1939,
+    "2:apartment": 1878,
+    "3:any": 2493
+   },
+   "prevAll": 1865,
+   "populatedCells": 7
+  },
+  {
+   "id": "islandbridge-8",
+   "name": "Islandbridge",
+   "district": "D8",
+   "label": "Islandbridge, Dublin 8",
+   "rent": {
+    "all:any": 2099,
+    "all:apartment": 2086,
+    "1:any": 1821,
+    "1:apartment": 1821,
+    "2:any": 2145,
+    "2:apartment": 2145
+   },
+   "prevAll": 2022,
+   "populatedCells": 6
+  },
+  {
+   "id": "kilmainham-8",
+   "name": "Kilmainham",
+   "district": "D8",
+   "label": "Kilmainham, Dublin 8",
+   "rent": {
+    "all:any": 1926,
+    "all:apartment": 1854,
+    "1:any": 1522,
+    "1:apartment": 1530,
+    "2:any": 2057,
+    "2:apartment": 2031
+   },
+   "prevAll": 1875,
+   "populatedCells": 6
+  },
+  {
+   "id": "portobello-8",
+   "name": "Portobello",
+   "district": "D8",
+   "label": "Portobello, Dublin 8",
+   "rent": {
+    "all:any": 1899
+   },
+   "prevAll": 1743,
+   "populatedCells": 1
+  },
+  {
+   "id": "rialto-8",
+   "name": "Rialto",
+   "district": "D8",
+   "label": "Rialto, Dublin 8",
+   "rent": {
+    "all:any": 1822,
+    "all:apartment": 1833,
+    "1:any": 1480,
+    "1:apartment": 1561,
+    "2:any": 1912,
+    "2:apartment": 1873
+   },
+   "prevAll": 1748,
+   "populatedCells": 6
+  },
+  {
+   "id": "south-circular-road-8",
+   "name": "South Circular Road",
+   "district": "D8",
+   "label": "South Circular Road, Dublin 8",
+   "rent": {
+    "all:any": 1864,
+    "all:apartment": 1784,
+    "1:any": 1479,
+    "1:apartment": 1578,
+    "2:any": 2096,
+    "2:apartment": 1995
+   },
+   "prevAll": 1792,
+   "populatedCells": 6
+  },
+  {
+   "id": "ballymun-9",
+   "name": "Ballymun",
+   "district": "D9",
+   "label": "Ballymun, Dublin 9",
+   "rent": {
+    "all:any": 1905
+   },
+   "prevAll": 1698,
+   "populatedCells": 1
+  },
+  {
+   "id": "beaumont-9",
+   "name": "Beaumont",
+   "district": "D9",
+   "label": "Beaumont, Dublin 9",
+   "rent": {
+    "all:any": 2215,
+    "all:apartment": 1935
+   },
+   "prevAll": 2110,
+   "populatedCells": 2
+  },
+  {
+   "id": "glasnevin-9",
+   "name": "Glasnevin",
+   "district": "D9",
+   "label": "Glasnevin, Dublin 9",
+   "rent": {
+    "all:any": 2033,
+    "all:apartment": 1800,
+    "1:any": 1485,
+    "1:apartment": 1590,
+    "2:any": 2033,
+    "2:apartment": 2058,
+    "3:any": 2436,
+    "4:any": 2973
+   },
+   "prevAll": 1944,
+   "populatedCells": 8
+  },
+  {
+   "id": "santry-9",
+   "name": "Santry",
+   "district": "D9",
+   "label": "Santry, Dublin 9",
+   "rent": {
+    "all:any": 2134,
+    "all:apartment": 2020,
+    "1:any": 1695,
+    "1:apartment": 1732,
+    "2:any": 2078,
+    "2:apartment": 2075,
+    "3:any": 2342
+   },
+   "prevAll": 1996,
+   "populatedCells": 7
+  },
+  {
+   "id": "whitehall-9",
+   "name": "Whitehall",
+   "district": "D9",
+   "label": "Whitehall, Dublin 9",
+   "rent": {
+    "all:any": 2009
+   },
+   "prevAll": 1989,
+   "populatedCells": 1
+  },
+  {
+   "id": "ballyfermot-10",
+   "name": "Ballyfermot",
+   "district": "D10",
+   "label": "Ballyfermot, Dublin 10",
+   "rent": {
+    "all:any": 1948
+   },
+   "prevAll": 1805,
+   "populatedCells": 1
+  },
+  {
+   "id": "cherry-orchard-10",
+   "name": "Cherry Orchard",
+   "district": "D10",
+   "label": "Cherry Orchard, Dublin 10",
+   "rent": {
+    "all:any": 1736,
+    "all:apartment": 1759
+   },
+   "prevAll": 1632,
+   "populatedCells": 2
+  },
+  {
+   "id": "finglas-11",
+   "name": "Finglas",
+   "district": "D11",
+   "label": "Finglas, Dublin 11",
+   "rent": {
+    "all:any": 1996,
+    "all:apartment": 1951,
+    "1:any": 1622,
+    "1:apartment": 1688,
+    "2:any": 1986,
+    "2:apartment": 1981,
+    "3:any": 2153
+   },
+   "prevAll": 1829,
+   "populatedCells": 7
+  },
+  {
+   "id": "crumlin-12",
+   "name": "Crumlin",
+   "district": "D12",
+   "label": "Crumlin, Dublin 12",
+   "rent": {
+    "all:any": 2091,
+    "all:apartment": 1823,
+    "1:any": 1458,
+    "2:any": 2001,
+    "3:any": 2400
+   },
+   "prevAll": 1937,
+   "populatedCells": 5
+  },
+  {
+   "id": "drimnagh-12",
+   "name": "Drimnagh",
+   "district": "D12",
+   "label": "Drimnagh, Dublin 12",
+   "rent": {
+    "all:any": 2114,
+    "all:apartment": 2008,
+    "2:any": 1982,
+    "3:any": 2253
+   },
+   "prevAll": 2019,
+   "populatedCells": 4
+  },
+  {
+   "id": "kimmage-12",
+   "name": "Kimmage",
+   "district": "D12",
+   "label": "Kimmage, Dublin 12",
+   "rent": {
+    "all:any": 1909,
+    "all:apartment": 1710,
+    "1:any": 1493,
+    "2:any": 2005
+   },
+   "prevAll": 1902,
+   "populatedCells": 4
+  },
+  {
+   "id": "walkinstown-12",
+   "name": "Walkinstown",
+   "district": "D12",
+   "label": "Walkinstown, Dublin 12",
+   "rent": {
+    "all:any": 2396
+   },
+   "prevAll": 2241,
+   "populatedCells": 1
+  },
+  {
+   "id": "baldoyle-13",
+   "name": "Baldoyle",
+   "district": "D13",
+   "label": "Baldoyle, Dublin 13",
+   "rent": {
+    "all:any": 2106
+   },
+   "prevAll": 2077,
+   "populatedCells": 1
+  },
+  {
+   "id": "balgriffin-13",
+   "name": "Balgriffin",
+   "district": "D13",
+   "label": "Balgriffin, Dublin 13",
+   "rent": {
+    "all:any": 1929,
+    "all:apartment": 1733
+   },
+   "prevAll": 1969,
+   "populatedCells": 2
+  },
+  {
+   "id": "clongriffin-13",
+   "name": "Clongriffin",
+   "district": "D13",
+   "label": "Clongriffin, Dublin 13",
+   "rent": {
+    "all:any": 1975,
+    "all:apartment": 1954,
+    "1:any": 1649,
+    "1:apartment": 1649,
+    "2:any": 2047,
+    "2:apartment": 2051
+   },
+   "prevAll": 1879,
+   "populatedCells": 6
+  },
+  {
+   "id": "sutton-13",
+   "name": "Sutton",
+   "district": "D13",
+   "label": "Sutton, Dublin 13",
+   "rent": {
+    "all:any": 2470
+   },
+   "prevAll": 2305,
+   "populatedCells": 1
+  },
+  {
+   "id": "churchtown-14",
+   "name": "Churchtown",
+   "district": "D14",
+   "label": "Churchtown, Dublin 14",
+   "rent": {
+    "all:any": 2594,
+    "all:apartment": 2467,
+    "2:any": 2544,
+    "2:apartment": 2568
+   },
+   "prevAll": 2491,
+   "populatedCells": 4
+  },
+  {
+   "id": "clonskeagh-14",
+   "name": "Clonskeagh",
+   "district": "D14",
+   "label": "Clonskeagh, Dublin 14",
+   "rent": {
+    "all:any": 2601,
+    "all:apartment": 2193,
+    "2:any": 2068
+   },
+   "prevAll": 2525,
+   "populatedCells": 3
+  },
+  {
+   "id": "goatstown-14",
+   "name": "Goatstown",
+   "district": "D14",
+   "label": "Goatstown, Dublin 14",
+   "rent": {
+    "all:any": 3222
+   },
+   "prevAll": 3030,
+   "populatedCells": 1
+  },
+  {
+   "id": "ashtown-15",
+   "name": "Ashtown",
+   "district": "D15",
+   "label": "Ashtown, Dublin 15",
+   "rent": {
+    "all:any": 2028,
+    "all:apartment": 1923,
+    "2:any": 1983,
+    "2:apartment": 1983
+   },
+   "prevAll": 1946,
+   "populatedCells": 4
+  },
+  {
+   "id": "blanchardstown-15",
+   "name": "Blanchardstown",
+   "district": "D15",
+   "label": "Blanchardstown, Dublin 15",
+   "rent": {
+    "all:any": 1995,
+    "all:apartment": 1910,
+    "2:any": 1874,
+    "2:apartment": 1882,
+    "3:any": 2102
+   },
+   "prevAll": 1883,
+   "populatedCells": 5
+  },
+  {
+   "id": "castleknock-15",
+   "name": "Castleknock",
+   "district": "D15",
+   "label": "Castleknock, Dublin 15",
+   "rent": {
+    "all:any": 2192,
+    "all:apartment": 2058,
+    "2:any": 2034,
+    "2:apartment": 2069,
+    "3:any": 2326,
+    "4:any": 2913
+   },
+   "prevAll": 2073,
+   "populatedCells": 6
+  },
+  {
+   "id": "clonee-15",
+   "name": "Clonee",
+   "district": "D15",
+   "label": "Clonee, Dublin 15",
+   "rent": {
+    "all:any": 2025
+   },
+   "prevAll": 1880,
+   "populatedCells": 1
+  },
+  {
+   "id": "clonsilla-15",
+   "name": "Clonsilla",
+   "district": "D15",
+   "label": "Clonsilla, Dublin 15",
+   "rent": {
+    "all:any": 2050,
+    "all:apartment": 1883,
+    "2:any": 1883,
+    "3:any": 2089,
+    "4:any": 2514
+   },
+   "prevAll": 1920,
+   "populatedCells": 5
+  },
+  {
+   "id": "mulhuddart-15",
+   "name": "Mulhuddart",
+   "district": "D15",
+   "label": "Mulhuddart, Dublin 15",
+   "rent": {
+    "all:any": 1804
+   },
+   "prevAll": 1716,
+   "populatedCells": 1
+  },
+  {
+   "id": "ongar-15",
+   "name": "Ongar",
+   "district": "D15",
+   "label": "Ongar, Dublin 15",
+   "rent": {
+    "all:any": 1918,
+    "all:apartment": 1690
+   },
+   "prevAll": 1851,
+   "populatedCells": 2
+  },
+  {
+   "id": "porterstown-15",
+   "name": "Porterstown",
+   "district": "D15",
+   "label": "Porterstown, Dublin 15",
+   "rent": {
+    "all:any": 1812,
+    "all:apartment": 1780
+   },
+   "prevAll": 1763,
+   "populatedCells": 2
+  },
+  {
+   "id": "royal-canal-park-15",
+   "name": "Royal Canal Park",
+   "district": "D15",
+   "label": "Royal Canal Park, Dublin 15",
+   "rent": {
+    "all:any": 1960,
+    "all:apartment": 1960,
+    "1:any": 1557,
+    "1:apartment": 1557,
+    "2:any": 2158,
+    "2:apartment": 2158
+   },
+   "prevAll": 1967,
+   "populatedCells": 6
+  },
+  {
+   "id": "ballinteer-16",
+   "name": "Ballinteer",
+   "district": "D16",
+   "label": "Ballinteer, Dublin 16",
+   "rent": {
+    "all:any": 2271,
+    "all:apartment": 2064,
+    "2:any": 2054
+   },
+   "prevAll": 2228,
+   "populatedCells": 3
+  },
+  {
+   "id": "dundrum-16",
+   "name": "Dundrum",
+   "district": "D16",
+   "label": "Dundrum, Dublin 16",
+   "rent": {
+    "all:any": 2298,
+    "all:apartment": 2237,
+    "1:any": 2027,
+    "1:apartment": 2044,
+    "2:any": 2289,
+    "2:apartment": 2305,
+    "3:any": 2838
+   },
+   "prevAll": 2303,
+   "populatedCells": 7
+  },
+  {
+   "id": "knocklyon-16",
+   "name": "Knocklyon",
+   "district": "D16",
+   "label": "Knocklyon, Dublin 16",
+   "rent": {
+    "all:any": 2231
+   },
+   "prevAll": 2229,
+   "populatedCells": 1
+  },
+  {
+   "id": "rathfarnham-16",
+   "name": "Rathfarnham",
+   "district": "D16",
+   "label": "Rathfarnham, Dublin 16",
+   "rent": {
+    "all:any": 2298,
+    "all:apartment": 1989,
+    "1:any": 1580,
+    "2:any": 2020,
+    "2:apartment": 2029,
+    "3:any": 2392,
+    "4:any": 3104
+   },
+   "prevAll": 2182,
+   "populatedCells": 7
+  },
+  {
+   "id": "malahide-road-17",
+   "name": "Malahide Road",
+   "district": "D17",
+   "label": "Malahide Road, Dublin 17",
+   "rent": {
+    "all:any": 1856,
+    "all:apartment": 1837,
+    "2:any": 1934,
+    "2:apartment": 1957
+   },
+   "prevAll": 1792,
+   "populatedCells": 4
+  },
+  {
+   "id": "cabinteely-18",
+   "name": "Cabinteely",
+   "district": "D18",
+   "label": "Cabinteely, Dublin 18",
+   "rent": {
+    "all:any": 2369,
+    "all:apartment": 2198,
+    "2:any": 2078,
+    "2:apartment": 2073
+   },
+   "prevAll": 2167,
+   "populatedCells": 4
+  },
+  {
+   "id": "carrickmines-18",
+   "name": "Carrickmines",
+   "district": "D18",
+   "label": "Carrickmines, Dublin 18",
+   "rent": {
+    "all:any": 2220,
+    "all:apartment": 2071,
+    "2:any": 2176,
+    "2:apartment": 2176
+   },
+   "prevAll": 2283,
+   "populatedCells": 4
+  },
+  {
+   "id": "foxrock-18",
+   "name": "Foxrock",
+   "district": "D18",
+   "label": "Foxrock, Dublin 18",
+   "rent": {
+    "all:any": 3280
+   },
+   "prevAll": 3331,
+   "populatedCells": 1
+  },
+  {
+   "id": "leopardstown-18",
+   "name": "Leopardstown",
+   "district": "D18",
+   "label": "Leopardstown, Dublin 18",
+   "rent": {
+    "all:any": 2195,
+    "all:apartment": 2156,
+    "1:any": 1872,
+    "1:apartment": 1885,
+    "2:any": 2147,
+    "2:apartment": 2145,
+    "3:any": 2668
+   },
+   "prevAll": 2154,
+   "populatedCells": 7
+  },
+  {
+   "id": "sandyford-18",
+   "name": "Sandyford",
+   "district": "D18",
+   "label": "Sandyford, Dublin 18",
+   "rent": {
+    "all:any": 2262,
+    "all:apartment": 2233,
+    "1:any": 2027,
+    "1:apartment": 2030,
+    "2:any": 2322,
+    "2:apartment": 2321,
+    "3:any": 2643
+   },
+   "prevAll": 2290,
+   "populatedCells": 7
+  },
+  {
+   "id": "stepaside-18",
+   "name": "Stepaside",
+   "district": "D18",
+   "label": "Stepaside, Dublin 18",
+   "rent": {
+    "all:any": 2034,
+    "all:apartment": 1953,
+    "2:any": 1995,
+    "2:apartment": 2012
+   },
+   "prevAll": 1964,
+   "populatedCells": 4
+  },
+  {
+   "id": "chapelizod-20",
+   "name": "Chapelizod",
+   "district": "D20",
+   "label": "Chapelizod, Dublin 20",
+   "rent": {
+    "all:any": 1859,
+    "all:apartment": 1758,
+    "2:any": 1876
+   },
+   "prevAll": 1778,
+   "populatedCells": 3
+  },
+  {
+   "id": "palmerstown-20",
+   "name": "Palmerstown",
+   "district": "D20",
+   "label": "Palmerstown, Dublin 20",
+   "rent": {
+    "all:any": 2111
+   },
+   "prevAll": 1918,
+   "populatedCells": 1
+  },
+  {
+   "id": "clondalkin-22",
+   "name": "Clondalkin",
+   "district": "D22",
+   "label": "Clondalkin, Dublin 22",
+   "rent": {
+    "all:any": 1892,
+    "all:apartment": 1756,
+    "1:any": 1385,
+    "1:apartment": 1487,
+    "2:any": 1794,
+    "2:apartment": 1798,
+    "3:any": 2022
+   },
+   "prevAll": 1774,
+   "populatedCells": 7
+  },
+  {
+   "id": "ballycullen-24",
+   "name": "Ballycullen",
+   "district": "D24",
+   "label": "Ballycullen, Dublin 24",
+   "rent": {
+    "all:any": 2153,
+    "all:apartment": 1855
+   },
+   "prevAll": 2067,
+   "populatedCells": 2
+  },
+  {
+   "id": "citywest-24",
+   "name": "Citywest",
+   "district": "D24",
+   "label": "Citywest, Dublin 24",
+   "rent": {
+    "all:any": 2119,
+    "all:apartment": 2066,
+    "1:any": 1772,
+    "1:apartment": 1771,
+    "2:any": 2120,
+    "2:apartment": 2118,
+    "3:any": 2483
+   },
+   "prevAll": 2115,
+   "populatedCells": 7
+  },
+  {
+   "id": "firhouse-24",
+   "name": "Firhouse",
+   "district": "D24",
+   "label": "Firhouse, Dublin 24",
+   "rent": {
+    "all:any": 2223
+   },
+   "prevAll": 2071,
+   "populatedCells": 1
+  },
+  {
+   "id": "tallaght-24",
+   "name": "Tallaght",
+   "district": "D24",
+   "label": "Tallaght, Dublin 24",
+   "rent": {
+    "all:any": 1852,
+    "all:apartment": 1713,
+    "1:any": 1432,
+    "1:apartment": 1438,
+    "2:any": 1807,
+    "2:apartment": 1812,
+    "3:any": 2075
+   },
+   "prevAll": 1759,
+   "populatedCells": 7
+  }
+ ]
+}
