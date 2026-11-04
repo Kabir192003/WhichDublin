@@ -4,7 +4,7 @@ export default function Method({ data }) {
   const s = data.sources
   return (
     <article className="doc">
-      <p><a href="#/">← Back to the finder</a></p>
+      <p><a href="#/">← Back to start</a></p>
       <h1>How we know this</h1>
       <p className="lead">Every number on Which Dublin comes from an open dataset, shows where it came from and when, and carries a confidence label. Here is what that means, and where it can be wrong.</p>
 
@@ -29,6 +29,15 @@ export default function Method({ data }) {
 
       <h2>Supermarkets</h2>
       <p>Lidl, Aldi and Tesco locations come from OpenStreetMap ({s.groceries.licence}), fetched {s.groceries.fetched}. Walk time is straight-line distance with the same detour factor. OpenStreetMap is community maintained and can miss a new or recently closed store.</p>
+
+      <h2>Dublinbikes</h2>
+      <p>Dock locations come from OpenStreetMap ({s.bikes?.licence}). In the Dublinbikes travel mode we add: walk to the nearest dock, ride between docks at 15 km/h with a 1.3 detour factor, 2 minutes to undock and dock, and the walk from the dock nearest your college. It is shown only when both docks are within 1.5 km. OpenStreetMap may not list every station and we do not know how many bikes are free right now, so check the official Dublinbikes app.</p>
+
+      <h2>Part-time work</h2>
+      <p>The pay and hours rules are written by hand from the sources named on that page, each with the date we checked it. The "places that hire students" counts are numbers of shops, restaurants, cafes, pubs, hotels, gyms and cinemas in OpenStreetMap within about 1 km. They show where employers are, <b>not</b> which have vacancies.</p>
+
+      <h2>Settling in</h2>
+      <p>The immigration, Leap card, bank and mobile guides are written by hand. Where we could not read the official page, the page says so. We leave out prices we could not confirm rather than show an old figure.</p>
 
       <h2>Areas and campuses</h2>
       <p>Area positions are OpenStreetMap place locations, checked to fall inside the correct postal district; those that did not were removed rather than guessed. Campus positions are OpenStreetMap locations of each main entrance area. Area descriptions are from Wikipedia ({s.descriptions.licence}).</p>

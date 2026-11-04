@@ -38,5 +38,19 @@ for (const a of d.areas) {
   }
   for (const [brand, g] of Object.entries(a.groceries ?? {})) if (g && !(g.metres >= 0 && g.walkMinutes >= 0 && g.osm)) bad(`${w} grocery ${brand} invalid`)
 }
+// work, bike share and docks
+for (const a of d.areas) {
+  const w = `${a.id}:`
+  for (const [cat, v] of Object.entries(a.work ?? {})) if (!(Number.isInteger(v.n) && v.n >= 0 && v.n <= 200)) bad(`${w} work.${cat}=${v.n} implausible`)
+  if (a.nearestDock && !(a.nearestDock.walkMinutes >= 0 && a.nearestDock.walkMinutes <= 25)) bad(`${w} dock walk ${a.nearestDock.walkMinutes}`)
+  for (const [c, t] of Object.entries(a.toCampus)) {
+    const b = t.bikeshare; if (!b) continue
+    if (!(b.minutes > 0 && b.minutes < 120 && b.rideKm > 0 && b.rideKm < 30)) bad(`${w} ${c} bikeshare implausible`)
+    if (b.minutes < b.walkFromHomeMinutes + b.walkToCampusMinutes) bad(`${w} ${c} bikeshare shorter than its own walking legs`)
+    if (b.rideKm / (Math.max(1, b.rideMinutes) / 60) > 20) bad(`${w} ${c} bike ride faster than 20 km/h`)
+  }
+}
+if (d.areas.some((a) => a.work) && !d.sources.employers?.fetched) bad('employers source has no fetched date')
+if (d.areas.some((a) => a.nearestDock) && !d.sources.bikes?.fetched) bad('bikes source has no fetched date')
 if (errors.length) { console.error(`validate: ${errors.length} problem(s)\n - ` + errors.slice(0, 40).join('\n - ')); process.exit(1) }
 console.log(`validate: ${d.areas.length} areas, ${campusIds.size} campuses OK`)

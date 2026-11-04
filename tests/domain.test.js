@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { confidence, reliabilityBand, worst } from '../src/domain/confidence.js'
 import { rankAreas, rankMovement } from '../src/domain/rank.js'
-import { rentPerPerson, commuteFor, parseState, stateToSearch, DEFAULTS } from '../src/domain/model.js'
+import { rentPerPerson, commuteFor, parseState, stateToSearch, DEFAULTS, hourLimit, grossPay, workByArea, workMix } from '../src/domain/model.js'
 import { journey, journeys, medianCommute, buildTransfers, haversineMetres } from '../pipeline/csa.js'
 
 test('confidence: rent needs a deep local market and recent data; missing input means "do not show"', () => {
@@ -116,4 +116,32 @@ test('csa: footpath transfers connect two lines that do not share a stop', () =>
   const net = { stops: st, conn: { dep: cs.map((c) => c.dep), arr: cs.map((c) => c.arr), from: cs.map((c) => c.from), to: cs.map((c) => c.to), trip: cs.map((c) => c.trip) }, transfers: buildTransfers(st, 300) }
   const r = journey(net, { lat: 53.34, lon: -6.3003 }, { lat: 53.34, lon: -6.2597 }, 8 * 3600 - 120, { maxWalkOnlyMetres: 500 })
   assert.equal(r.rides, 2)
+})
+
+const RULES = { termHours: 20, holidayHours: 40, holidays: [{ from: [5, 1], to: [8, 30], label: 'summer' }, { from: [11, 15], to: [0, 15], label: 'winter' }] }
+test('work: weekly cap switches between term and the two holiday windows, including across new year', () => {
+  assert.equal(hourLimit(new Date(2026, 10, 4), RULES).hours, 20)       // 4 Nov
+  assert.equal(hourLimit(new Date(2026, 5, 1), RULES).hours, 40)        // 1 Jun
+  assert.equal(hourLimit(new Date(2026, 8, 30), RULES).hours, 40)       // 30 Sep
+  assert.equal(hourLimit(new Date(2026, 9, 1), RULES).hours, 20)        // 1 Oct
+  assert.equal(hourLimit(new Date(2026, 11, 14), RULES).hours, 20)      // 14 Dec
+  assert.equal(hourLimit(new Date(2026, 11, 15), RULES).hours, 40)      // 15 Dec
+  assert.equal(hourLimit(new Date(2027, 0, 15), RULES).hours, 40)       // 15 Jan
+  assert.equal(hourLimit(new Date(2027, 0, 16), RULES).hours, 20)       // 16 Jan
+})
+test('work: gross pay at the minimum wage', () => {
+  const p = grossPay(20, 14.15)
+  assert.equal(Math.round(p.week * 100) / 100, 283); assert.equal(Math.round(p.month), 1226)
+})
+test('work: areas ranked by count, flag capped, mix picks the relatively strongest category', () => {
+  const A = (id, retail, food) => ({ id, work: { retail: { n: retail, capped: false }, food: { n: food, capped: food >= 40 }, hotels: { n: 0, capped: false }, leisure: { n: 0, capped: false } } })
+  const areas = [A('a', 30, 5), A('b', 10, 40), A('c', 20, 20)]
+  assert.deepEqual(workByArea(areas, 'retail').map((r) => r.id), ['a', 'c', 'b'])
+  assert.equal(workByArea(areas, 'food')[0].capped, true)
+  assert.equal(workMix(areas[0], areas).top, 'retail'); assert.equal(workMix(areas[1], areas).top, 'food')
+  assert.equal(workMix({ id: 'x', work: null }, areas), null)
+})
+test('model: dublinbikes mode needs both docks, otherwise no journey', () => {
+  const a = area({}, { tcd: { distanceKm: 3, walkMinutes: 42, cycleMinutes: 13, transit: null, bikeshare: { minutes: 19, walkFromHomeMinutes: 3, rideMinutes: 12, walkToCampusMinutes: 2, rideKm: 3.4, fromDock: 'A', toDock: 'B' } }, ucd: { distanceKm: 9, walkMinutes: 130, cycleMinutes: 40, transit: null } })
+  assert.equal(commuteFor(a, 'tcd', 'bikeshare').minutes, 19); assert.equal(commuteFor(a, 'ucd', 'bikeshare'), null)
 })

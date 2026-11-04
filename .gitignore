@@ -7,6 +7,7 @@ data/raw/collection.json
 data/raw/pc_tags.json
 data/raw/shops_try.json
 data/raw/supermarkets_osm.json
+data/raw/enrich_cache.json
 data/build/network.json
 .env
 .DS_Store

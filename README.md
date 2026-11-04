@@ -2,6 +2,8 @@
 
 Compare Dublin areas for renting near your college: **rent per person**, **door-to-campus commute**, and the **nearest Lidl, Aldi and Tesco**. Every number shows its source, date and a confidence label. No accounts, no cookies, no listing-site scraping.
 
+Also: part-time work (pay, weekly hour limits, employer counts by area), Dublinbikes as a travel mode, and a Settling-in guide (IRP, Leap card, bank account, mobile plan).
+
 Covers 107 named areas and 9 colleges (TCD, UCD, DCU, TU Dublin, RCSI, NCI, DBS, Griffith, IADT).
 
 ## Data (all open)
@@ -34,6 +36,8 @@ python3 pipeline/fetch-supermarkets.py
 python3 pipeline/build-rent.py
 python3 pipeline/build-network.py        # needs the GTFS zip in data/raw/gtfs/
 python3 pipeline/geocode-areas.py
+python3 pipeline/fetch-enrich.py         # supermarket gap-fill, employer counts, bike docks (resumable, ~40 min)
+python3 pipeline/fetch-bikes-central.py  # finer pass for central Dublin docks, then re-run fetch-enrich.py
 python3 pipeline/fetch-descriptions.py
 node pipeline/compute.js                 # writes public/data/areas.json
 node pipeline/validate.js

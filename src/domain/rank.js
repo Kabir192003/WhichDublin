@@ -42,7 +42,7 @@ export function rankMovement(rows, prefsA, prefsB) {
 }
 
 export const PRESETS = {
-  balanced: { label: 'Balanced', weights: { rent: 1, commute: 1, groceries: 0.4 } },
-  cheapest: { label: 'Lowest rent', weights: { rent: 3, commute: 1, groceries: 1 } },
-  shortest: { label: 'Shortest commute', weights: { rent: 1, commute: 3, groceries: 0.4 } }
+  balanced: { label: 'Best overall', weights: { rent: 1, commute: 1, groceries: 0.4 } },
+  cheapest: { label: 'Cheapest', weights: { rent: 3, commute: 1, groceries: 1 } },
+  shortest: { label: 'Closest to college', weights: { rent: 1, commute: 3, groceries: 0.4 } }
 }

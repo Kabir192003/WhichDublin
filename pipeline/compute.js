@@ -35,6 +35,15 @@ for (const f of storeFiles) { const s = read(f); storeFetched = s.fetched; for (
 const stores = [...storeMap.values()]
 console.log('supermarkets', stores.length, ['Lidl', 'Aldi', 'Tesco'].map((b) => b + ' ' + stores.filter((s) => s.brand === b).length).join(', '))
 
+// ---- bike share docks (Dublinbikes is run by JCDecaux/Cyclocity) and employer counts, both optional inputs
+const bikeFile = fs.existsSync('data/raw/bikes.json') ? read('data/raw/bikes.json') : null
+const docks = bikeFile ? bikeFile.docks.filter((d) => /jcdecaux|cyclocity|deceaux/i.test(d.operator + ' ' + d.brand) || /dublinbikes/i.test(d.name)).map((d) => ({ ...d, name: d.name && !/^dublinbikes$/i.test(d.name) ? d.name : 'Dublinbikes dock' })) : []
+const empFile = fs.existsSync('data/raw/employers.json') ? read('data/raw/employers.json') : null
+const nearestDock = (pt, maxMetres = 1500) => { let best = null; for (const d of docks) { const m = haversineMetres(pt, d); if (m <= maxMetres && (!best || m < best.m)) best = { d, m } } return best }
+const dockOut = (b) => b && { name: b.d.name, lat: b.d.lat, lon: b.d.lon, metres: Math.round(b.m * 1.3 / 10) * 10, walkMinutes: Math.round(walkSecs(b.m) / 60) }
+console.log('bike docks', docks.length)
+for (const c of campuses) c.dock = dockOut(nearestDock(c))
+
 // departures: arrive for a 09:00 start. Leave between 07:30 and 08:30 every 5 minutes.
 const DEPARTURES = Array.from({ length: 13 }, (_, i) => 7.5 * 3600 + i * 300)
 const asOfRent = rent.quarter
@@ -61,6 +70,25 @@ for (const a of rent.areas) {
     }
   })
 
+  const homeDock = nearestDock(origin)
+  if (homeDock) for (const c of campuses) {
+    const cd = c.dock; if (!cd) continue
+    const hd = dockOut(homeDock)
+    if (hd.name === cd.name && hd.lat === cd.lat) continue
+    const rideM = haversineMetres(hd, cd) * 1.3
+    const rideMin = Math.round(rideM / 4.2 / 60)
+    const total = hd.walkMinutes + rideMin + cd.walkMinutes + 2          // +2 minutes to undock and dock
+    toCampus[c.id].bikeshare = { minutes: total, walkFromHomeMinutes: hd.walkMinutes, rideMinutes: rideMin, walkToCampusMinutes: cd.walkMinutes, rideKm: Math.round(rideM / 100) / 10, fromDock: hd.name, toDock: cd.name }
+  }
+
+  const work = {}
+  const emp = empFile && empFile.areas[a.id]
+  if (emp) for (const [cat, terms] of Object.entries(empFile.categories)) {
+    const ids = new Set(); let capped = false
+    for (const t of terms) { const e = emp[t]; if (!e) continue; e.ids.forEach((i) => ids.add(i)); capped = capped || e.capped }
+    work[cat] = { n: ids.size, capped }
+  }
+
   const near = nearbyStops(stops, origin, 800).sort((x, y) => x.secs - y.secs)
   const nearest = near[0]
   const serving = new Map()
@@ -86,6 +114,7 @@ for (const a of rent.areas) {
             confidence: confidence('rent', { cells: a.populatedCells, ageDays }) },
     transit: { nearestStop: nearest ? { name: stops[nearest.stop].name, walkMinutes: Math.round(nearest.secs / 60) } : null, routes: modes },
     toCampus, groceries, nearestBudgetGroceryMinutes: nearestBudget,
+    nearestDock: dockOut(homeDock), work: emp ? work : null,
     about: d ? { text: sentences, title: d.title, url: d.url } : null
   })
   if (++n % 20 === 0) console.log('areas', n, '/', rent.areas.length)
@@ -98,6 +127,8 @@ const dataset = {
     transit: { name: 'National Transport Authority GTFS static timetables', licence: 'CC BY 4.0', url: 'https://www.transportforireland.ie/transitData/PT_Data.html', serviceDate: net.date, sampled: '07:30 to 08:30, every 5 minutes (13 departures)' },
     geography: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', url: 'https://www.openstreetmap.org/copyright' },
     groceries: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: storeFetched, note: 'May be incomplete: community-maintained map data.' },
+    bikes: { name: 'OpenStreetMap contributors (Dublinbikes docks)', licence: 'ODbL 1.0', fetched: bikeFile && bikeFile.fetched, note: 'Docks mapped in OpenStreetMap; not every station may be included. See dublinbikes.ie for the live map.' },
+    employers: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: empFile && empFile.fetched, radiusMetres: 1000, categories: empFile && empFile.categories, note: 'Counts places that could employ students within about 1 km. Not vacancies. Counts stop at 40 per place type.' },
     descriptions: { name: 'Wikipedia', licence: 'CC BY-SA 4.0', url: 'https://en.wikipedia.org' }
   },
   campuses, areas: out

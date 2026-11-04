@@ -27,7 +27,8 @@ export default function MapView({ campus, points, selectedId, onSelect }) {
       ready.current = true; draw()
     })
     map.current = m
-    return () => { m.remove(); ready.current = false }
+    const ro = new ResizeObserver(() => m.resize()); ro.observe(el.current)
+    return () => { ro.disconnect(); m.remove(); ready.current = false }
   }, [])
 
   function draw() {
