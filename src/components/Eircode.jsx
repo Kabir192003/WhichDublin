@@ -180,7 +180,7 @@ export default function Eircode({ data, code }) {
               </div>
             </div>
           )}
-          <p className="disclaimer">{hasGoogle() ? 'Lookups go to Google Maps Platform (and OpenStreetMap services as a fallback): the Eircode you type is sent to them to find it. Nothing is stored by Which Dublin.' : 'Lookups go to OpenStreetMap services: the Eircode or address you type is sent to Nominatim, and your point to the routing service. Nothing is stored by Which Dublin.'}</p>
+          <p className="disclaimer">{hasGoogle() ? 'Lookups go to Google Maps Platform (and OpenStreetMap services as a fallback): the Eircode you type is sent to them to find it. Nothing is stored by Settld.' : 'Lookups go to OpenStreetMap services: the Eircode or address you type is sent to Nominatim, and your point to the routing service. Nothing is stored by Settld.'}</p>
         </div>
       )}
     </>

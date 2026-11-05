@@ -50,7 +50,7 @@ export default function App() {
       <a className="skip" href="#main">Skip to content</a>
       <header className="top">
         <div className="top-in">
-          <a className="brand" href="#/" aria-label="Which Dublin, start"><Logo />Which Dublin</a>
+          <a className="brand" href="#/" aria-label="Settld, start"><Logo />Settld</a>
           <nav className="nav" aria-label="Main">{NAV.map(([href, label, on]) => <a key={href} href={href} aria-current={on(hash) ? 'page' : undefined}>{label}</a>)}</nav>
           <a className="saved-link" href="#/shortlist" aria-current={hash.startsWith('#/shortlist') ? 'page' : undefined}><Icon name="star" size={15} filled={saved.length > 0} stroke={2} />Shortlist{saved.length ? ` (${saved.length})` : ''}</a>
           <Feedback />

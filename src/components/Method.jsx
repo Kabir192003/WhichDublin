@@ -6,7 +6,7 @@ export default function Method({ data }) {
     <>
     <section className="page-hero"><div className="wrap"><h1>How we know this</h1><p>Sources, dates, and what each label means.</p></div></section>
     <article className="wrap page-body"><div className="card lift doc">
-      <p className="lead" style={{ fontSize: 17 }}>Every number on Which Dublin comes from an open dataset, shows where it came from and when, and carries a confidence label. Here is what that means, and where it can be wrong.</p>
+      <p className="lead" style={{ fontSize: 17 }}>Every number on Settld comes from an open dataset, shows where it came from and when, and carries a confidence label. Here is what that means, and where it can be wrong.</p>
 
       <h2>Rent</h2>
       <p>From the Residential Tenancies Board (RTB) Average Monthly Rent Report, published by the CSO (<a href={s.rent.url}>{s.rent.name}</a>, {s.rent.licence}). Latest quarter used: <b>{s.rent.asOf}</b>.</p>

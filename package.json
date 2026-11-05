@@ -1,5 +1,5 @@
 {
-  "name": "which-dublin",
+  "name": "settld",
   "version": "0.1.0",
   "private": true,
   "description": "Compare Dublin districts by rent, real commute time and commute reliability, relative to your campus.",

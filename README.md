@@ -1,6 +1,6 @@
-# Which Dublin
+# Settld
 
-**Live: https://which-dublin.vercel.app**
+**Live: https://which-dublin.vercel.app** (app name: Settld — the live URL is unchanged for now)
 
 Full project overview (features, data, architecture, settings, roadmap): [`docs/PROJECT.md`](docs/PROJECT.md)
 

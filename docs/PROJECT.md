@@ -1,10 +1,12 @@
-# Which Dublin: project overview
+# Settld: project overview
+
+(App renamed from "Which Dublin" to "Settld" on 5 Nov 2026. The live URL and GitHub repo keep the old name for now — see §7.)
 
 **Live:** https://which-dublin.vercel.app  
 **Code:** https://github.com/Kabir192003/WhichDublin  
 **Status:** working product, pre-launch (teaser stage). Last updated 5 November 2026.
 
-Which Dublin helps students, and anyone renting in Dublin, decide where to live. It puts rent, the real monthly cost of living, journey times to college, cheap supermarkets, part-time work and settling-in help in one place. Every number shows where it came from and how sure we are about it. No accounts, no cookies, no ads.
+Settld helps students, and anyone renting in Dublin, decide where to live. It puts rent, the real monthly cost of living, journey times to college, cheap supermarkets, part-time work and settling-in help in one place. Every number shows where it came from and how sure we are about it. No accounts, no cookies, no ads.
 
 ---
 
@@ -39,7 +41,7 @@ Finding a place to live in Dublin is expensive and confusing, especially for int
 - guesses about bills and groceries,
 - worry about scams and deposits.
 
-No single tool answers the real question: **"Can I afford to live here, and how long will it take me to get to college?"** Listing apps show a flat, journey planners show one trip, and cost-of-living guides give national averages. Which Dublin combines them, starting from the student's college and budget.
+No single tool answers the real question: **"Can I afford to live here, and how long will it take me to get to college?"** Listing apps show a flat, journey planners show one trip, and cost-of-living guides give national averages. Settld combines them, starting from the student's college and budget.
 
 **Audience:** incoming and existing students at nine Dublin colleges, and anyone renting in Dublin who wants the full picture before signing.
 
@@ -320,7 +322,7 @@ Full one-page scan: https://claude.ai/artifact/JhJD2mjy5xUUjTYijNj38M
 - **Google Maps / TFI:** one journey at a time.
 - **UK precedent:** Zoopla and Rightmove offer travel-time search (TravelTime API), proving demand.
 
-**Positioning:** "Listing sites show you a flat. Which Dublin shows you whether the area works for your college, your budget and your first months here, before you pay a deposit." The defensible edge is the combination (college-first, full monthly cost, real journeys, groceries, work, settling-in, sources on every number), trust, and future students' union partnerships, not the open data itself.
+**Positioning:** "Listing sites show you a flat. Settld shows you whether the area works for your college, your budget and your first months here, before you pay a deposit." The defensible edge is the combination (college-first, full monthly cost, real journeys, groceries, work, settling-in, sources on every number), trust, and future students' union partnerships, not the open data itself.
 
 ---
 

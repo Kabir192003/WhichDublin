@@ -89,7 +89,7 @@ export default function Work({ data }) {
       <section className="card">
         <h2>Find live jobs</h2>
         <ul>{JOB_BOARDS.map((b) => <li key={b.name}>{b.url ? <a href={b.url} target="_blank" rel="noreferrer">{b.name}</a> : b.name}</li>)}</ul>
-        <p className="muted">Walk in with a CV for shops and cafes, and ask your students' union and careers service about campus jobs. Which Dublin does not list vacancies and has no relationship with any employer.</p>
+        <p className="muted">Walk in with a CV for shops and cafes, and ask your students' union and careers service about campus jobs. Settld does not list vacancies and has no relationship with any employer.</p>
       </section>
     </article>
     </>
