@@ -11,9 +11,11 @@ const pt = (lon, lat, properties) => ({ type: 'Feature', geometry: { type: 'Poin
  * campuses: [{ id, short, lat, lon }]               drawn as dark squares with labels
  * pin:      optional { lat, lon, label }             an Eircode location
  */
-export default function MapView({ points, campuses = [], selectedId, onSelect, pin, fitKey }) {
+export default function MapView({ points, campuses = [], selectedId, onSelect, pin, fitKey, onPick, picking }) {
   const el = useRef(null), map = useRef(null), ready = useRef(false)
   const cb = useRef(onSelect); cb.current = onSelect
+  const pk = useRef(onPick); pk.current = onPick
+  const pkOn = useRef(picking); pkOn.current = picking
   const latest = useRef({}); latest.current = { points, campuses, selectedId, pin }
 
   useEffect(() => {
@@ -28,7 +30,8 @@ export default function MapView({ points, campuses = [], selectedId, onSelect, p
       m.addLayer({ id: 'campus', type: 'circle', source: 'campus', paint: { 'circle-radius': 7, 'circle-color': '#10212B', 'circle-stroke-color': '#F4B740', 'circle-stroke-width': 3 } })
       m.addLayer({ id: 'campus-label', type: 'symbol', source: 'campus', layout: { 'text-field': ['get', 'name'], 'text-size': 12, 'text-offset': [0, -1.3], 'text-anchor': 'bottom', 'text-font': ['Noto Sans Bold'], 'text-allow-overlap': false }, paint: { 'text-color': '#10212B', 'text-halo-color': '#fff', 'text-halo-width': 1.8 } })
       m.addLayer({ id: 'pin', type: 'circle', source: 'pin', paint: { 'circle-radius': 10, 'circle-color': '#E8613C', 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 } })
-      m.on('click', 'areas', (e) => cb.current && cb.current(e.features[0].properties.id))
+      m.on('click', 'areas', (e) => { if (!pkOn.current && cb.current) cb.current(e.features[0].properties.id) })
+      m.on('click', (e) => { if (pkOn.current && pk.current) pk.current({ lat: +e.lngLat.lat.toFixed(5), lon: +e.lngLat.lng.toFixed(5) }) })
       m.on('mouseenter', 'areas', () => { m.getCanvas().style.cursor = 'pointer' })
       m.on('mouseleave', 'areas', () => { m.getCanvas().style.cursor = '' })
       ready.current = true; draw(); fit()
@@ -56,10 +59,11 @@ export default function MapView({ points, campuses = [], selectedId, onSelect, p
   }
   useEffect(draw, [points, campuses, selectedId, pin])
   useEffect(fit, [fitKey])
+  useEffect(() => { const m = map.current; if (m) m.getCanvas().style.cursor = picking ? 'crosshair' : '' }, [picking])
   useEffect(() => {   // centre on a newly selected area
     const m = map.current, p = points.find((x) => x.id === selectedId)
     if (m && ready.current && p) m.easeTo({ center: [p.lon, p.lat], zoom: Math.max(m.getZoom(), 12.5), duration: 400 })
   }, [selectedId])
 
-  return <div className="map" ref={el} role="region" aria-label="Map of areas. The list has the same information." />
+  return <div className={`map ${picking ? 'picking' : ''}`} ref={el} role="region" aria-label="Map of areas. The list has the same information." />
 }

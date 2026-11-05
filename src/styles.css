@@ -226,3 +226,15 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
   .steps em{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+.seg-tabs{display:inline-flex;background:#F0F2F1;border-radius:10px;padding:3px;gap:2px;margin:2px 0 8px;flex-wrap:wrap}
+.seg-tabs button{font:inherit;font-size:13px;font-weight:600;border:0;background:transparent;color:var(--ink2);padding:6px 12px;border-radius:8px;cursor:pointer}
+.seg-tabs button[aria-pressed=true]{background:#fff;color:var(--teal-900);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg-tabs button:disabled{opacity:.4;cursor:not-allowed}
+.map.picking{outline:3px dashed var(--coral);outline-offset:-3px}
+.pickbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--coral-50);color:#5A2410;border-radius:14px;padding:12px 14px;margin:0 0 12px;font-size:14px}
+.addr-results{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}
+.addr-results button{width:100%;text-align:left;font:inherit;font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.addr-results button:hover{border-color:var(--teal)}
+.precision{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.precision.ok{background:var(--pub-bg);color:var(--pub)}.precision.warn{background:var(--est-bg);color:var(--est)}

@@ -48,17 +48,25 @@ export function RentTable({ area, data, highlight }) {
   )
 }
 
-/** Distance and travel time to every college. `transitFrom` explains when transit comes from a nearby area centre. */
-export function Colleges({ rows, data, transitFrom }) {
+const WHEN_TABS = [['am', 'Weekday 8am'], ['late', 'Home at night'], ['sat', 'Saturday']]
+const WHEN_NOTE = { am: 'to college, leaving 07:30 to 08:30', late: 'from college home, leaving 22:00 to 23:00', sat: 'to college on Saturday, leaving 10:00 to 11:00' }
+
+/** Distance and travel time to every college, with a switch for weekday morning, late night and Saturday. */
+export function Colleges({ rows, data, transitFrom, streets }) {
+  const [when, setWhen] = React.useState('am')
+  const hasLate = rows.some((r) => r.transit?.late != null), hasSat = rows.some((r) => r.transit?.sat != null)
   return (
     <Section icon="cap" badge="b-sky" title="Distance to every college" conf={null}
-      source={`Timetables: NTA GTFS, service day ${data.sources.transit.serviceDate}, ${data.sources.transit.licence}. Distances: OpenStreetMap.`}
-      how={<p>Bus/Luas/rail: middle value of 13 timetabled journeys leaving between 07:30 and 08:30{transitFrom ? `, from ${transitFrom}` : ''}. Bike: 15 km/h. Walk: 1.25 m/s. Bike and walk use straight-line distance times 1.3 for streets.</p>}>
+      source={`Timetables: NTA GTFS, ${data.sources.transit.licence}. ${streets ? 'Walking and cycling: real street routes, OpenStreetMap (OSRM).' : 'Distances: OpenStreetMap.'}`}
+      how={<p>Bus, Luas and rail: middle value of several timetabled journeys {WHEN_NOTE[when]}, door to door{transitFrom ? `, ${transitFrom}` : ''}. {streets ? 'Walking and cycling follow real streets and paths on OpenStreetMap.' : 'Walking (1.25 m/s) and cycling (15 km/h) use straight-line distance times 1.3 for streets.'} Scheduled times, not live.</p>}>
+      <div className="seg-tabs" role="group" aria-label="When">
+        {WHEN_TABS.map(([k, l]) => <button key={k} type="button" aria-pressed={when === k} disabled={(k === 'late' && !hasLate) || (k === 'sat' && !hasSat)} onClick={() => setWhen(k)}>{l}</button>)}
+      </div>
       <div style={{ overflowX: 'auto' }}>
         <table className="rtable">
-          <thead><tr><th scope="col">College</th><th scope="col">Distance</th><th scope="col">Bus/Luas</th><th scope="col">Bike</th><th scope="col">Walk</th></tr></thead>
-          <tbody>{rows.map((r) => (
-            <tr key={r.id}><th scope="row" style={{ fontWeight: 600 }}>{SHORT[r.id] || r.name}</th><td className="num">{r.km} km</td><td className="num"><b>{r.transit != null ? `${r.transit} min` : '–'}</b></td><td className="num">{r.cycle} min</td><td className="num">{r.walk > 90 ? '90+ min' : `${r.walk} min`}</td></tr>))}</tbody>
+          <thead><tr><th scope="col">College</th><th scope="col">{streets ? 'By street' : 'Distance'}</th><th scope="col">Bus/Luas</th><th scope="col">Bike</th><th scope="col">Walk</th></tr></thead>
+          <tbody>{rows.map((r) => { const t = r.transit?.[when]; return (
+            <tr key={r.id}><th scope="row" style={{ fontWeight: 600 }}>{SHORT[r.id] || r.name}</th><td className="num">{r.km} km</td><td className="num"><b>{t != null ? `${t} min` : '–'}</b></td><td className="num">{r.cycle != null ? `${r.cycle} min` : '–'}</td><td className="num">{r.walk == null ? '–' : r.walk > 90 ? '90+ min' : `${r.walk} min`}</td></tr>) })}</tbody>
         </table>
       </div>
     </Section>
@@ -66,7 +74,10 @@ export function Colleges({ rows, data, transitFrom }) {
 }
 
 export function collegeRowsForArea(area, data) {
-  return data.campuses.map((c) => { const t = area.toCampus[c.id]; return { id: c.id, name: c.name, km: t.distanceKm, transit: t.transit?.minutes ?? null, cycle: t.cycleMinutes, walk: t.walkMinutes } }).sort((a, b) => a.km - b.km)
+  return data.campuses.map((c) => {
+    const t = area.toCampus[c.id]
+    return { id: c.id, name: c.name, km: t.streetKm ?? t.distanceKm, transit: { am: t.transit?.minutes ?? null, late: t.late?.minutes ?? null, sat: t.sat?.minutes ?? null }, cycle: t.cycleMinutes, walk: t.walkMinutes }
+  }).sort((a, b) => a.km - b.km)
 }
 
 export function Groceries({ shops, data }) {
