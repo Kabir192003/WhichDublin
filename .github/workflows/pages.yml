@@ -14,7 +14,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-        env: { BASE_PATH: /WhichDublin/ }
+        env:
+          BASE_PATH: /WhichDublin/
+          VITE_GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
   deploy:

@@ -5,6 +5,8 @@ import { parseEircode, nearest, haversine } from '../domain/geo.js'
 import { streetTable, searchAddress } from '../domain/streets.js'
 import { loadNetwork, planFrom, WHEN } from '../domain/route.js'
 import { EircodeBox, SHORT, Icon } from './ui.jsx'
+import { hasGoogle, geocodeEircode, nearestStore, routeMatrix } from '../domain/google.js'
+import GoogleMap from './GoogleMap.jsx'
 
 const BASE = import.meta.env.BASE_URL
 const cache = new Map()
@@ -13,7 +15,10 @@ const cache = new Map()
 async function locate(e, data) {
   if (cache.has(e.full)) return cache.get(e.full)
   let res = null
-  if (e.uid) {
+  if (e.uid && hasGoogle()) {
+    try { const g = await geocodeEircode(e.full); if (g?.exact) res = { lat: g.lat, lon: g.lon, precision: 'exact', label: g.address, via: 'google' } } catch { /* fall back to open data */ }
+  }
+  if (!res && e.uid) {
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ie&limit=1&postalcode=${encodeURIComponent(e.full)}`)
       const j = r.ok ? await r.json() : []
@@ -23,6 +28,27 @@ async function locate(e, data) {
   if (!res && data.routingKeys[e.key]) { const k = data.routingKeys[e.key]; res = { lat: k.lat, lon: k.lon, precision: 'district', label: k.label } }
   cache.set(e.full, res)
   return res
+}
+
+/** Google version: stores from Places, routes from the Routes API. Throws on any failure so the caller can fall back. */
+async function routeGoogle(point, data) {
+  const campuses = data.campuses
+  const stores = await Promise.all(['Lidl', 'Aldi', 'Tesco'].map((b) => nearestStore(b, point)))
+  const found = stores.filter((x) => x.name)
+  const [walk, bike, transit] = await Promise.all([
+    routeMatrix(point, [...campuses, ...found], 'WALK'),
+    routeMatrix(point, campuses, 'BICYCLE'),
+    routeMatrix(point, campuses, 'TRANSIT')
+  ])
+  const [late, sat] = await Promise.all([
+    loadNetwork('late', BASE).then((n) => campuses.map((c) => planFrom(n, c, [point], WHEN.late.departs)[0])).catch(() => null),
+    loadNetwork('sat', BASE).then((n) => planFrom(n, point, campuses, WHEN.sat.departs)).catch(() => null)
+  ])
+  const min = (x) => (x ? Math.round(x.secs / 60) : null)
+  const colleges = campuses.map((c, i) => ({ id: c.id, name: c.name, km: walk[i]?.metres ? Math.round(walk[i].metres / 100) / 10 : Math.round(haversine(point, c) / 100) / 10, walk: min(walk[i]), cycle: min(bike[i]), transit: { am: min(transit[i]), late: late?.[i]?.minutes ?? null, sat: sat?.[i]?.minutes ?? null } })).sort((a, b) => a.km - b.km)
+  const shops = stores.map((st) => { const j = found.indexOf(st); const w = j >= 0 ? walk[campuses.length + j] : null; return st.name ? { brand: st.brand, name: st.name, address: st.address, lat: st.lat, lon: st.lon, walk: min(w), metres: w?.metres ?? null } : { brand: st.brand, walk: null } })
+  const [dk] = nearest(data.docks || [], point)
+  return { colleges, shops, dock: dk && dk.m < 2500 ? { name: dk.x.name, walk: Math.round(dk.m * 1.3 / 1.25 / 60) } : null, streets: true, via: 'google' }
 }
 
 /** Everything routed live from one exact point: street walking and cycling, and timetabled public transport. */
@@ -73,7 +99,8 @@ export default function Eircode({ data, code }) {
   useEffect(() => {
     if (!point) return
     let live = true; setBusy(true); setRoutes(null)
-    routeFrom(point, data).then((r) => { if (live) { setRoutes(r); setBusy(false) } })
+    const run = hasGoogle() ? routeGoogle(point, data).catch(() => routeFrom(point, data)) : routeFrom(point, data)
+    run.then((r) => { if (live) { setRoutes(r); setBusy(false) } })
     return () => { live = false }
   }, [point])
 
@@ -118,7 +145,7 @@ export default function Eircode({ data, code }) {
             </div>
           )}
           <div className="card lift" style={{ padding: 0, overflow: 'hidden', height: picking ? 440 : 340, position: 'relative' }}>
-            <MapView points={area ? [{ id: area.id, name: area.name, lat: area.lat, lon: area.lon, color: '#0B7A65' }] : []} campuses={campuses} pin={pin} fitKey={`${code}-${point ? 'p' : 'd'}`} picking={picking} onPick={(p) => choose(p, 'pinned')} />
+            {routes?.via === 'google' ? <GoogleMap point={point} campuses={data.campuses} shops={routes.shops} /> : <MapView points={area ? [{ id: area.id, name: area.name, lat: area.lat, lon: area.lon, color: '#0B7A65' }] : []} campuses={campuses} pin={pin} fitKey={`${code}-${point ? 'p' : 'd'}`} picking={picking} onPick={(p) => choose(p, 'pinned')} />}
           </div>
           {point && !picking && <p className="hint" style={{ marginTop: -6 }}>Wrong spot? <button className="link" onClick={() => setPicking(true)}>Move the pin</button></p>}
 
@@ -126,7 +153,8 @@ export default function Eircode({ data, code }) {
           {point && routes && (
             <div className="grid2" style={{ alignItems: 'start' }}>
               <div>
-                <Colleges rows={routes.colleges} data={data} streets={routes.streets} transitFrom="from this exact point" />
+                <Colleges rows={routes.colleges} data={data} streets={routes.streets} transitFrom={routes.via === 'google' ? 'from this exact address; weekday 8am times from Google Maps, night and Saturday from our timetable planner' : 'from this exact point'} />
+                {routes.via === 'google' && <p className="source" style={{ marginTop: -6 }}>Location, supermarkets and weekday routes: Google Maps. Not stored.</p>}
                 <Groceries shops={routes.shops} data={data} />
                 {routes.dock && <Dock home={routes.dock} data={data} />}
                 {!routes.streets && <p className="notice-inline">The street-routing service did not answer, so walking and cycling times are missing. Try again in a minute.</p>}
@@ -139,7 +167,7 @@ export default function Eircode({ data, code }) {
               </div>
             </div>
           )}
-          <p className="disclaimer">Lookups go to OpenStreetMap services: the Eircode or address you type is sent to Nominatim, and your point to the routing service. Nothing is stored by Which Dublin.</p>
+          <p className="disclaimer">{hasGoogle() ? 'Lookups go to Google Maps Platform (and OpenStreetMap services as a fallback): the Eircode you type is sent to them to find it. Nothing is stored by Which Dublin.' : 'Lookups go to OpenStreetMap services: the Eircode or address you type is sent to Nominatim, and your point to the routing service. Nothing is stored by Which Dublin.'}</p>
         </div>
       )}
     </>
