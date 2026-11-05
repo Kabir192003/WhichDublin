@@ -2,7 +2,7 @@
 // migration step to forget. Server-only: never imported by the browser bundle.
 import { neon } from '@neondatabase/serverless'
 
-const url = process.env.DATABASE_URL || process.env.POSTGRES_URL
+const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.STORAGE_URL
 export const hasDb = () => !!url
 let sql = null, ready = null
 
