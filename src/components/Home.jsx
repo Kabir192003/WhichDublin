@@ -1,6 +1,7 @@
 import React from 'react'
 import Controls from './Controls.jsx'
 import { EircodeBox, Icon } from './ui.jsx'
+import { CityLive } from './Live.jsx'
 
 const FEATURES = [
   ['home', 'b-teal', 'Rent for every home', '1 to 4+ beds; apartments, terraced, semi-detached and detached. Each figure says if it is published or estimated.', '#/areas'],
@@ -22,6 +23,7 @@ export default function Home({ data, s, set }) {
             <p className="lead">Rent for every home type, real timetable journeys to your college, the nearest Lidl, Aldi and Tesco, and where the part-time jobs are. Every number says where it came from.</p>
             <EircodeBox />
             <p className="sub">Viewing a place? Enter its Eircode to see the trip to every college, groceries, bikes and jobs nearby.</p>
+            <CityLive />
             <div className="figs">
               <div><b className="num">{data.areas.length}</b><span>areas compared</span></div>
               <div><b className="num">{data.campuses.length}</b><span>colleges</span></div>

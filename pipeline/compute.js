@@ -192,5 +192,7 @@ const dataset = {
   docks: docks.map((x) => ({ name: x.name && !/^dublinbikes$/i.test(x.name) ? x.name : 'Dublinbikes dock', lat: x.lat, lon: x.lon }))
 }
 fs.mkdirSync('public/data', { recursive: true })
+fs.mkdirSync('server', { recursive: true })
+fs.writeFileSync('server/area-ids.json', JSON.stringify(out.map((a) => a.id)))   // lets the API validate area ids
 fs.writeFileSync('public/data/areas.json', JSON.stringify(dataset))
 console.log('wrote public/data/areas.json', out.length, 'areas,', (fs.statSync('public/data/areas.json').size / 1024).toFixed(0), 'KB')

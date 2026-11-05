@@ -11,6 +11,7 @@ import Shortlist from './components/Shortlist.jsx'
 import { useShortlist } from './domain/shortlist.js'
 import { parseState, stateToSearch } from './domain/model.js'
 import { Logo, EircodeBox } from './components/ui.jsx'
+import Feedback from './components/Feedback.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
 const NAV = [['#/', 'Start', (h) => h === '' || h === '#/' || h === '#'], ['#/explore', 'Explore', (h) => h.startsWith('#/explore')], ['#/areas', 'Find my area', (h) => h.startsWith('#/areas')],
@@ -52,6 +53,7 @@ export default function App() {
           <a className="brand" href="#/" aria-label="Which Dublin, start"><Logo />Which Dublin</a>
           <nav className="nav" aria-label="Main">{NAV.map(([href, label, on]) => <a key={href} href={href} aria-current={on(hash) ? 'page' : undefined}>{label}</a>)}</nav>
           <a className="saved-link" href="#/shortlist" aria-current={hash.startsWith('#/shortlist') ? 'page' : undefined}>★ Shortlist{saved.length ? ` (${saved.length})` : ''}</a>
+          <Feedback />
           {data && !(hash === '' || hash === '#/' || hash.startsWith('#/eircode')) && <div className="top-eir"><EircodeBox small /></div>}
         </div>
       </header>

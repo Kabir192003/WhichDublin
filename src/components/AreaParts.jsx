@@ -1,6 +1,7 @@
 import React from 'react'
 import { WORK_CATEGORIES, cellConfidence } from '../domain/model.js'
 import { eur, SHORT, Conf, Icon, gmapsDir } from './ui.jsx'
+import { getJson, postJson } from '../domain/api.js'
 
 const BEDS = [['1', '1 bed'], ['2', '2 bed'], ['3', '3 bed'], ['4', '4+ bed'], ['all', 'All sizes']]
 const TYPES = [['any', 'Any'], ['apartment', 'Apartment'], ['terrace', 'Terraced'], ['semi', 'Semi-d'], ['detached', 'Detached']]
@@ -148,19 +149,39 @@ export function Dock({ home, campusDock, campusName, data, origin }) {
   )
 }
 
-let reportsP = null
-const REPORT_URL = 'https://github.com/Kabir192003/WhichDublin/issues/new?template=rent-report.yml'
-/** Room rents students reported for this area (medians only once 5+ people reported). */
+const ROOMS = ['Single room in a shared home', 'Double room in a shared home', 'En-suite room in a shared home', "Room in the owner's home (digs)", 'Studio', 'Whole 1-bed']
+let staticReportsP = null
+/** Room rents students report. Uses our API when the site runs with a server; otherwise the older GitHub-based list. */
 export function RoomReports({ area }) {
-  const [r, setR] = React.useState(null)
-  React.useEffect(() => { reportsP ||= fetch(`${import.meta.env.BASE_URL}data/reports.json`).then((x) => (x.ok ? x.json() : null)).catch(() => null); reportsP.then(setR) }, [])
-  const mine = r?.areas?.[area.id]
-  const rows = mine ? Object.entries(mine) : []
+  const [r, setR] = React.useState(null), [api, setApi] = React.useState(false)
+  const [open, setOpen] = React.useState(false), [msg, setMsg] = React.useState(null), [busy, setBusy] = React.useState(false)
+  const [f, setF] = React.useState({ room: ROOMS[1], rent: '', bills: 'no', since: '', consent: false })
+  const load = () => getJson(`/api/reports?area=${encodeURIComponent(area.id)}`).then((x) => { setApi(true); setR({ minReports: x.minReports, rooms: x.rooms }) })
+    .catch(() => { staticReportsP ||= fetch(`${import.meta.env.BASE_URL}data/reports.json`).then((x) => (x.ok ? x.json() : null)).catch(() => null); staticReportsP.then((x) => setR(x ? { minReports: x.minReports, rooms: x.areas?.[area.id] || {}, updated: x.updated } : null)) })
+  React.useEffect(() => { setMsg(null); setOpen(false); load() }, [area.id])
+  const submit = async (e) => {
+    e.preventDefault(); setBusy(true); setMsg(null)
+    try { await postJson('/api/reports', { area: area.id, room: f.room, rent: Number(f.rent), bills: f.bills, since: f.since || null, consent: f.consent }); setMsg({ ok: true, t: 'Thank you. Your report is saved anonymously and counts towards this area’s figures.' }); setOpen(false); load() }
+    catch (err) { setMsg({ ok: false, t: err.message }) } finally { setBusy(false) }
+  }
+  const rows = r?.rooms ? Object.entries(r.rooms) : []
   return (
-    <Section icon="home" badge="b-sand" title="Room rents students report" source={r?.updated ? `Student reports via GitHub, updated ${r.updated}. Medians shown only with ${r.minReports}+ reports.` : null}>
+    <Section icon="home" badge="b-sand" title="Room rents students report" source={r ? `Anonymous reports from students. Medians shown only once ${r.minReports} or more people report the same room type.` : null}>
       {rows.length ? <ul className="rows">{rows.map(([room, v]) => <li key={room}><span>{room}</span><b className="num">{v.median ? `€${v.median.toLocaleString('en-IE')} median (${v.n})` : `${v.n} of ${r.minReports} reports so far`}</b></li>)}</ul>
-        : <p>No reports for {area.name} yet. The RTB does not publish room prices, so these come from students.</p>}
-      <p style={{ marginTop: 8 }}><a href={REPORT_URL} target="_blank" rel="noreferrer">Report what you pay</a> <span className="hint">(public, needs a free GitHub account; no address needed)</span></p>
+        : <p>No reports for {area.name} yet. The RTB doesn’t publish room prices, so these come from students like you.</p>}
+      {msg && <p className={`form-msg ${msg.ok ? 'ok' : 'err'}`} role="status">{msg.t}</p>}
+      {api ? (open ? (
+        <form onSubmit={submit} style={{ marginTop: 10 }}>
+          <div className="form-grid">
+            <label className="field" style={{ gap: 4 }}><span className="hint" style={{ fontWeight: 600 }}>What you rent</span><div className="select" style={{ minHeight: 42 }}><select value={f.room} onChange={(e) => setF({ ...f, room: e.target.value })}>{ROOMS.map((x) => <option key={x}>{x}</option>)}</select></div></label>
+            <label className="field" style={{ gap: 4 }}><span className="hint" style={{ fontWeight: 600 }}>Rent per month (€)</span><input className="select" style={{ minHeight: 42, padding: '0 12px', width: '100%' }} inputMode="numeric" required value={f.rent} onChange={(e) => setF({ ...f, rent: e.target.value.replace(/[^0-9]/g, '').slice(0, 4) })} placeholder="e.g. 850" /></label>
+            <label className="field" style={{ gap: 4 }}><span className="hint" style={{ fontWeight: 600 }}>Bills included?</span><div className="select" style={{ minHeight: 42 }}><select value={f.bills} onChange={(e) => setF({ ...f, bills: e.target.value })}><option value="no">No</option><option value="yes">Yes</option><option value="some">Some</option></select></div></label>
+            <label className="field" style={{ gap: 4 }}><span className="hint" style={{ fontWeight: 600 }}>Since (optional)</span><input className="select" style={{ minHeight: 42, padding: '0 12px', width: '100%' }} type="month" value={f.since} onChange={(e) => setF({ ...f, since: e.target.value })} /></label>
+          </div>
+          <label className="check"><input type="checkbox" checked={f.consent} onChange={(e) => setF({ ...f, consent: e.target.checked })} required /> I agree this is used, anonymously, in area averages. No address, name or account needed.</label>
+          <div className="actions"><button className="btn sm" disabled={busy}>{busy ? 'Sending…' : 'Send report'}</button><button type="button" className="btn ghost sm" onClick={() => setOpen(false)}>Cancel</button></div>
+        </form>) : <p style={{ marginTop: 8 }}><button className="btn soft sm" onClick={() => setOpen(true)}>Report what you pay</button> <span className="hint">anonymous, takes 20 seconds</span></p>)
+        : <p style={{ marginTop: 8 }}><a href="https://github.com/Kabir192003/WhichDublin/issues/new?template=rent-report.yml" target="_blank" rel="noreferrer">Report what you pay</a> <span className="hint">(via GitHub)</span></p>}
     </Section>
   )
 }

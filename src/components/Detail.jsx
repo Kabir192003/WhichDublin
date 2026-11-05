@@ -3,6 +3,7 @@ import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor } from '../dom
 import { eur, SHORT, HOW_CHIP } from './ui.jsx'
 import { SaveButton } from './Shortlist.jsx'
 import { CostCard } from './Cost.jsx'
+import { LiveRoutes } from './Live.jsx'
 import { Essentials, RoomReports, Section, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
 
 const mapsLink = (a, campus, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lon}&destination=${campus.lat},${campus.lon}&travelmode=${mode === 'transit' ? 'transit' : mode === 'walk' ? 'walking' : 'bicycling'}`
@@ -54,6 +55,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
       <Section icon="bus" badge="b-sky" title="Buses, Luas and trains near home" source={`${src.transit.name}, ${src.transit.licence}`}>
         {area.transit?.nearestStop ? <p>Nearest stop: <b>{area.transit.nearestStop.name}</b>, {area.transit.nearestStop.walkMinutes} min walk.</p> : <p className="muted">No stop within a 10 minute walk.</p>}
         {area.transit?.routes && <div style={{ display: 'grid', gap: 6, marginTop: 6 }}>{[['Bus', area.transit.routes.bus], ['Luas', area.transit.routes.tram], ['Rail', area.transit.routes.rail]].filter(([, r]) => r?.length).map(([l, r]) => <p key={l} style={{ margin: 0 }}><b>{l}</b> {r.join(', ')}</p>)}</div>}
+        <LiveRoutes routes={area.transit?.routes} />
       </Section>
       <p className="disclaimer">Planning aid only. Check live listings and current timetables before you decide.</p>
     </article>

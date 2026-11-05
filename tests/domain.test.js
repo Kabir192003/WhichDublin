@@ -214,3 +214,17 @@ test('cost range: bills split between people, own figures override, energy ratin
   assert.ok(good.typical.parts.bills < bad.typical.parts.bills)
   assert.equal(good.typical.parts.bills - 50, Math.round(150 * 0.7) + Math.round(60 * 0.7))   // broadband unaffected
 })
+
+import { summarise as liveSummary } from '../server/live.js'
+test('live: delays summarised per route by name, latest stop update per trip, city share late', () => {
+  const feed = { header: { timestamp: '1793846000' }, entity: [
+    { trip_update: { trip: { route_id: '1 11 c a' }, stop_time_update: [{ arrival: { delay: 30 } }, { arrival: { delay: 420 } }] } },
+    { trip_update: { trip: { route_id: '1 11 c a' }, stop_time_update: [{ departure: { delay: 0 } }] } },
+    { trip_update: { trip: { route_id: '10000 GREEN g a' }, stop_time_update: [{ arrival: { delay: 60 } }] } },
+    { trip_update: { trip: { route_id: 'unknown' }, stop_time_update: [] } }
+  ] }
+  const r = liveSummary(feed)
+  assert.equal(r.city.trips, 3); assert.equal(r.city.late5Pct, 33)
+  assert.equal(r.routes['bus:11'].trips, 2); assert.equal(r.routes['bus:11'].operator, 'Dublin Bus')
+  assert.equal(r.routes['tram:Green'].medianMin, 1)
+})

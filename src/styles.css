@@ -257,3 +257,11 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 
 .ber-scale{display:grid;gap:3px;margin:12px 0 4px}
 .ber-scale span{display:block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:0 999px 999px 0;max-width:100%}
+.live{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.live-head{margin:0 0 6px!important;font-size:13px!important;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:#2BB673;box-shadow:0 0 0 0 rgba(43,182,115,.6);animation:pulse 2s infinite;display:inline-block}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(43,182,115,.55)}70%{box-shadow:0 0 0 8px rgba(43,182,115,0)}100%{box-shadow:0 0 0 0 rgba(43,182,115,0)}}
+.city-live{margin:18px 0 0;font-size:14px;color:#CFE5DF;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:8px 0}
+.form-msg{font-size:14px;margin:8px 0 0}.form-msg.ok{color:var(--hi)}.form-msg.err{color:var(--lo)}
+textarea.select{min-height:96px;padding:10px 12px;font:inherit;width:100%;resize:vertical}
