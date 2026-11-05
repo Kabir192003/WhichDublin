@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
 import Detail from './Detail.jsx'
 import Compare from './Compare.jsx'
+import { SaveButton } from './Shortlist.jsx'
 import { rankAreas, PRESETS } from '../domain/rank.js'
 import { RENT_TYPES, HOME_TYPES, MODES, WORK_CATEGORIES, buildRows, workMix } from '../domain/model.js'
 import { eur, SHORT, Pill, HOW_CHIP } from './ui.jsx'
@@ -83,6 +84,7 @@ export default function Finder({ data, s, set }) {
                     <div className="ahead">
                       <span className={`rank ${r.rank <= 3 ? 'top' : ''}`}>{r.rank}</span>
                       <button className="aname" onClick={() => pick(r.id)}><b>{a.name}</b><span>{a.district ? `Dublin ${a.district.slice(1)}` : 'Co. Dublin'}</span></button>
+                      <SaveButton id={r.id} small />
                       <button className="cmp-btn" aria-pressed={on} onClick={() => toggleCompare(r.id)}>{on ? '✓ Added' : '+ Compare'}</button>
                     </div>
                     <button className="stats" style={{ font: 'inherit', background: 'none', border: 0, padding: 0, textAlign: 'left', cursor: 'pointer', color: 'inherit' }} onClick={() => pick(r.id)} aria-label={`Open ${a.label}`}>

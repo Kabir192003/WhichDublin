@@ -108,3 +108,14 @@ export function workMix(area, areas) {
   }).sort((x, y) => y.rel - x.rel)
   return { top: best[0].rel > 0 ? best[0].cat : null, items: best }
 }
+
+// ---- monthly cost -----------------------------------------------------------------------------------------------
+/** Public transport cost a month, from the Dublin 90-minute fare. Fare caps are not applied (we could not confirm them). */
+export function travelCost(mode, { daysPerWeek = 5, fare = 1 } = {}) {
+  if (mode !== 'transit') return 0
+  return Math.round(fare * 2 * daysPerWeek * 52 / 12)
+}
+export function monthlyCost({ rentShare, travel = 0, bills = 0, food = 0, phone = 0 }) {
+  const parts = { rent: rentShare || 0, travel, bills, food, phone }
+  return { parts, total: Object.values(parts).reduce((a, b) => a + (Number(b) || 0), 0) }
+}

@@ -40,6 +40,9 @@ const bikeFile = fs.existsSync('data/raw/bikes.json') ? read('data/raw/bikes.jso
 const docks = bikeFile ? bikeFile.docks.filter((d) => /jcdecaux|cyclocity|deceaux/i.test(d.operator + ' ' + d.brand) || /dublinbikes/i.test(d.name)).map((d) => ({ ...d, name: d.name && !/^dublinbikes$/i.test(d.name) ? d.name : 'Dublinbikes dock' })) : []
 const empFile = fs.existsSync('data/raw/employers.json') ? read('data/raw/employers.json') : null
 const nearestDock = (pt, maxMetres = 1500) => { let best = null; for (const d of docks) { const m = haversineMetres(pt, d); if (m <= maxMetres && (!best || m < best.m)) best = { d, m } } return best }
+// real street routes (walk, bike) per area, when route-streets.py has run
+const streets = fs.existsSync('data/build/streets.json') ? read('data/build/streets.json') : null
+const st = (aid, profile, key) => streets?.areas?.[aid]?.[profile]?.[key] || null   // [metres, secs]
 const dockOut = (b) => b && { name: b.d.name, lat: b.d.lat, lon: b.d.lon, metres: Math.round(b.m * 1.3 / 10) * 10, walkMinutes: Math.round(walkSecs(b.m) / 60) }
 console.log('bike docks', docks.length)
 for (const c of campuses) c.dock = dockOut(nearestDock(c))
@@ -77,8 +80,10 @@ for (const a of rent.areas) {
     const direct = haversineMetres(origin, c)
     toCampus[c.id] = {
       distanceKm: Math.round(direct / 100) / 10,
-      walkMinutes: Math.round(walkSecs(direct) / 60),
-      cycleMinutes: Math.round(((direct * 1.3) / 4.2) / 60),     // 15 km/h
+      walkMinutes: st(a.id, 'foot', 'c:' + c.id)?.[1] != null ? Math.round(st(a.id, 'foot', 'c:' + c.id)[1] / 60) : Math.round(walkSecs(direct) / 60),
+      cycleMinutes: st(a.id, 'bike', 'c:' + c.id)?.[1] != null ? Math.round(st(a.id, 'bike', 'c:' + c.id)[1] / 60) : Math.round(((direct * 1.3) / 4.2) / 60),     // 15 km/h
+      streetKm: st(a.id, 'foot', 'c:' + c.id)?.[0] != null ? Math.round(st(a.id, 'foot', 'c:' + c.id)[0] / 100) / 10 : undefined,
+      routed: !!st(a.id, 'foot', 'c:' + c.id),
       transit: s && { minutes: s.minutes, bestMinutes: s.bestMinutes, worstMinutes: s.worstMinutes, changes: s.changes, walkMinutes: s.walkMinutes, departures: s.departures,
                       confidence: confidence('commute', { departures: s.departures, walkShare: s.walkShare }) }
     }
@@ -121,6 +126,9 @@ for (const a of rent.areas) {
   for (const brand of ['Lidl', 'Aldi', 'Tesco']) {
     const ranked = stores.filter((s) => s.brand === brand).map((s) => ({ s, d: haversineMetres(origin, s) })).sort((x, y) => x.d - y.d)
     const best = ranked[0]
+    // prefer the street-routed nearest among the candidates the router checked
+    const routed = streets?.areas?.[a.id]?.foot ? ranked.slice(0, 3).map((r) => ({ r, x: st(a.id, 'foot', `s:${brand}:${r.s.osm}`) })).filter((o) => o.x && o.x[1] != null).sort((p, q) => p.x[1] - q.x[1])[0] : null
+    if (routed) { groceries[brand] = { name: routed.r.s.name, walkMinutes: Math.round(routed.x[1] / 60), metres: Math.round(routed.x[0] / 10) * 10, osm: routed.r.s.osm, within1km: ranked.filter((r) => r.d * 1.3 <= 1000).length, routed: true }; continue }
     groceries[brand] = best && { name: best.s.name, walkMinutes: Math.round(walkSecs(best.d) / 60), metres: Math.round(best.d * 1.3 / 10) * 10, osm: best.s.osm, within1km: ranked.filter((r) => r.d * 1.3 <= 1000).length }
   }
   const budget = ['Lidl', 'Aldi'].map((b) => groceries[b]).filter(Boolean)
@@ -134,7 +142,7 @@ for (const a of rent.areas) {
             confidence: confidence('rent', { cells: a.populatedCells, ageDays }) },
     transit: { nearestStop: nearest ? { name: stops[nearest.stop].name, walkMinutes: Math.round(nearest.secs / 60) } : null, routes: modes },
     toCampus, groceries, nearestBudgetGroceryMinutes: nearestBudget,
-    nearestDock: dockOut(homeDock), work: emp ? work : null,
+    nearestDock: (() => { const d = dockOut(homeDock); const x = d && homeDock && st(a.id, 'foot', 'd:' + homeDock.d.osm); return d && x ? { ...d, walkMinutes: Math.round(x[1] / 60), metres: Math.round(x[0] / 10) * 10, routed: true } : d })(), work: emp ? work : null,
     about: d ? { text: sentences, title: d.title, url: d.url } : null
   })
   if (++n % 20 === 0) console.log('areas', n, '/', rent.areas.length)
@@ -161,6 +169,7 @@ const dataset = {
     groceries: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: storeFetched, note: 'May be incomplete: community-maintained map data.' },
     bikes: { name: 'OpenStreetMap contributors (Dublinbikes docks)', licence: 'ODbL 1.0', fetched: bikeFile && bikeFile.fetched, note: 'Docks mapped in OpenStreetMap; not every station may be included. See dublinbikes.ie for the live map.' },
     employers: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: empFile && empFile.fetched, radiusMetres: 1000, categories: empFile && empFile.categories, note: 'Counts places that could employ students within about 1 km. Not vacancies. Counts stop at 40 per place type.' },
+    streets: streets && { name: 'OpenStreetMap contributors, routed with OSRM (routing.openstreetmap.de, FOSSGIS)', licence: 'ODbL 1.0', fetched: streets.fetched, areas: Object.keys(streets.areas).length },
     descriptions: { name: 'Wikipedia', licence: 'CC BY-SA 4.0', url: 'https://en.wikipedia.org' }
   },
   campuses, areas: out, routingKeys,

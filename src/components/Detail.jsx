@@ -1,6 +1,8 @@
 import React from 'react'
 import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor } from '../domain/model.js'
 import { eur, SHORT, HOW_CHIP } from './ui.jsx'
+import { SaveButton } from './Shortlist.jsx'
+import { CostCard } from './Cost.jsx'
 import { Section, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
 
 const mapsLink = (a, campus, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lon}&destination=${campus.lat},${campus.lon}&travelmode=${mode === 'transit' ? 'transit' : mode === 'walk' ? 'walking' : 'bicycling'}`
@@ -19,6 +21,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
         <div className="stat s-groc"><b>{area.nearestBudgetGroceryMinutes ?? '–'} min</b><small>to Lidl/Aldi</small></div>
       </div>
       <div className="actions">
+        <SaveButton id={area.id} />
         <button className="btn sm" onClick={onCompare}>{inCompare ? '✓ In compare list' : '+ Add to compare'}</button>
         <a className="btn ghost sm" href={mapsLink(area, campus, s.mode)} target="_blank" rel="noreferrer">Live route in Google Maps</a>
       </div>
@@ -28,6 +31,8 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
         <p className="big"><b>{eur(rent.perPerson)}</b> a month, your share</p>
         <p>{RENT_TYPES[s.type].label}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
       </Section>}
+
+      {rent && <CostCard rentShare={rent.perPerson} mode={s.mode} />}
 
       <Section icon="clock" badge="b-sky" title={`Getting to ${college}`} conf={commute?.confidence}
         source={s.mode === 'transit' ? `NTA timetables, ${src.transit.serviceDate}, ${src.transit.licence}` : s.mode === 'bikeshare' ? `${src.bikes.name}, ${src.bikes.licence}` : 'Distance between OpenStreetMap locations'}

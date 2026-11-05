@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
 import { RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
 import { eur, SHORT, Icon } from './ui.jsx'
+import { SaveButton } from './Shortlist.jsx'
 
 const SCALE = ['#BFE3D8', '#7FC2AE', '#2E9A80', '#0B6B57', '#0B3F37']
 
@@ -46,7 +47,7 @@ export default function Explore({ data }) {
               <div className="stat s-time"><b>{eur(area.rent.cells['2:any'].v)}</b><small>2-bed average</small></div>
               <div className="stat s-groc"><b>{eur(area.rent.cells['3:any'].v)}</b><small>3-bed average</small></div>
             </div>
-            <div className="actions"><a className="btn sm" href={`#/areas`}>Rank areas for my needs</a></div>
+            <div className="actions"><SaveButton id={area.id} /><a className="btn sm" href={`#/areas`}>Rank areas for my needs</a></div>
             <RentTable area={area} data={data} />
             <Colleges rows={collegeRowsForArea(area, data)} data={data} />
             <Groceries shops={shopsForArea(area)} data={data} />

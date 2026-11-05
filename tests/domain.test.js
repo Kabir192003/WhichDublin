@@ -179,3 +179,11 @@ test('eircode: from a point, colleges sorted by distance and nearest shops found
   assert.ok(Math.abs(haversine({ lat: 53, lon: -6 }, { lat: 53.01, lon: -6 }) - 1112) < 5)
   assert.equal(walkMin(1000), 17)
 })
+
+import { travelCost, monthlyCost } from '../src/domain/model.js'
+test('cost: travel uses the 90-minute fare twice a day, only for public transport', () => {
+  assert.equal(travelCost('transit', { daysPerWeek: 5, fare: 1 }), 43)
+  assert.equal(travelCost('transit', { daysPerWeek: 5, fare: 2 }), 87)
+  assert.equal(travelCost('walk'), 0); assert.equal(travelCost('cycle'), 0)
+  assert.equal(monthlyCost({ rentShare: 900, travel: 43, bills: 60, food: '200' }).total, 1203)
+})

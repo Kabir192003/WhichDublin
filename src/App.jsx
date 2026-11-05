@@ -6,12 +6,15 @@ import Eircode from './components/Eircode.jsx'
 import Method from './components/Method.jsx'
 import Work from './components/Work.jsx'
 import Settle from './components/Settle.jsx'
+import Renting from './components/Renting.jsx'
+import Shortlist from './components/Shortlist.jsx'
+import { useShortlist } from './domain/shortlist.js'
 import { parseState, stateToSearch } from './domain/model.js'
 import { Logo, EircodeBox } from './components/ui.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
 const NAV = [['#/', 'Start', (h) => h === '' || h === '#/' || h === '#'], ['#/explore', 'Explore', (h) => h.startsWith('#/explore')], ['#/areas', 'Find my area', (h) => h.startsWith('#/areas')],
-  ['#/work', 'Part-time work', (h) => h.startsWith('#/work')], ['#/settle', 'Settling in', (h) => h.startsWith('#/settle')], ['#/method', 'How we know', (h) => h.startsWith('#/method')]]
+  ['#/work', 'Part-time work', (h) => h.startsWith('#/work')], ['#/settle', 'Settling in', (h) => h.startsWith('#/settle')], ['#/renting', 'Renting safely', (h) => h.startsWith('#/renting')], ['#/method', 'How we know', (h) => h.startsWith('#/method')]]
 
 function useHash() {
   const [hash, setHash] = useState(location.hash)
@@ -26,6 +29,7 @@ export default function App() {
   useEffect(() => { fetch(DATA_URL).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() }).then((d) => { setData(d); setS(parseState(location.search, d.campuses.map((c) => c.id))) }).catch((e) => setErr(String(e))) }, [])
   useEffect(() => { history.replaceState(null, '', `?${stateToSearch(s)}${location.hash}`) }, [s])
   const set = (patch) => setS((p) => ({ ...p, ...patch }))
+  const saved = useShortlist()
 
   let body, bleed = false
   if (err) body = <p className="notice">Could not load the data ({err}). Please refresh.</p>
@@ -36,6 +40,8 @@ export default function App() {
   else if (hash.startsWith('#/work')) body = <Work data={data} />
   else if (hash.startsWith('#/settle')) body = <Settle />
   else if (hash.startsWith('#/method')) body = <Method data={data} />
+  else if (hash.startsWith('#/renting')) body = <Renting />
+  else if (hash.startsWith('#/shortlist')) body = <Shortlist data={data} s={s} shared={decodeURIComponent(hash.split('/')[2] || '')} />
   else body = <Home data={data} s={s} set={set} />
 
   return (
@@ -45,6 +51,7 @@ export default function App() {
         <div className="top-in">
           <a className="brand" href="#/" aria-label="Which Dublin, start"><Logo />Which Dublin</a>
           <nav className="nav" aria-label="Main">{NAV.map(([href, label, on]) => <a key={href} href={href} aria-current={on(hash) ? 'page' : undefined}>{label}</a>)}</nav>
+          <a className="saved-link" href="#/shortlist" aria-current={hash.startsWith('#/shortlist') ? 'page' : undefined}>★ Shortlist{saved.length ? ` (${saved.length})` : ''}</a>
           {data && !(hash === '' || hash === '#/' || hash.startsWith('#/eircode')) && <div className="top-eir"><EircodeBox small /></div>}
         </div>
       </header>
