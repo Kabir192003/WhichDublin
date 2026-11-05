@@ -5,11 +5,12 @@ import { parseEircode, nearest, haversine } from '../domain/geo.js'
 import { streetTable, searchAddress } from '../domain/streets.js'
 import { loadNetwork, planFrom, WHEN } from '../domain/route.js'
 import { EircodeBox, SHORT, Icon } from './ui.jsx'
-import { hasGoogle, geocodeEircode, nearestStore, routeMatrix } from '../domain/google.js'
+import { hasGoogle, geocodeEircode, routeMatrix } from '../domain/google.js'
 import GoogleMap from './GoogleMap.jsx'
 
 const BASE = import.meta.env.BASE_URL
 const cache = new Map()
+const routeCache = new Map()   // this visit only, so going back and forth doesn't repeat paid-tier calls
 
 /** Exact spot from OpenStreetMap when the Eircode is mapped there; otherwise only the district, which is NOT an address. */
 async function locate(e, data) {
@@ -30,23 +31,28 @@ async function locate(e, data) {
   return res
 }
 
-/** Google version: stores from Places, routes from the Routes API. Throws on any failure so the caller can fall back. */
+/**
+ * Google version, kept inside Google's free monthly allowance: Google gives the exact location (geocoding), the map,
+ * and walking routes only (about 15 route elements per lookup). Supermarkets come from our open store list (the two
+ * nearest of each chain, then the shorter walk wins), cycling from the OpenStreetMap router, and public transport
+ * from our own timetable planner. Throws on any Google failure so the caller can fall back.
+ */
 async function routeGoogle(point, data) {
   const campuses = data.campuses
-  const stores = await Promise.all(['Lidl', 'Aldi', 'Tesco'].map((b) => nearestStore(b, point)))
-  const found = stores.filter((x) => x.name)
-  const [walk, bike, transit] = await Promise.all([
-    routeMatrix(point, [...campuses, ...found], 'WALK'),
-    routeMatrix(point, campuses, 'BICYCLE'),
-    routeMatrix(point, campuses, 'TRANSIT')
-  ])
-  const [late, sat] = await Promise.all([
+  const shopCands = ['Lidl', 'Aldi', 'Tesco'].flatMap((b) => nearest(data.stores.filter((s) => s.brand === b), point, 2).map((x) => x.x))
+  const walk = await routeMatrix(point, [...campuses, ...shopCands], 'WALK')
+  const [bike, am, late, sat] = await Promise.all([
+    streetTable('bike', point, campuses),
+    loadNetwork('am', BASE).then((n) => planFrom(n, point, campuses, WHEN.am.departs)).catch(() => null),
     loadNetwork('late', BASE).then((n) => campuses.map((c) => planFrom(n, c, [point], WHEN.late.departs)[0])).catch(() => null),
     loadNetwork('sat', BASE).then((n) => planFrom(n, point, campuses, WHEN.sat.departs)).catch(() => null)
   ])
   const min = (x) => (x ? Math.round(x.secs / 60) : null)
-  const colleges = campuses.map((c, i) => ({ id: c.id, name: c.name, km: walk[i]?.metres ? Math.round(walk[i].metres / 100) / 10 : Math.round(haversine(point, c) / 100) / 10, walk: min(walk[i]), cycle: min(bike[i]), transit: { am: min(transit[i]), late: late?.[i]?.minutes ?? null, sat: sat?.[i]?.minutes ?? null } })).sort((a, b) => a.km - b.km)
-  const shops = stores.map((st) => { const j = found.indexOf(st); const w = j >= 0 ? walk[campuses.length + j] : null; return st.name ? { brand: st.brand, name: st.name, address: st.address, lat: st.lat, lon: st.lon, walk: min(w), metres: w?.metres ?? null } : { brand: st.brand, walk: null } })
+  const colleges = campuses.map((c, i) => ({ id: c.id, name: c.name, km: walk[i]?.metres ? Math.round(walk[i].metres / 100) / 10 : Math.round(haversine(point, c) / 100) / 10, walk: min(walk[i]), cycle: min(bike?.[i]), transit: { am: am?.[i]?.minutes ?? null, late: late?.[i]?.minutes ?? null, sat: sat?.[i]?.minutes ?? null } })).sort((a, b) => a.km - b.km)
+  const shops = ['Lidl', 'Aldi', 'Tesco'].map((brand) => {
+    const opts = shopCands.map((s, j) => ({ s, r: walk[campuses.length + j] })).filter((o) => o.s.brand === brand && o.r).sort((x, y) => x.r.secs - y.r.secs)
+    return opts[0] ? { brand, name: opts[0].s.name, lat: opts[0].s.lat, lon: opts[0].s.lon, walk: min(opts[0].r), metres: opts[0].r.metres } : { brand, walk: null }
+  })
   const [dk] = nearest(data.docks || [], point)
   return { colleges, shops, dock: dk && dk.m < 2500 ? { name: dk.x.name, walk: Math.round(dk.m * 1.3 / 1.25 / 60) } : null, streets: true, via: 'google' }
 }
@@ -99,7 +105,9 @@ export default function Eircode({ data, code }) {
   useEffect(() => {
     if (!point) return
     let live = true; setBusy(true); setRoutes(null)
-    const run = hasGoogle() ? routeGoogle(point, data).catch(() => routeFrom(point, data)) : routeFrom(point, data)
+    const k = `${point.lat.toFixed(5)},${point.lon.toFixed(5)}`
+    if (!routeCache.has(k)) routeCache.set(k, hasGoogle() ? routeGoogle(point, data).catch(() => routeFrom(point, data)) : routeFrom(point, data))
+    const run = routeCache.get(k)
     run.then((r) => { if (live) { setRoutes(r); setBusy(false) } })
     return () => { live = false }
   }, [point])
@@ -153,8 +161,8 @@ export default function Eircode({ data, code }) {
           {point && routes && (
             <div className="grid2" style={{ alignItems: 'start' }}>
               <div>
-                <Colleges rows={routes.colleges} data={data} streets={routes.streets} transitFrom={routes.via === 'google' ? 'from this exact address; weekday 8am times from Google Maps, night and Saturday from our timetable planner' : 'from this exact point'} />
-                {routes.via === 'google' && <p className="source" style={{ marginTop: -6 }}>Location, supermarkets and weekday routes: Google Maps. Not stored.</p>}
+                <Colleges rows={routes.colleges} data={data} streets={routes.streets} transitFrom={routes.via === 'google' ? 'from this exact address (public transport from our timetable planner; walking from Google Maps; cycling from OpenStreetMap)' : 'from this exact point'} />
+                {routes.via === 'google' && <p className="source" style={{ marginTop: -6 }}>Exact location, map and walking routes: Google Maps. Supermarkets: OpenStreetMap. Not stored.</p>}
                 <Groceries shops={routes.shops} data={data} />
                 {routes.dock && <Dock home={routes.dock} data={data} />}
                 {!routes.streets && <p className="notice-inline">The street-routing service did not answer, so walking and cycling times are missing. Try again in a minute.</p>}
