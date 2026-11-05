@@ -1,10 +1,10 @@
 // POST /api/reports  { area, room, rent, bills, since }   anonymous room-rent report (rate-limited, validated)
 // GET  /api/reports?area=<id>                             medians per room type, only once 5+ people reported
-import { createRequire } from 'node:module'
 import { db } from '../server/db.js'
 import { send, fail, ipHash, readJson, sameOrigin } from '../server/http.js'
 import { ROOMS, MIN_REPORTS } from '../server/rooms.js'
-const AREAS = new Set(createRequire(import.meta.url)('../server/area-ids.json'))
+import areaIds from '../server/area-ids.js'
+const AREAS = new Set(areaIds)
 
 export default async function handler(req, res) {
   try {

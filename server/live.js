@@ -1,6 +1,5 @@
 // Live delays from the NTA GTFS-Realtime feed. The key stays on the server; one fetch is shared for 30 seconds.
-import { createRequire } from 'node:module'
-const routes = createRequire(import.meta.url)('./routes.json')
+import routes from './routes.js'
 
 const TTL = 30_000
 let cache = { at: 0, data: null, pending: null }
