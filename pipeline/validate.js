@@ -21,7 +21,11 @@ for (const a of d.areas) {
   if (!inDublin(a.lat, a.lon)) bad(`${w} coordinates outside Dublin ${a.lat},${a.lon}`)
   if (!a.rent?.quarter) bad(`${w} rent has no quarter`)
   if (!['high', 'medium', 'low'].includes(a.rent?.confidence)) bad(`${w} rent has no confidence`)
-  for (const [cell, v] of Object.entries(a.rent?.cells ?? {})) if (!(v >= 300 && v <= 9000)) bad(`${w} rent ${cell}=${v} implausible`)
+  for (const [cell, c] of Object.entries(a.rent?.cells ?? {})) {
+    if (!(c.v >= 300 && c.v <= 12000)) bad(`${w} rent ${cell}=${c.v} implausible`)
+    if (!['published', 'carried', 'estimated'].includes(c.how)) bad(`${w} rent ${cell} has no method`)
+  }
+  if (Object.keys(a.rent?.cells ?? {}).length !== 25) bad(`${w} rent does not cover every size and type`)
   for (const c of campusIds) {
     const t = a.toCampus?.[c]
     if (!t) { bad(`${w} missing campus ${c}`); continue }

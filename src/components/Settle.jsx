@@ -18,11 +18,10 @@ const Toc = () => (
 
 export default function Settle() {
   return (
-    <article className="doc wide">
-      <p><a href="#/">← Back to start</a></p>
-      <h1>Settling in</h1>
-      <p className="lead">What to sort out after you land, in a sensible order. Each section says where the information comes from and what we could not confirm.</p>
-      <Toc />
+    <>
+    <section className="page-hero"><div className="wrap"><h1>Settling in</h1><p>What to sort out after you land, in a sensible order. Each section says where the information comes from and what we could not confirm.</p></div></section>
+    <article className="wrap page-body">
+      <div className="card lift"><h2>Your first weeks</h2><Toc /></div>
 
       <section className="card" id="irp" aria-labelledby="h-irp">
         <h2 id="h-irp">1. Register with immigration (IRP)</h2>
@@ -70,5 +69,6 @@ export default function Settle() {
       </section>
       <p className="disclaimer">General information, not legal or financial advice. Rules and prices change: confirm with the official source before you act.</p>
     </article>
+    </>
   )
 }

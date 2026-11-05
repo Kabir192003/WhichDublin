@@ -1,75 +1,53 @@
 import React from 'react'
-import { RENT_TYPES, MODES, WORK_CATEGORIES, rentPerPerson, commuteFor } from '../domain/model.js'
-import { eur, SHORT, Conf } from './ui.jsx'
+import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor } from '../domain/model.js'
+import { eur, SHORT, HOW_CHIP } from './ui.jsx'
+import { Section, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
 
 const mapsLink = (a, campus, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lon}&destination=${campus.lat},${campus.lon}&travelmode=${mode === 'transit' ? 'transit' : mode === 'walk' ? 'walking' : 'bicycling'}`
 
-function Card({ title, conf, headline, children, source, how }) {
-  return (
-    <section className="fact">
-      <div className="fact-head"><h3>{title}</h3><Conf level={conf} /></div>
-      {headline && <p className="big">{headline}</p>}
-      {children}
-      {how && <details className="how"><summary>How this is worked out</summary><div>{how}</div></details>}
-      {source && <p className="source">Source: {source}</p>}
-    </section>
-  )
-}
-
-export default function Detail({ area, s, campus, row, rank, data, onBack, inCompare, onCompare }) {
-  const rent = rentPerPerson(area, s.type), commute = commuteFor(area, s.campus, s.mode)
+export default function Detail({ area, s, campus, rank, data, onBack, inCompare, onCompare }) {
+  const rent = rentPerPerson(area, s.type, s.ptype), commute = commuteFor(area, s.campus, s.mode)
   const src = data.sources, college = SHORT[s.campus]
-  const summary = [rent && `${eur(rent.perPerson)} a month`, commute && `${commute.minutes} min to ${college}`, area.nearestBudgetGroceryMinutes != null && `Lidl or Aldi ${area.nearestBudgetGroceryMinutes} min walk`].filter(Boolean).join(' · ')
   return (
     <article className="detail" aria-label={area.label}>
-      <button className="link back" onClick={onBack}>← Back to all areas</button>
-      <h2>{area.label}</h2>
-      <p className="verdict">{rank ? <>Ranked <b>{rank.rank}</b> for your choices. </> : <>Not ranked: outside your budget or missing data. </>}{summary}</p>
-      {area.about && <p className="about">{area.about.text} <a href={area.about.url} target="_blank" rel="noreferrer">Wikipedia</a></p>}
-      <div className="actions top">
+      <button className="link back" onClick={onBack}>← Back to results</button>
+      <h1>{area.label}</h1>
+      <p className="verdict">{rank ? <>Ranked <b>{rank.rank}</b> for your choices.</> : <>Outside your budget, or no journey for this travel mode.</>}</p>
+      <div className="glance">
+        <div className="stat s-rent"><b>{rent ? eur(rent.perPerson) : '–'}</b><small>your share / month</small></div>
+        <div className="stat s-time"><b>{commute ? `${commute.minutes} min` : '–'}</b><small>to {college}</small></div>
+        <div className="stat s-groc"><b>{area.nearestBudgetGroceryMinutes ?? '–'} min</b><small>to Lidl/Aldi</small></div>
+      </div>
+      <div className="actions">
         <button className="btn sm" onClick={onCompare}>{inCompare ? '✓ In compare list' : '+ Add to compare'}</button>
         <a className="btn ghost sm" href={mapsLink(area, campus, s.mode)} target="_blank" rel="noreferrer">Live route in Google Maps</a>
       </div>
+      {area.about && <p className="about">{area.about.text} <a href={area.about.url} target="_blank" rel="noreferrer">Wikipedia</a></p>}
 
-      <Card title="Rent" conf={area.rent.confidence}
-        headline={rent ? <><b>{eur(rent.perPerson)}</b> a month, your share</> : <>No figure published</>}
-        source={`RTB via CSO, ${src.rent.asOf}, ${src.rent.licence}`}
-        how={rent ? <p>{RENT_TYPES[s.type].label}: the average rent for this size of home here is {eur(rent.total)} {rent.people > 1 ? `a month, split between ${rent.people} people` : 'a month for the whole home'}. It averages new tenancies registered in {src.rent.asOf} and uses {area.rent.populatedCells} size and type groups that had data. A year earlier the all-homes average was {area.rent.prevAll ? eur(area.rent.prevAll) : 'not published'}. Real rooms differ: a larger bedroom costs more.</p> : <p>The RTB has not published an average for this size of home in this area. We do not estimate it.</p>}>
-        {rent && <p>{RENT_TYPES[s.type].label}: average for new tenancies, not a live listing.</p>}
-      </Card>
+      {rent && <Section icon="home" badge="b-teal" title="Your rent" conf={rent.confidence} source={`RTB via CSO, ${src.rent.asOf}, ${src.rent.licence}`}>
+        <p className="big"><b>{eur(rent.perPerson)}</b> a month, your share</p>
+        <p>{RENT_TYPES[s.type].label}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
+      </Section>}
 
-      <Card title={`Getting to ${college}`} conf={commute?.confidence}
-        headline={commute ? <><b>{commute.minutes} min</b> {s.mode === 'transit' ? 'by public transport' : MODES[s.mode].label.toLowerCase()}</> : <>No usable journey</>}
+      <Section icon="clock" badge="b-sky" title={`Getting to ${college}`} conf={commute?.confidence}
         source={s.mode === 'transit' ? `NTA timetables, ${src.transit.serviceDate}, ${src.transit.licence}` : s.mode === 'bikeshare' ? `${src.bikes.name}, ${src.bikes.licence}` : 'Distance between OpenStreetMap locations'}
-        how={commute ? (commute.kind === 'scheduled'
-          ? <p>Middle value of 13 timetabled trips leaving between 07:30 and 08:30 (fastest {commute.best} min, slowest {commute.worst} min), door to door. Includes {commute.walkMinutes} min walking and {commute.changes} change{commute.changes === 1 ? '' : 's'}. These are scheduled times: real buses can run late.</p>
-          : <p>{commute.detail}. An estimate, not a routed journey. Walking is 1.25 m/s, riding is 15 km/h, and distances use a 1.3 detour factor.</p>)
-          : <p>{s.mode === 'bikeshare' ? 'No Dublinbikes dock within 1.5 km of home or college.' : 'No bus, tram or train journey was found within walking distance of both ends.'}</p>}>
-        {commute && (commute.kind === 'scheduled'
-          ? <p>Fastest {commute.best} min, slowest {commute.worst} min · {commute.changes} change{commute.changes === 1 ? '' : 's'} · {commute.walkMinutes} min walking. Scheduled, not live.</p>
-          : <p>{commute.detail}.</p>)}
-      </Card>
+        how={commute?.kind === 'scheduled' ? <p>Middle value of 13 timetabled trips leaving 07:30 to 08:30, door to door. Scheduled, not live: buses can be late.</p> : <p>An estimate, not a routed journey: walking 1.25 m/s, riding 15 km/h, distance times 1.3 for streets{s.mode === 'bikeshare' ? ', plus 2 minutes to undock and dock' : ''}.</p>}>
+        {commute ? <>
+          <p className="big"><b>{commute.minutes} min</b> {s.mode === 'transit' ? 'by bus, Luas or train' : MODES[s.mode].label.toLowerCase()}</p>
+          {commute.kind === 'scheduled' ? <p>Fastest {commute.best}, slowest {commute.worst} min · {commute.changes} change{commute.changes === 1 ? '' : 's'} · {commute.walkMinutes} min walking</p> : <p>{commute.detail}</p>}
+        </> : <p>{s.mode === 'bikeshare' ? 'No Dublinbikes dock within 1.5 km of home or college.' : 'No journey found within walking distance of both ends.'}</p>}
+      </Section>
 
-      <Card title="Cheap supermarkets" conf="medium" source={`${src.groceries.name}, fetched ${src.groceries.fetched}, ${src.groceries.licence}`} how={<p>Walk time is straight-line distance to the nearest store of each chain, times 1.3 for streets, at 1.25 m/s. {src.groceries.note}</p>}>
-        <ul className="stores">{['Lidl', 'Aldi', 'Tesco'].map((b) => { const g = area.groceries?.[b]; return (
-          <li key={b}><b>{b}</b> {g ? <>{g.walkMinutes} min walk <small>({g.metres >= 1000 ? (g.metres / 1000).toFixed(1) + ' km' : g.metres + ' m'}){g.within1km > 1 ? `, ${g.within1km} within 1 km` : ''}</small></> : <span className="muted">none found nearby</span>}</li>) })}</ul>
-      </Card>
+      <RentTable area={area} data={data} highlight={{ bed: RENT_TYPES[s.type].bed, ptype: s.ptype }} />
+      <Colleges rows={collegeRowsForArea(area, data)} data={data} />
+      <Groceries shops={shopsForArea(area)} data={data} />
+      <Dock home={area.nearestDock} campusDock={campus.dock} campusName={college} data={data} />
+      {area.work && <Work work={area.work} data={data} />}
 
-      {area.nearestDock && <Card title="Dublinbikes" source={`${src.bikes.name}, fetched ${src.bikes.fetched}, ${src.bikes.licence}`} how={<p>{src.bikes.note}</p>}>
-        <p>Nearest dock to home: <b>{area.nearestDock.name}</b>, {area.nearestDock.walkMinutes} min walk.</p>
-        <p>Nearest to {college}: {campus.dock ? <><b>{campus.dock.name}</b>, {campus.dock.walkMinutes} min walk.</> : 'none within 1.5 km.'}</p>
-      </Card>}
-
-      {area.work && <Card title="Places that hire students nearby" source={`${src.employers.name}, fetched ${src.employers.fetched}, ${src.employers.licence}`} how={<p>{src.employers.note}</p>}>
-        <ul className="stores">{Object.entries(WORK_CATEGORIES).map(([k, v]) => <li key={k}><b>{v.label}</b> {area.work[k].capped ? `${area.work[k].n}+` : area.work[k].n} <small>within about 1 km</small></li>)}</ul>
-        <p><a href="#/work">Part-time work: pay, hours and where to look</a></p>
-      </Card>}
-
-      <Card title="Buses, Luas and trains near home" source={`${src.transit.name}, ${src.transit.licence}`} how={<p>Routes with a stop within a 10 minute walk.</p>}>
+      <Section icon="bus" badge="b-sky" title="Buses, Luas and trains near home" source={`${src.transit.name}, ${src.transit.licence}`}>
         {area.transit?.nearestStop ? <p>Nearest stop: <b>{area.transit.nearestStop.name}</b>, {area.transit.nearestStop.walkMinutes} min walk.</p> : <p className="muted">No stop within a 10 minute walk.</p>}
-        {area.transit?.routes && <p className="routes">{[['Bus', area.transit.routes.bus], ['Luas', area.transit.routes.tram], ['Rail', area.transit.routes.rail]].filter(([, r]) => r?.length).map(([l, r]) => <span key={l}><b>{l}</b> {r.join(', ')}</span>)}</p>}
-      </Card>
-
+        {area.transit?.routes && <div style={{ display: 'grid', gap: 6, marginTop: 6 }}>{[['Bus', area.transit.routes.bus], ['Luas', area.transit.routes.tram], ['Rail', area.transit.routes.rail]].filter(([, r]) => r?.length).map(([l, r]) => <p key={l} style={{ margin: 0 }}><b>{l}</b> {r.join(', ')}</p>)}</div>}
+      </Section>
       <p className="disclaimer">Planning aid only. Check live listings and current timetables before you decide.</p>
     </article>
   )

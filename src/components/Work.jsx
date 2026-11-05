@@ -21,20 +21,19 @@ export default function Work({ data }) {
   const available = data.areas.some((a) => a.work)
 
   return (
-    <article className="doc wide">
-      <p><a href="#/">← Back to start</a></p>
-      <h1>Part-time work</h1>
-      <p className="lead">What you can earn, how many hours you can work, and which areas have the most places that hire students.</p>
+    <>
+    <section className="page-hero"><div className="wrap"><h1>Part-time work</h1><p>What you can earn, how many hours you may work, and which areas have the most places that hire students.</p></div></section>
+    <article className="wrap page-body">
 
-      <section className="card" aria-labelledby="rules">
+      <section className="card lift" aria-labelledby="rules">
         <h2 id="rules">The rules and the pay</h2>
         <div className="grid2">
           <div>
-            <p className="big"><b>{eur(WAGE.adult, 2)}</b> an hour</p>
+            <div className="kpi" style={{ background: 'var(--teal-50)' }}><b>{eur(WAGE.adult, 2)}</b><p>an hour, minimum wage</p></div>
             <p>National minimum wage for {WAGE.ageNote}, from {WAGE.from}. Younger workers have a lower legal minimum: {WAGE.youth.map((y) => `${y.label} ${eur(WAGE.adult * y.pct / 100, 2)}`).join(', ')}.</p>
           </div>
           <div>
-            <p className="big"><b>{lim.hours} hours</b> a week right now</p>
+            <div className="kpi" style={{ background: 'var(--coral-50)' }}><b>{lim.hours} hours</b><p>a week, your limit right now</p></div>
             <p>{lim.period === 'holiday' ? `It is a holiday period (${lim.label}), so up to ${STUDENT_WORK.holidayHours} hours.` : `Term time: up to ${STUDENT_WORK.termHours} hours. Up to ${STUDENT_WORK.holidayHours} hours in ${STUDENT_WORK.holidays.map((x) => x.label).join(' and ')}.`}</p>
           </div>
         </div>
@@ -46,7 +45,7 @@ export default function Work({ data }) {
           <input type="range" min="4" max="40" step="1" value={h} onChange={(e) => setHours(Number(e.target.value))} />
         </label>
         <label className="check"><input type="checkbox" checked={stamp2} onChange={(e) => { setStamp2(e.target.checked); if (e.target.checked) setHours((x) => Math.min(x, lim.hours)) }} /> I am a non-EEA student on Stamp 2 (capped at {lim.hours} hours now)</label>
-        <p className="big"><b>{eur(pay.week, 2)}</b> a week · <b>{eur(pay.month)}</b> a month <small className="muted">at {eur(WAGE.adult, 2)}, gross. Tax, USC and PRSI reduce this. Tips and overtime are not included.</small></p>
+        <div className="grid2" style={{ margin: "8px 0" }}><div className="kpi" style={{ background: "var(--sand-50)" }}><b>{eur(pay.week, 2)}</b><p>a week</p></div><div className="kpi" style={{ background: "var(--sky-50)" }}><b>{eur(pay.month)}</b><p>a month</p></div></div><p className="big" style={{ display: "none" }}> <small className="muted">at {eur(WAGE.adult, 2)}, gross. Tax, USC and PRSI reduce this. Tips and overtime are not included.</small></p>
         {!stamp2 && h > 20 && <p className="muted">Check your college timetable. Full-time study and long hours do not mix well.</p>}
       </section>
 
@@ -88,5 +87,6 @@ export default function Work({ data }) {
         <p className="muted">Walk in with a CV for shops and cafes, and ask your students' union and careers service about campus jobs. Which Dublin does not list vacancies and has no relationship with any employer.</p>
       </section>
     </article>
+    </>
   )
 }

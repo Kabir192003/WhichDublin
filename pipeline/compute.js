@@ -120,10 +120,22 @@ for (const a of rent.areas) {
   if (++n % 20 === 0) console.log('areas', n, '/', rent.areas.length)
 }
 
+// Eircode routing keys -> approximate centre, used when a full Eircode is not in OpenStreetMap
+const districtsGeo = read('data/raw/districts.geojson')
+const routingKeys = {}
+for (const f of districtsGeo.features) {
+  const ring = f.geometry.type === 'Polygon' ? f.geometry.coordinates[0] : f.geometry.coordinates.flatMap((p) => p[0])
+  const lon = ring.reduce((t, c) => t + c[0], 0) / ring.length, lat = ring.reduce((t, c) => t + c[1], 0) / ring.length
+  const id = f.properties.id === 'D6W' ? 'D6W' : 'D' + f.properties.id.slice(1).padStart(2, '0')
+  routingKeys[id] = { lat: +lat.toFixed(5), lon: +lon.toFixed(5), label: f.properties.name }
+}
+const TOWN_KEYS = { A94: 'blackrock-co', A96: 'glenageary-co', K32: 'balbriggan-co', K36: 'malahide-co', K45: 'lusk-co', K56: 'rush-co', K67: 'swords-co', K78: 'lucan-co' }
+for (const [k, id] of Object.entries(TOWN_KEYS)) { const a = out.find((x) => x.id === id); if (a) routingKeys[k] = { lat: a.lat, lon: a.lon, label: a.name + ' area' } }
+
 const dataset = {
   version: new Date().toISOString().slice(0, 10),
   sources: {
-    rent: { name: 'RTB Average Monthly Rent Report via CSO (RIQ02)', licence: 'CC BY 4.0', url: rent.sourceUrl, asOf: asOfRent, definition: rent.definition, countyAverage: rent.county.cells['all:any'] },
+    rent: { name: 'RTB Average Monthly Rent Report via CSO (RIQ02)', licence: 'CC BY 4.0', url: rent.sourceUrl, asOf: asOfRent, definition: rent.definition, countyAverage: rent.county.cells['all:any'], methods: rent.methods, backtest: rent.backtest },
     transit: { name: 'National Transport Authority GTFS static timetables', licence: 'CC BY 4.0', url: 'https://www.transportforireland.ie/transitData/PT_Data.html', serviceDate: net.date, sampled: '07:30 to 08:30, every 5 minutes (13 departures)' },
     geography: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', url: 'https://www.openstreetmap.org/copyright' },
     groceries: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: storeFetched, note: 'May be incomplete: community-maintained map data.' },
@@ -131,7 +143,9 @@ const dataset = {
     employers: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: empFile && empFile.fetched, radiusMetres: 1000, categories: empFile && empFile.categories, note: 'Counts places that could employ students within about 1 km. Not vacancies. Counts stop at 40 per place type.' },
     descriptions: { name: 'Wikipedia', licence: 'CC BY-SA 4.0', url: 'https://en.wikipedia.org' }
   },
-  campuses, areas: out
+  campuses, areas: out, routingKeys,
+  stores: stores.map((x) => ({ brand: x.brand, name: x.name, lat: x.lat, lon: x.lon })),
+  docks: docks.map((x) => ({ name: x.name && !/^dublinbikes$/i.test(x.name) ? x.name : 'Dublinbikes dock', lat: x.lat, lon: x.lon }))
 }
 fs.mkdirSync('public/data', { recursive: true })
 fs.writeFileSync('public/data/areas.json', JSON.stringify(dataset))

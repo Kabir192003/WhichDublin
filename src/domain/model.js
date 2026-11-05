@@ -1,22 +1,36 @@
 /** Turns the published dataset into rows for a chosen campus, rent type and commute mode. Pure, so it is unit-tested. */
 
 export const RENT_TYPES = {
-  own1: { label: 'Own 1-bed', short: 'a 1-bed on your own', cell: '1:any', people: 1, hint: 'Average rent for a 1-bed, all of it yours.' },
-  share2: { label: 'Share a 2-bed', short: 'sharing a 2-bed', cell: '2:any', people: 2, hint: 'Average 2-bed rent split between 2 people.' },
-  share3: { label: 'Share a 3-bed', short: 'sharing a 3-bed', cell: '3:any', people: 3, hint: 'Average 3-bed rent split between 3 people.' }
+  own1: { label: 'Own 1-bed', short: 'a 1-bed on your own', bed: '1', people: 1, hint: 'A 1-bed home, all yours.' },
+  own2: { label: 'Own 2-bed', short: 'a 2-bed on your own (or as a couple)', bed: '2', people: 1, hint: 'A 2-bed home, whole rent.' },
+  share2: { label: 'Share a 2-bed', short: 'sharing a 2-bed', bed: '2', people: 2, hint: 'A 2-bed home split between 2 people.' },
+  share3: { label: 'Share a 3-bed', short: 'sharing a 3-bed', bed: '3', people: 3, hint: 'A 3-bed home split between 3 people.' },
+  share4: { label: 'Share a 4-bed', short: 'sharing a 4+ bed', bed: '4', people: 4, hint: 'A 4+ bed home split between 4 people.' }
 }
+export const HOME_TYPES = { any: 'Any type', apartment: 'Apartment', terrace: 'Terraced house', semi: 'Semi-detached', detached: 'Detached house' }
+const HOW_LABEL = { published: 'Published', carried: 'Carried forward', estimated: 'Estimated' }
+
+/** Confidence of one rent cell from how it was obtained. */
+export function cellConfidence(area, c) {
+  if (c.how === 'published') return area.rent.confidence
+  if (c.how === 'carried') return 'medium'
+  return c.anchor && c.anchor !== 'all:any' ? 'medium' : 'low'
+}
+
+/** Monthly rent per person for the chosen setup. Every area has a figure; `how` says whether it is published or derived. */
+export function rentPerPerson(area, type, ptype = 'any') {
+  const t = RENT_TYPES[type]
+  const c = area.rent.cells[`${t.bed}:${ptype}`]
+  if (!c) return null
+  const v = typeof c === 'number' ? c : c.v
+  return { total: v, perPerson: Math.round(v / t.people), people: t.people, how: c.how || 'published', howLabel: HOW_LABEL[c.how || 'published'], q: c.q, anchor: c.anchor, confidence: typeof c === 'number' ? area.rent.confidence : cellConfidence(area, c) }
+}
+
 export const MODES = {
   transit: { label: 'Public transport' },
   bikeshare: { label: 'Dublinbikes' },
   cycle: { label: 'Own bike' },
   walk: { label: 'Walking' }
-}
-
-/** Monthly rent per person for the chosen setup, or null when RTB published no figure for that area and type. */
-export function rentPerPerson(area, type) {
-  const t = RENT_TYPES[type]
-  const v = area.rent.cells[t.cell]
-  return v == null ? null : { total: v, perPerson: Math.round(v / t.people), people: t.people }
 }
 
 /** Commute minutes for the mode, with the detail the UI shows. null when there is no usable journey. */
@@ -34,15 +48,15 @@ export function commuteFor(area, campusId, mode) {
            changes: c.transit.changes, walkMinutes: c.transit.walkMinutes, departures: c.transit.departures }
 }
 
-export function buildRows(areas, { campus, type, mode }) {
+export function buildRows(areas, { campus, type, mode, ptype = 'any' }) {
   return areas.map((a) => {
-    const rent = rentPerPerson(a, type), commute = commuteFor(a, campus, mode)
+    const rent = rentPerPerson(a, type, ptype), commute = commuteFor(a, campus, mode)
     return { id: a.id, rent: rent ? rent.perPerson : null, commute: commute ? commute.minutes : null, groceries: a.nearestBudgetGroceryMinutes ?? null, _rent: rent, _commute: commute }
   })
 }
 
-export const DEFAULTS = { campus: 'tcd', type: 'share2', mode: 'transit', budget: 1100, priority: 'balanced' }
-const OK = { type: Object.keys(RENT_TYPES), mode: Object.keys(MODES), priority: ['balanced', 'cheapest', 'shortest'] }
+export const DEFAULTS = { campus: 'tcd', type: 'share2', ptype: 'any', mode: 'transit', budget: 1100, priority: 'balanced' }
+const OK = { ptype: Object.keys(HOME_TYPES), type: Object.keys(RENT_TYPES), mode: Object.keys(MODES), priority: ['balanced', 'cheapest', 'shortest'] }
 
 /** Read and sanitise state from a query string, so shared links can't put the app into an invalid state. */
 export function parseState(search, campusIds) {
@@ -50,11 +64,11 @@ export function parseState(search, campusIds) {
   const pick = (key, list, fb) => (list.includes(p.get(key)) ? p.get(key) : fb)
   const b = Number(p.get('budget'))
   return {
-    campus: pick('campus', campusIds, DEFAULTS.campus), type: pick('type', OK.type, DEFAULTS.type), mode: pick('mode', OK.mode, DEFAULTS.mode),
+    campus: pick('campus', campusIds, DEFAULTS.campus), type: pick('type', OK.type, DEFAULTS.type), ptype: pick('ptype', OK.ptype, DEFAULTS.ptype), mode: pick('mode', OK.mode, DEFAULTS.mode),
     priority: pick('priority', OK.priority, DEFAULTS.priority), budget: Number.isFinite(b) && b >= 200 && b <= 6000 ? Math.round(b) : DEFAULTS.budget
   }
 }
-export const stateToSearch = (s) => new URLSearchParams({ campus: s.campus, type: s.type, mode: s.mode, priority: s.priority, budget: String(s.budget) }).toString()
+export const stateToSearch = (s) => new URLSearchParams({ campus: s.campus, type: s.type, ptype: s.ptype, mode: s.mode, priority: s.priority, budget: String(s.budget) }).toString()
 
 // ---- part-time work -------------------------------------------------------------------------------------------
 

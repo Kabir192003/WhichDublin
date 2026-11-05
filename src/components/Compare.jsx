@@ -6,7 +6,7 @@ export default function Compare({ a, b, s, onClose }) {
   const cols = [a, b]
   const best = (vals, low = true) => { const n = vals.map((v) => (typeof v === 'number' ? v : null)); const ok = n.filter((v) => v != null); if (ok.length < 2 || ok[0] === ok[1]) return -1; const m = low ? Math.min(...ok) : Math.max(...ok); return n.indexOf(m) }
   const groups = [
-    { label: `Rent, your share a month (${RENT_TYPES[s.type].label.toLowerCase()})`, nums: cols.map((x) => rentPerPerson(x, s.type)?.perPerson ?? null), fmt: (v) => v == null ? 'No figure' : eur(v), low: true },
+    { label: `Rent, your share a month (${RENT_TYPES[s.type].label.toLowerCase()})`, nums: cols.map((x) => rentPerPerson(x, s.type, s.ptype)?.perPerson ?? null), fmt: (v) => v == null ? 'No figure' : eur(v), low: true },
     { label: `To ${SHORT[s.campus]} (${MODES[s.mode].label.toLowerCase()})`, nums: cols.map((x) => commuteFor(x, s.campus, s.mode)?.minutes ?? null), fmt: (v) => v == null ? 'No journey' : `${v} min`, low: true },
     { label: 'Walk to Lidl or Aldi', nums: cols.map((x) => x.nearestBudgetGroceryMinutes ?? null), fmt: (v) => v == null ? '–' : `${v} min`, low: true }
   ]

@@ -3,10 +3,10 @@ import React from 'react'
 export default function Method({ data }) {
   const s = data.sources
   return (
-    <article className="doc">
-      <p><a href="#/">← Back to start</a></p>
-      <h1>How we know this</h1>
-      <p className="lead">Every number on Which Dublin comes from an open dataset, shows where it came from and when, and carries a confidence label. Here is what that means, and where it can be wrong.</p>
+    <>
+    <section className="page-hero"><div className="wrap"><h1>How we know this</h1><p>Sources, dates, and what each label means.</p></div></section>
+    <article className="wrap page-body"><div className="card lift doc">
+      <p className="lead" style={{ fontSize: 17 }}>Every number on Which Dublin comes from an open dataset, shows where it came from and when, and carries a confidence label. Here is what that means, and where it can be wrong.</p>
 
       <h2>Rent</h2>
       <p>From the Residential Tenancies Board (RTB) Average Monthly Rent Report, published by the CSO (<a href={s.rent.url}>{s.rent.name}</a>, {s.rent.licence}). Latest quarter used: <b>{s.rent.asOf}</b>.</p>
@@ -14,7 +14,8 @@ export default function Method({ data }) {
         <li>It is the average rent of tenancies <em>registered</em> in that quarter, for the <b>whole property</b>. It is not the price of a room.</li>
         <li>For shared homes we divide the average 2-bed or 3-bed rent by the number of people. Real rooms vary, and a master bedroom costs more than a box room.</li>
         <li>Areas are the RTB's named areas (for example Rathmines, Dublin 6). Postal-district figures stopped in 2021, so we use named areas.</li>
-        <li>An area is missing a figure when the RTB did not publish that size of home there. We never fill gaps with guesses.</li>
+        <li>Every area shows all 25 combinations of size (1, 2, 3, 4+ beds, all) and type (any, apartment, terraced, semi-detached, detached). Each figure is labelled: <b>published</b> by the RTB for that quarter; <b>carried forward</b> from the latest published quarter in the previous two years, adjusted for rent growth; or <b>estimated</b> from the closest figure the RTB did publish for that area, scaled by how the two compare across Dublin.</li>
+        <li>We tested the estimates by hiding figures the RTB did publish and estimating them. Anchored on the same size or type: half within {s.rent.backtest?.specific?.medianPct}%, 8 in 10 within {s.rent.backtest?.specific?.p80Pct}% ({s.rent.backtest?.specific?.n} tests). Anchored only on the all-homes average: half within {s.rent.backtest?.all?.medianPct}%, 8 in 10 within {s.rent.backtest?.all?.p80Pct}%.</li>
         <li>Confidence: <b>high</b> needs at least 12 size and type groups with data and a figure under about 13 months old; <b>medium</b> needs 6 and under 2 years; otherwise <b>low</b>.</li>
       </ul>
 
@@ -39,6 +40,9 @@ export default function Method({ data }) {
       <h2>Settling in</h2>
       <p>The immigration, Leap card, bank and mobile guides are written by hand. Where we could not read the official page, the page says so. We leave out prices we could not confirm rather than show an old figure.</p>
 
+      <h2>Eircode lookup</h2>
+      <p>We send the Eircode you type to OpenStreetMap's Nominatim service to find it. If the full code is not in OpenStreetMap we use the centre of its postal district and say so. Public transport times come from the nearest area we have timetable results for; walking and cycling use the exact distance.</p>
+
       <h2>Areas and campuses</h2>
       <p>Area positions are OpenStreetMap place locations, checked to fall inside the correct postal district; those that did not were removed rather than guessed. Campus positions are OpenStreetMap locations of each main entrance area. Area descriptions are from Wikipedia ({s.descriptions.licence}).</p>
 
@@ -55,6 +59,7 @@ export default function Method({ data }) {
 
       <h2>Attribution</h2>
       <p>Contains data from the RTB and CSO (CC BY 4.0), the National Transport Authority (CC BY 4.0), © OpenStreetMap contributors (ODbL) and Wikipedia (CC BY-SA 4.0). Map tiles by OpenFreeMap.</p>
-    </article>
+    </div></article>
+    </>
   )
 }
