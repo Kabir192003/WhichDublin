@@ -9,7 +9,11 @@ import pandas as pd
 
 FEEDS = ['Dublin_Bus', 'GoAhead', 'LUAS', 'Irish_Rail']
 BBOX = (53.20, 53.47, -6.52, -6.00)           # lat min/max, lon min/max
-WINDOW_START, WINDOW_END = 6 * 3600 + 30 * 60, 11 * 3600   # departures 06:30-11:00, so 08:00 trips can chain transfers
+# usage: build-network.py [YYYY-MM-DD] [HH:MM-HH:MM] [name]   default: next Wednesday, 06:30-11:00, network.json
+_win = sys.argv[2] if len(sys.argv) > 2 else '06:30-11:00'
+_h = lambda t: int(t.split(':')[0]) * 3600 + int(t.split(':')[1]) * 60
+WINDOW_START, WINDOW_END = (_h(x) for x in _win.split('-'))   # times past midnight are written 25:00 etc, as in GTFS
+NAME = sys.argv[3] if len(sys.argv) > 3 else 'network'
 RAW, OUT = 'data/raw/gtfs/', 'data/build/'
 
 def next_wednesday(today=None):
@@ -82,5 +86,5 @@ conn = {k: [v[i] for i in order] for k, v in cols.items()}
 import os; os.makedirs(OUT, exist_ok=True)
 stops_list = [stops_out.get(i, [0, 0, '']) for i in range(len(stop_index))]
 route_list = [routes_out.get(i) if isinstance(routes_out.get(i), list) else ['?', 'other'] for i in range(len(trip_index))]
-json.dump({'date': day.isoformat(), 'window': [WINDOW_START, WINDOW_END], 'source': 'National Transport Authority GTFS, CC BY 4.0', 'stops': stops_list, 'conn': conn, 'tripRoute': route_list}, open(OUT + 'network.json', 'w'), separators=(',', ':'))
+json.dump({'date': day.isoformat(), 'window': [WINDOW_START, WINDOW_END], 'source': 'National Transport Authority GTFS, CC BY 4.0', 'stops': stops_list, 'conn': conn, 'tripRoute': route_list}, open(OUT + NAME + '.json', 'w'), separators=(',', ':'))
 print('stops', len(stops_list), 'connections', len(order), 'trips', len(trip_index))

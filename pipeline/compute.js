@@ -5,7 +5,7 @@
  * Output: every number carries { value, source, asOf, confidence }. Nothing is estimated: a missing input means a missing number.
  */
 import fs from 'node:fs'
-import { journeys, summarise, buildTransfers, nearbyStops, haversineMetres, walkSecs } from './csa.js'
+import { journeys, summarise, buildTransfers, nearbyStops, haversineMetres, walkSecs } from '../src/domain/csa.js'
 import { confidence } from '../src/domain/confidence.js'
 
 const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'))
@@ -49,6 +49,20 @@ const DEPARTURES = Array.from({ length: 13 }, (_, i) => 7.5 * 3600 + i * 300)
 const asOfRent = rent.quarter
 const ageDays = Math.round((today - new Date('2025-12-31')) / 86400000)   // end of the latest rent quarter
 
+const loadNet = (f) => { if (!fs.existsSync(f)) return null; const r = read(f); const st = r.stops.map(([lat, lon, name]) => ({ lat, lon, name })); return { stops: st, conn: { dep: Int32Array.from(r.conn.dep), arr: Int32Array.from(r.conn.arr), from: Int32Array.from(r.conn.from), to: Int32Array.from(r.conn.to), trip: Int32Array.from(r.conn.trip) }, transfers: buildTransfers(st, 300), date: r.date } }
+const lateNet = loadNet('data/build/network-late.json'), satNet = loadNet('data/build/network-sat.json')
+const LATE = Array.from({ length: 7 }, (_, i) => 22 * 3600 + i * 600), SAT = Array.from({ length: 7 }, (_, i) => 10 * 3600 + i * 600)
+const slimS = (s) => s && { minutes: s.minutes, bestMinutes: s.bestMinutes, worstMinutes: s.worstMinutes, changes: s.changes, departures: s.departures, confidence: confidence('commute', { departures: s.departures, walkShare: s.walkShare }) }
+// late: one scan per campus per departure reaches every area at once
+const lateTo = {}
+if (lateNet) {
+  const pts = rent.areas.map((a) => geo[a.id]).map((g) => g && { lat: g.lat, lon: g.lon })
+  for (const c of campuses) {
+    const per = LATE.map((t) => journeys(lateNet, c, pts.map((p) => p || c), t))
+    lateTo[c.id] = rent.areas.map((a, i) => pts[i] ? summarise(per.map((r) => r[i])) : null)
+  }
+  console.log('late-night journeys done')
+}
 const out = []
 let n = 0
 for (const a of rent.areas) {
@@ -70,6 +84,12 @@ for (const a of rent.areas) {
     }
   })
 
+  const ai = rent.areas.indexOf(a)
+  const satPer = satNet ? SAT.map((t) => journeys(satNet, origin, campuses, t)) : null
+  campuses.forEach((c, ci) => {
+    if (lateNet) toCampus[c.id].late = slimS(lateTo[c.id][ai])
+    if (satNet) toCampus[c.id].sat = slimS(summarise(satPer.map((r) => r[ci])))
+  })
   const homeDock = nearestDock(origin)
   if (homeDock) for (const c of campuses) {
     const cd = c.dock; if (!cd) continue
@@ -136,7 +156,7 @@ const dataset = {
   version: new Date().toISOString().slice(0, 10),
   sources: {
     rent: { name: 'RTB Average Monthly Rent Report via CSO (RIQ02)', licence: 'CC BY 4.0', url: rent.sourceUrl, asOf: asOfRent, definition: rent.definition, countyAverage: rent.county.cells['all:any'], methods: rent.methods, backtest: rent.backtest },
-    transit: { name: 'National Transport Authority GTFS static timetables', licence: 'CC BY 4.0', url: 'https://www.transportforireland.ie/transitData/PT_Data.html', serviceDate: net.date, sampled: '07:30 to 08:30, every 5 minutes (13 departures)' },
+    transit: { name: 'National Transport Authority GTFS static timetables', licence: 'CC BY 4.0', url: 'https://www.transportforireland.ie/transitData/PT_Data.html', serviceDate: net.date, sampled: '07:30 to 08:30, every 5 minutes (13 departures)', late: lateNet && { serviceDate: lateNet.date, sampled: 'from college, leaving 22:00 to 23:00 every 10 minutes' }, sat: satNet && { serviceDate: satNet.date, sampled: 'to college, leaving 10:00 to 11:00 every 10 minutes' } },
     geography: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', url: 'https://www.openstreetmap.org/copyright' },
     groceries: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: storeFetched, note: 'May be incomplete: community-maintained map data.' },
     bikes: { name: 'OpenStreetMap contributors (Dublinbikes docks)', licence: 'ODbL 1.0', fetched: bikeFile && bikeFile.fetched, note: 'Docks mapped in OpenStreetMap; not every station may be included. See dublinbikes.ie for the live map.' },

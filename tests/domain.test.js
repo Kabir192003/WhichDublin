@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { confidence, reliabilityBand, worst } from '../src/domain/confidence.js'
 import { rankAreas, rankMovement } from '../src/domain/rank.js'
 import { rentPerPerson, commuteFor, parseState, stateToSearch, DEFAULTS, hourLimit, grossPay, workByArea, workMix } from '../src/domain/model.js'
-import { journey, journeys, medianCommute, buildTransfers, haversineMetres } from '../pipeline/csa.js'
+import { journey, journeys, medianCommute, buildTransfers, haversineMetres } from '../src/domain/csa.js'
 
 test('confidence: rent needs a deep local market and recent data; missing input means "do not show"', () => {
   assert.equal(confidence('rent', { cells: 18, ageDays: 300 }), 'high')

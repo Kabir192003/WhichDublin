@@ -11,3 +11,5 @@ data/raw/enrich_cache.json
 data/build/network.json
 .env
 .DS_Store
+data/raw/essentials_cache.json
+data/build/network-*.json
