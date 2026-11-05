@@ -13,10 +13,17 @@ jobs:
         with: { node-version: 20, cache: npm }
       - run: npm ci
       - run: npm test
-      - run: npm run build
-        env:
-          BASE_PATH: /WhichDublin/
-          VITE_GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
+      - name: Forward the old address to the Vercel site (keeps ?settings and #/page)
+        run: |
+          mkdir -p dist
+          cat > dist/index.html <<'HTML'
+          <!doctype html><meta charset="utf-8"><title>Which Dublin has moved</title>
+          <meta name="robots" content="noindex">
+          <script>location.replace('https://which-dublin.vercel.app/' + location.search + location.hash)</script>
+          <p>Which Dublin has moved to <a href="https://which-dublin.vercel.app/">which-dublin.vercel.app</a>.</p>
+          HTML
+          cp dist/index.html dist/404.html
+          printf "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.registration.unregister()))" > dist/sw.js
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
   deploy:

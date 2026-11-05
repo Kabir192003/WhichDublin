@@ -1,5 +1,7 @@
 # Which Dublin
 
+**Live: https://which-dublin.vercel.app**
+
 Compare Dublin areas for renting near your college: **rent per person**, **door-to-campus commute**, and the **nearest Lidl, Aldi and Tesco**. Every number shows its source, date and a confidence label. No accounts, no cookies, no listing-site scraping.
 
 Also: part-time work (pay, weekly hour limits, employer counts by area), Dublinbikes as a travel mode, and a Settling-in guide (IRP, Leap card, bank account, mobile plan).
@@ -50,4 +52,4 @@ node pipeline/validate.js
 - OpenStreetMap supermarkets may miss new stores.
 - Areas outside the commuter belt (north Fingal towns) are not covered.
 
-Deployed to GitHub Pages by `.github/workflows/pages.yml`.
+Hosted on Vercel (site + `/api` functions, Postgres via Neon). Environment: `DATABASE_URL` (from Vercel Storage), `NTA_API_KEY` (live buses), `VITE_GOOGLE_MAPS_KEY` (Eircode page). The old GitHub Pages address forwards to Vercel (`.github/workflows/pages.yml`).
