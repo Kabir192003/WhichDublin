@@ -1,0 +1,156 @@
+{
+ "source": "OpenStreetMap contributors via Nominatim, ODbL 1.0",
+ "fetched": "2026-11-05",
+ "stores": [
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.48579,
+   "lon": -6.1561,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/1534314522",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.3458,
+   "lon": -6.47428,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/953807578",
+   "opening_hours": null
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.33694,
+   "lon": -6.4685,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "node/10965538600",
+   "opening_hours": "Mo-Fr 09:00-22:00; PH,Sa,Su 09:00-21:00"
+  },
+  {
+   "brand": "Aldi",
+   "name": "Aldi",
+   "lat": 53.3635,
+   "lon": -6.49324,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/647473844",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.35296,
+   "lon": -6.45926,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/22726828",
+   "opening_hours": null
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.33668,
+   "lon": -6.46897,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "node/10965538601",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.29872,
+   "lon": -6.50283,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/1312244651",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Express",
+   "lat": 53.28115,
+   "lon": -6.46769,
+   "type": "convenience",
+   "category": "shop",
+   "osm": "way/426743417",
+   "opening_hours": "Mo-Fr 07:00-22:00; Sa 08:00-22:00; Su 09:00-22:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.20923,
+   "lon": -6.11357,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/61498631",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.46169,
+   "lon": -6.22843,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/351614429",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 09:00-21:00"
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.42035,
+   "lon": -6.47402,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/1432068256",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.60573,
+   "lon": -6.17954,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/229761067",
+   "opening_hours": "Mo-Sa 08:00-22:00, Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco Extra",
+   "lat": 53.60708,
+   "lon": -6.19735,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "node/1324451175",
+   "opening_hours": null
+  },
+  {
+   "brand": "Lidl",
+   "name": "Lidl",
+   "lat": 53.52512,
+   "lon": -6.16014,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "way/1130608768",
+   "opening_hours": "Mo-Fr 08:00-22:00, Su 09:00-21:00"
+  },
+  {
+   "brand": "Tesco",
+   "name": "Tesco",
+   "lat": 53.52286,
+   "lon": -6.10143,
+   "type": "supermarket",
+   "category": "shop",
+   "osm": "node/2211669224",
+   "opening_hours": "Mo-Sa 08:00-22:00; Su 08:00-20:00"
+  }
+ ]
+}

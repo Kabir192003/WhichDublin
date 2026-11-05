@@ -92,7 +92,7 @@ export default function Finder({ data, s, set }) {
                     </button>
                     <div className="tags">
                       <span className={`chip ${row._rent.how === 'published' ? 'pub' : row._rent.how}`}>{HOW_CHIP[row._rent.how]}</span>
-                      {mix?.top && <span className="chip">{WORK_CATEGORIES[mix.top].label} jobs nearby</span>}
+                      {mix?.top && <span className="chip">Good for {WORK_CATEGORIES[mix.top].label.toLowerCase()} work</span>}
                       {a.nearestDock && a.nearestDock.walkMinutes <= 6 && <span className="chip">Dublinbikes {a.nearestDock.walkMinutes} min</span>}
                       {a.transit?.routes?.tram?.length > 0 && <span className="chip">Luas {a.transit.routes.tram.join(' / ')}</span>}
                     </div>

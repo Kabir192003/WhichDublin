@@ -12,7 +12,7 @@ if (!d.sources?.rent?.asOf) bad('sources.rent.asOf missing')
 if (!d.sources?.transit?.serviceDate) bad('sources.transit.serviceDate missing')
 if (d.areas.length < 50) bad(`only ${d.areas.length} areas`)
 const campusIds = new Set(d.campuses.map((c) => c.id))
-const inDublin = (lat, lon) => lat > 53.2 && lat < 53.5 && lon > -6.5 && lon < -6.05
+const inDublin = (lat, lon) => lat > 53.2 && lat < 53.64 && lon > -6.55 && lon < -6.0
 const ids = new Set()
 
 for (const a of d.areas) {

@@ -70,7 +70,7 @@ export default function Work({ data }) {
                 const a = byId[r.id], mix = workMix(a, data.areas), c = commuteFor(a, campus, 'transit')
                 return (
                   <tr key={r.id}>
-                    <th scope="row">{a.label}{mix?.top && mix.top !== cat && <small className="muted"> leans {WORK_CATEGORIES[mix.top].label.toLowerCase()}</small>}</th>
+                    <th scope="row">{a.label}{mix?.top && mix.top !== cat && <small className="muted"> · stands out for {WORK_CATEGORIES[mix.top].label.toLowerCase()}</small>}</th>
                     <td><span className="bar" style={{ '--w': `${Math.max(2, r.share * 100)}%` }} aria-hidden="true" /> <b>{r.capped ? `${r.n}+` : r.n}</b></td>
                     <td>{c ? `${c.minutes} min` : '–'}</td>
                   </tr>)

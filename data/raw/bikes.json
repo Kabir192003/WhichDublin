@@ -1,0 +1,1226 @@
+{
+ "source": "OpenStreetMap contributors via Nominatim, ODbL 1.0",
+ "fetched": "2026-11-05",
+ "docks": [
+  {
+   "osm": "way/1091287934",
+   "name": "",
+   "lat": 53.28258,
+   "lon": -6.34177,
+   "operator": "",
+   "brand": "",
+   "capacity": "",
+   "capped": false
+  },
+  {
+   "osm": "node/3047755396",
+   "name": "Brookfield Road (84)",
+   "lat": 53.33893,
+   "lon": -6.30014,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/2984177175",
+   "name": "St. James's Hospital (Central)",
+   "lat": 53.33993,
+   "lon": -6.29557,
+   "operator": "",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/3047727757",
+   "name": "Rothe Abbey (85)",
+   "lat": 53.3388,
+   "lon": -6.30397,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "35",
+   "capped": false
+  },
+  {
+   "osm": "node/505215790",
+   "name": "Portobello Harbour",
+   "lat": 53.33037,
+   "lon": -6.26512,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/10735424367",
+   "name": "dublinbikes",
+   "lat": 53.33861,
+   "lon": -6.24861,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "",
+   "capped": false
+  },
+  {
+   "osm": "node/505296855",
+   "name": "James Street East",
+   "lat": 53.33656,
+   "lon": -6.24805,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/2800819520",
+   "name": "Sir Patrick Dun's",
+   "lat": 53.33928,
+   "lon": -6.24096,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2623622025",
+   "name": "York Street East",
+   "lat": 53.33874,
+   "lon": -6.26208,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "32",
+   "capped": false
+  },
+  {
+   "osm": "node/12216131861",
+   "name": "Saint Stephen's Green East",
+   "lat": 53.33753,
+   "lon": -6.25637,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "27",
+   "capped": false
+  },
+  {
+   "osm": "node/1416710716",
+   "name": "Fitzwilliam Square West",
+   "lat": 53.33584,
+   "lon": -6.2529,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/1678644100",
+   "name": "Portobello Road",
+   "lat": 53.33002,
+   "lon": -6.26814,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/505323544",
+   "name": "St. Stephen's Green East",
+   "lat": 53.33783,
+   "lon": -6.25609,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/1678563961",
+   "name": "Harcourt Terrace",
+   "lat": 53.33246,
+   "lon": -6.2578,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/505296859",
+   "name": "Earlsfort Terrace",
+   "lat": 53.33432,
+   "lon": -6.25849,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/2800831106",
+   "name": "Newman House",
+   "lat": 53.33715,
+   "lon": -6.26055,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2620178669",
+   "name": "Mount Street Lower",
+   "lat": 53.33796,
+   "lon": -6.24174,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "28",
+   "capped": false
+  },
+  {
+   "osm": "node/505323556",
+   "name": "Merrion Square East",
+   "lat": 53.33908,
+   "lon": -6.24697,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/6283383771",
+   "name": "Wilton Terrace (Park)",
+   "lat": 53.33366,
+   "lon": -6.24835,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/505323550",
+   "name": "Merrion Square West",
+   "lat": 53.33997,
+   "lon": -6.2517,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/505296850",
+   "name": "Herbert Place",
+   "lat": 53.33475,
+   "lon": -6.24514,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/10538087148",
+   "name": "Hatch Street",
+   "lat": 53.33401,
+   "lon": -6.26073,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "36",
+   "capped": false
+  },
+  {
+   "osm": "node/2623622024",
+   "name": "York Street West",
+   "lat": 53.33931,
+   "lon": -6.26478,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2800800851",
+   "name": "Fitzwilliam Square East",
+   "lat": 53.33515,
+   "lon": -6.25095,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/505296842",
+   "name": "Wilton Terrace",
+   "lat": 53.33238,
+   "lon": -6.25259,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/449722275",
+   "name": "Grantham Street",
+   "lat": 53.33408,
+   "lon": -6.26573,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/2620183595",
+   "name": "Grattan Street",
+   "lat": 53.33962,
+   "lon": -6.24373,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "23",
+   "capped": false
+  },
+  {
+   "osm": "node/505323537",
+   "name": "St. Stephen's Green South",
+   "lat": 53.33745,
+   "lon": -6.26171,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/2800783443",
+   "name": "Clonmel Street",
+   "lat": 53.33607,
+   "lon": -6.26292,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "33",
+   "capped": false
+  },
+  {
+   "osm": "node/13893414560",
+   "name": "Herbert Street",
+   "lat": 53.33575,
+   "lon": -6.24553,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "31",
+   "capped": false
+  },
+  {
+   "osm": "node/2902734878",
+   "name": "Kevin Street",
+   "lat": 53.33775,
+   "lon": -6.26765,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/505215792",
+   "name": "Charlemont Street",
+   "lat": 53.33079,
+   "lon": -6.25997,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/10222358442",
+   "name": "151000132",
+   "lat": 53.29506,
+   "lon": -6.13401,
+   "operator": "Moby eHub",
+   "brand": "",
+   "capacity": "8",
+   "capped": false
+  },
+  {
+   "osm": "way/360792642",
+   "name": "Heuston Station",
+   "lat": 53.34697,
+   "lon": -6.2978,
+   "operator": "",
+   "brand": "",
+   "capacity": "",
+   "capped": false
+  },
+  {
+   "osm": "node/3047766710",
+   "name": "St James's Hospital (Luas)",
+   "lat": 53.34136,
+   "lon": -6.29301,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/3047696736",
+   "name": "Emmet Road (83)",
+   "lat": 53.3407,
+   "lon": -6.30838,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/3068630828",
+   "name": "Kilmainham Gaol (97)",
+   "lat": 53.34211,
+   "lon": -6.31017,
+   "operator": "",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/3157227867",
+   "name": "Hueston North",
+   "lat": 53.34793,
+   "lon": -6.29186,
+   "operator": "",
+   "brand": "",
+   "capacity": "",
+   "capped": false
+  },
+  {
+   "osm": "node/3047739395",
+   "name": "Kilmainham Lane (96)",
+   "lat": 53.34176,
+   "lon": -6.30507,
+   "operator": "",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/3157227866",
+   "name": "Heuston Bridge",
+   "lat": 53.34704,
+   "lon": -6.29219,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "26",
+   "capped": false
+  },
+  {
+   "osm": "node/3199495140",
+   "name": "Royal Hospital",
+   "lat": 53.34388,
+   "lon": -6.29699,
+   "operator": "",
+   "brand": "",
+   "capacity": "36",
+   "capped": false
+  },
+  {
+   "osm": "node/886531579",
+   "name": "Phoenix Park Bike Hire",
+   "lat": 53.34844,
+   "lon": -6.29751,
+   "operator": "",
+   "brand": "",
+   "capacity": "",
+   "capped": false
+  },
+  {
+   "osm": "node/3047761348",
+   "name": "Mount Brown",
+   "lat": 53.34165,
+   "lon": -6.29717,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "22",
+   "capped": false
+  },
+  {
+   "osm": "node/5236430221",
+   "name": "",
+   "lat": 53.34779,
+   "lon": -6.29242,
+   "operator": "",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "way/1436987149",
+   "name": "Oliver Bond Street",
+   "lat": 53.3439,
+   "lon": -6.28037,
+   "operator": "Deceaux",
+   "brand": "",
+   "capacity": "36",
+   "capped": true
+  },
+  {
+   "osm": "node/8610950746",
+   "name": "Benson Street",
+   "lat": 53.34398,
+   "lon": -6.23349,
+   "operator": "JC Deceaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/2679061480",
+   "name": "New Central Bank",
+   "lat": 53.3471,
+   "lon": -6.23416,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/2970651670",
+   "name": "Mater Hospital",
+   "lat": 53.35993,
+   "lon": -6.26477,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/442056537",
+   "name": "Golden Lane",
+   "lat": 53.34075,
+   "lon": -6.26757,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/480606986",
+   "name": "Greek Street",
+   "lat": 53.34703,
+   "lon": -6.27303,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/12096961242",
+   "name": "Killarney Street",
+   "lat": 53.35485,
+   "lon": -6.24759,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/3731121850",
+   "name": "Eccles Street east",
+   "lat": 53.35809,
+   "lon": -6.26561,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "27",
+   "capped": true
+  },
+  {
+   "osm": "node/12124800251",
+   "name": "NCR (O'CONNELL'S)",
+   "lat": 53.35784,
+   "lon": -6.25157,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "29",
+   "capped": true
+  },
+  {
+   "osm": "node/5581718932",
+   "name": "Charleville Road",
+   "lat": 53.3591,
+   "lon": -6.28182,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/10432083947",
+   "name": "Grangegorman Lower (South) (103)",
+   "lat": 53.35467,
+   "lon": -6.27868,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/2800776448",
+   "name": "City Quay",
+   "lat": 53.34664,
+   "lon": -6.24612,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/503792316",
+   "name": "Blessington Street",
+   "lat": 53.3568,
+   "lon": -6.26836,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/5111966797",
+   "name": "South Frederick Street",
+   "lat": 53.34153,
+   "lon": -6.2568,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/3143806541",
+   "name": "Blackhall",
+   "lat": 53.34878,
+   "lon": -6.28163,
+   "operator": "",
+   "brand": "",
+   "capacity": "",
+   "capped": true
+  },
+  {
+   "osm": "node/1077052138",
+   "name": "Smithfield North",
+   "lat": 53.34962,
+   "lon": -6.27783,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/2623622026",
+   "name": "Fenian Street",
+   "lat": 53.34137,
+   "lon": -6.24673,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "35",
+   "capped": true
+  },
+  {
+   "osm": "node/505357368",
+   "name": "Molesworth Street",
+   "lat": 53.34118,
+   "lon": -6.25772,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/498686676",
+   "name": "Custom House",
+   "lat": 53.34821,
+   "lon": -6.25436,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/2679064028",
+   "name": "Excise Walk",
+   "lat": 53.34771,
+   "lon": -6.24433,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/505357360",
+   "name": "Leinster Street South",
+   "lat": 53.34212,
+   "lon": -6.25436,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/12543399741",
+   "name": "Mountjoy Square East",
+   "lat": 53.35675,
+   "lon": -6.25639,
+   "operator": "Dublin City Council",
+   "brand": "",
+   "capacity": "38",
+   "capped": true
+  },
+  {
+   "osm": "node/480606956",
+   "name": "Ormond Quay Upper",
+   "lat": 53.34608,
+   "lon": -6.26829,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "29",
+   "capped": true
+  },
+  {
+   "osm": "node/5438202856",
+   "name": "Grangegorman lower (north)",
+   "lat": 53.35517,
+   "lon": -6.27842,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/11223559861",
+   "name": "Rathdown Road",
+   "lat": 53.35891,
+   "lon": -6.28034,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/2703119111",
+   "name": "Deverell Place",
+   "lat": 53.35137,
+   "lon": -6.25541,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "25",
+   "capped": true
+  },
+  {
+   "osm": "node/2767718262",
+   "name": "John Street West",
+   "lat": 53.34306,
+   "lon": -6.27715,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "31",
+   "capped": true
+  },
+  {
+   "osm": "node/3732266848",
+   "name": "King Street North",
+   "lat": 53.35027,
+   "lon": -6.27354,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/2800875901",
+   "name": "Hanover Quay",
+   "lat": 53.34411,
+   "lon": -6.23717,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/480606954",
+   "name": "Townsend Street",
+   "lat": 53.34597,
+   "lon": -6.25441,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/5509192952",
+   "name": "George's Lane",
+   "lat": 53.35024,
+   "lon": -6.2797,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/3157228861",
+   "name": "Collins Barracks",
+   "lat": 53.34758,
+   "lon": -6.28517,
+   "operator": "",
+   "brand": "",
+   "capacity": "",
+   "capped": true
+  },
+  {
+   "osm": "node/480606960",
+   "name": "Princes Street / O'Connell Street",
+   "lat": 53.34899,
+   "lon": -6.26049,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "23",
+   "capped": true
+  },
+  {
+   "osm": "node/503792320",
+   "name": "Fownes Street Upper",
+   "lat": 53.34456,
+   "lon": -6.26332,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": true
+  },
+  {
+   "osm": "node/480606958",
+   "name": "Parnell Street",
+   "lat": 53.35082,
+   "lon": -6.26553,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/428509753",
+   "name": "Christchurch Place",
+   "lat": 53.34334,
+   "lon": -6.27003,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/2679055630",
+   "name": "The Point",
+   "lat": 53.34686,
+   "lon": -6.23076,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/8610950745",
+   "name": "Hanover Quay East",
+   "lat": 53.34365,
+   "lon": -6.23174,
+   "operator": "JC Deceaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": true
+  },
+  {
+   "osm": "node/10575522002",
+   "name": "dublinbikes",
+   "lat": 53.35631,
+   "lon": -6.27371,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "36",
+   "capped": true
+  },
+  {
+   "osm": "node/487750491",
+   "name": "Georges Quay",
+   "lat": 53.34748,
+   "lon": -6.25234,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": true
+  },
+  {
+   "osm": "node/10119448736",
+   "name": "Malahide Station",
+   "lat": 53.45044,
+   "lon": -6.15584,
+   "operator": "ESB eBikes",
+   "brand": "",
+   "capacity": "8",
+   "capped": false
+  },
+  {
+   "osm": "node/8719970948",
+   "name": "",
+   "lat": 53.43301,
+   "lon": -6.12429,
+   "operator": "Tier",
+   "brand": "",
+   "capacity": "10",
+   "capped": false
+  },
+  {
+   "osm": "node/2957699933",
+   "name": "DublinBikes 76",
+   "lat": 53.34233,
+   "lon": -6.28777,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2742541291",
+   "name": "Francis Street",
+   "lat": 53.34207,
+   "lon": -6.27524,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/505357374",
+   "name": "High Street",
+   "lat": 53.34344,
+   "lon": -6.2744,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "29",
+   "capped": false
+  },
+  {
+   "osm": "node/1678644113",
+   "name": "Smithfield",
+   "lat": 53.34757,
+   "lon": -6.2782,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/5048212421",
+   "name": "DublinBikes 75",
+   "lat": 53.34339,
+   "lon": -6.28737,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/505357370",
+   "name": "Clarendon Row",
+   "lat": 53.34088,
+   "lon": -6.26254,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "31",
+   "capped": false
+  },
+  {
+   "osm": "node/428509755",
+   "name": "Dame Street",
+   "lat": 53.34395,
+   "lon": -6.2666,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "16",
+   "capped": false
+  },
+  {
+   "osm": "node/3732266849",
+   "name": "Wolfe Tone Street",
+   "lat": 53.34878,
+   "lon": -6.26738,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "29",
+   "capped": false
+  },
+  {
+   "osm": "node/2665096453",
+   "name": "Strand Street Great",
+   "lat": 53.34714,
+   "lon": -6.26384,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "35",
+   "capped": false
+  },
+  {
+   "osm": "node/505363642",
+   "name": "Jervis Street",
+   "lat": 53.34826,
+   "lon": -6.26654,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "21",
+   "capped": false
+  },
+  {
+   "osm": "node/441270663",
+   "name": "Exchequer Street",
+   "lat": 53.34305,
+   "lon": -6.26341,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "24",
+   "capped": false
+  },
+  {
+   "osm": "node/480606957",
+   "name": "Bolton Street",
+   "lat": 53.35117,
+   "lon": -6.26981,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/2679048566",
+   "name": "Sandwith Street",
+   "lat": 53.34524,
+   "lon": -6.24754,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/479695448",
+   "name": "Custom House Quay",
+   "lat": 53.34797,
+   "lon": -6.24807,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/442056199",
+   "name": "Pearse Street",
+   "lat": 53.3443,
+   "lon": -6.25061,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/2679048578",
+   "name": "Lime Street",
+   "lat": 53.34606,
+   "lon": -6.24354,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/479695447",
+   "name": "Talbot Street",
+   "lat": 53.35104,
+   "lon": -6.25263,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2623622023",
+   "name": "The Convention Centre",
+   "lat": 53.34733,
+   "lon": -6.23859,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2800843069",
+   "name": "Benson Street",
+   "lat": 53.34404,
+   "lon": -6.23665,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/2800867940",
+   "name": "Grand Canal Dock",
+   "lat": 53.34288,
+   "lon": -6.23862,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/7449832423",
+   "name": "dublinbikes",
+   "lat": 53.34183,
+   "lon": -6.23128,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/3398091678",
+   "name": "Guild Street",
+   "lat": 53.34794,
+   "lon": -6.24091,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/10432083946",
+   "name": "Grangegorman Lower - north (105)",
+   "lat": 53.35596,
+   "lon": -6.27837,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "36",
+   "capped": false
+  },
+  {
+   "osm": "node/9227155288",
+   "name": "Avondale Road",
+   "lat": 53.3594,
+   "lon": -6.27614,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "35",
+   "capped": false
+  },
+  {
+   "osm": "node/497381658",
+   "name": "Eccles Street",
+   "lat": 53.35922,
+   "lon": -6.26949,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/2800836022",
+   "name": "North Circular Road",
+   "lat": 53.35966,
+   "lon": -6.26051,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/11851532460",
+   "name": "Broadstone",
+   "lat": 53.3547,
+   "lon": -6.27231,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/503792319",
+   "name": "Mountjoy Square West",
+   "lat": 53.35642,
+   "lon": -6.25858,
+   "operator": "Cyclocity",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/498686677",
+   "name": "Cathal Brugha Street",
+   "lat": 53.35221,
+   "lon": -6.26024,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/2800807443",
+   "name": "Hardwicke Place",
+   "lat": 53.35707,
+   "lon": -6.2633,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "25",
+   "capped": false
+  },
+  {
+   "osm": "node/3732266847",
+   "name": "Western Way",
+   "lat": 53.35496,
+   "lon": -6.26945,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "40",
+   "capped": false
+  },
+  {
+   "osm": "node/1415540434",
+   "name": "Parnell Square North",
+   "lat": 53.35373,
+   "lon": -6.26533,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/1415539920",
+   "name": "Hardwicke Street",
+   "lat": 53.35564,
+   "lon": -6.26432,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "16",
+   "capped": false
+  },
+  {
+   "osm": "node/2800858876",
+   "name": "Denmark Street Great",
+   "lat": 53.35554,
+   "lon": -6.26148,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "20",
+   "capped": false
+  },
+  {
+   "osm": "node/1678644132",
+   "name": "Upper Sherrard Street",
+   "lat": 53.35852,
+   "lon": -6.26036,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "30",
+   "capped": false
+  },
+  {
+   "osm": "node/10960377489",
+   "name": "Buckingham Street Lower",
+   "lat": 53.35333,
+   "lon": -6.24932,
+   "operator": "JCDecaux",
+   "brand": "",
+   "capacity": "",
+   "capped": false
+  }
+ ]
+}
