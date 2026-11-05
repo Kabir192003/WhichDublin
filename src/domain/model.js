@@ -1,4 +1,10 @@
 /** Turns the published dataset into rows for a chosen campus, rent type and commute mode. Pure, so it is unit-tested. */
+import { RENT_NEW_TENANCY } from '../content/facts.js'
+
+/** The RTB's own figures track existing tenancies, which run below what a new tenancy actually costs (see facts.js).
+ * We scale every rent figure we show by this ratio so the numbers reflect a tenancy starting now, not one already running. */
+export const MARKET_FACTOR = RENT_NEW_TENANCY.dublinNew / RENT_NEW_TENANCY.dublinExisting
+export const toMarket = (v) => Math.round(v * MARKET_FACTOR)
 
 export const RENT_TYPES = {
   own1: { label: 'Own 1-bed', short: 'a 1-bed on your own', bed: '1', people: 1, hint: 'A whole 1-bedroom home, all yours.' },
@@ -22,8 +28,9 @@ export function rentPerPerson(area, type, ptype = 'any') {
   const t = RENT_TYPES[type]
   const c = area.rent.cells[`${t.bed}:${ptype}`]
   if (!c) return null
-  const v = typeof c === 'number' ? c : c.v
-  return { total: v, perPerson: Math.round(v / t.people), people: t.people, how: c.how || 'published', howLabel: HOW_LABEL[c.how || 'published'], q: c.q, anchor: c.anchor, confidence: typeof c === 'number' ? area.rent.confidence : cellConfidence(area, c) }
+  const rtb = typeof c === 'number' ? c : c.v
+  const v = toMarket(rtb)
+  return { total: v, perPerson: Math.round(v / t.people), rtbTotal: rtb, people: t.people, how: c.how || 'published', howLabel: HOW_LABEL[c.how || 'published'], q: c.q, anchor: c.anchor, confidence: typeof c === 'number' ? area.rent.confidence : cellConfidence(area, c) }
 }
 
 export const MODES = {

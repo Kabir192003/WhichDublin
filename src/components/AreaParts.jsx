@@ -1,5 +1,5 @@
 import React from 'react'
-import { WORK_CATEGORIES, cellConfidence } from '../domain/model.js'
+import { WORK_CATEGORIES, cellConfidence, toMarket } from '../domain/model.js'
 import { eur, SHORT, Conf, Icon, gmapsDir } from './ui.jsx'
 import { getJson, postJson } from '../domain/api.js'
 
@@ -50,12 +50,13 @@ export function RentTable({ area, data, highlight }) {
     <Section icon="home" badge="b-teal" title="Average rent, whole home per month" conf={area.rent.confidence}
       source={`RTB via CSO, ${src.asOf}, ${src.licence}`}
       how={<>
-        <p><b>Published</b>: the RTB average for new tenancies in {src.asOf}. <b>Carried forward</b>: the latest published figure from up to two years earlier, adjusted for rent growth since. <b>Estimated</b>: the RTB published nothing for that home here, so we take the closest figure it did publish for this area (same size, or same type) and scale it by how the two compare across Dublin.</p>
+        <p>Figures here are scaled up from the RTB's published existing-tenancy average by the same ratio the RTB's own data shows between new and existing tenancies in Dublin (about +15%, see the Method page), so they land closer to what a new tenancy actually costs rather than the blended average including long-standing, capped leases. Hover a figure to see the RTB's underlying published number.</p>
+        <p><b>Published</b>: the RTB average for that quarter, {src.asOf}, before the new-tenancy adjustment. <b>Carried forward</b>: the latest published figure from up to two years earlier, adjusted for rent growth since. <b>Estimated</b>: the RTB published nothing for that home here, so we take the closest figure it did publish for this area (same size, or same type) and scale it by how the two compare across Dublin.</p>
         {bt?.specific && <p>We tested the estimates by hiding {bt.specific.n} published figures and estimating them: half were within {bt.specific.medianPct}% and 8 in 10 within {bt.specific.p80Pct}%. Estimates from the area's all-homes average only are rougher (half within {bt.all?.medianPct}%).</p>}
         <p>Whole-home rent. Sharing? Divide by the number of people. These are averages, not asking prices for a specific listing.</p>
         <p>The trend line uses only quarters the RTB published for this area. Small areas have few new tenancies each quarter, so single quarters can jump.</p>
       </>}>
-      <p className="hint">RTB figures track rents of registered tenancies, not live asking prices, so they can sit below what you'll see on a listing today, especially for larger homes. <a href="#/method">How this compares with Daft.ie's own report</a></p>
+      <p className="hint">Scaled to new-tenancy level using the RTB's own new-vs-existing split, not live asking prices, so a specific listing can still run higher or lower. <a href="#/method">How this is worked out, and how it compares with Daft.ie's own report</a></p>
       <RentTrend area={area} data={data} />
       <div style={{ overflowX: 'auto' }}>
         <table className="rtable">
@@ -64,8 +65,8 @@ export function RentTable({ area, data, highlight }) {
             <tr key={b}><th scope="row">{bl}</th>{TYPES.map(([t]) => {
               const c = area.rent.cells[`${b}:${t}`]
               const on = highlight && highlight.bed === b && highlight.ptype === t
-              return <td key={t} className={on ? 'on num' : 'num'} title={c ? `${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}, ${cellConfidence(area, c)} confidence` : ''}>
-                {c ? eur(c.v) : '–'}{c && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} />}
+              return <td key={t} className={on ? 'on num' : 'num'} title={c ? `${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}, ${cellConfidence(area, c)} confidence. RTB existing-tenancy figure: ${eur(c.v)}.` : ''}>
+                {c ? eur(toMarket(c.v)) : '–'}{c && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} />}
               </td>
             })}</tr>))}</tbody>
         </table>

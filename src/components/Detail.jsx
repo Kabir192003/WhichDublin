@@ -31,7 +31,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
       {rent && <Section icon="home" badge="b-teal" title="Your rent" conf={rent.confidence} source={`RTB via CSO, ${src.rent.asOf}, ${src.rent.licence}`}>
         <p className="big"><b>{eur(rent.perPerson)}</b> a month, your share</p>
         <p>{RENT_TYPES[s.type].label}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
-        <p className="hint">This tracks rents of tenancies registered with the RTB, which can run below live asking prices, especially for family-sized homes that change tenants less often. <a href="#/method">How this compares with Daft.ie's own report</a></p>
+        <p className="hint">Scaled up from the RTB's published existing-tenancy figure ({eur(rent.rtbTotal)}) to new-tenancy level, using the RTB's own new-vs-existing split for Dublin. Still not a live asking price for a specific listing. <a href="#/method">How this is worked out, and how it compares with Daft.ie's own report</a></p>
       </Section>}
 
       {rent && <CostCard rentShare={rent.perPerson} mode={s.mode} people={rent.people} />}

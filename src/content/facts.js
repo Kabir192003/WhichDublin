@@ -98,6 +98,19 @@ export const MOBILE = {
   check: 'secondary'
 }
 
+export const RENT_NEW_TENANCY = {
+  quarter: '2025 Q4',
+  dublinNew: 2232,
+  dublinExisting: 1939,
+  intro: "The RTB itself splits its data the same way, by how long the tenancy has run. The figures on this page come from its 'existing tenancies' series, which includes long-standing tenancies capped by Rent Pressure Zone rules years ago. Its separate 'new tenancies' series tracks only tenancies that have just started, so it sits much closer to what you'd actually be quoted moving in today.",
+  sources: [
+    { name: 'RTB Rent Index, Q4 2025', url: 'https://rtb.ie/wp-content/uploads/2026/05/RTB-Rent-Index-Q4-2025.pdf' },
+    { name: "RTB Director's Quarterly Update, May 2026", url: 'https://www.rtb.ie/wp-content/uploads/2026/05/RTB-Directors-Quarterly-Update-May-2026.pdf' }
+  ],
+  granularity: 'The RTB publishes this split for County Dublin as a whole (and by local electoral area in its own appendices), not for our 106 named areas, so this is one Dublin-wide figure, not an area-by-area one.',
+  check: 'secondary. We could not reach rtb.ie directly from our build environment, so these figures are as reported in search results citing the RTB’s own PDF and its Director’s Quarterly Update, not read directly from the PDF ourselves.'
+}
+
 export const RENT_COMPARISON = {
   dublinQuarter: '2025 Q4',
   dublinTwoBedApartment: { low: 2517, high: 2696 },

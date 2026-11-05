@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { confidence, reliabilityBand, worst } from '../src/domain/confidence.js'
 import { rankAreas, rankMovement } from '../src/domain/rank.js'
-import { rentPerPerson, commuteFor, parseState, stateToSearch, DEFAULTS, hourLimit, grossPay, workByArea, workMix } from '../src/domain/model.js'
+import { rentPerPerson, commuteFor, parseState, stateToSearch, DEFAULTS, hourLimit, grossPay, workByArea, workMix, toMarket } from '../src/domain/model.js'
 import { journey, journeys, medianCommute, buildTransfers, haversineMetres } from '../src/domain/csa.js'
 
 test('confidence: rent needs a deep local market and recent data; missing input means "do not show"', () => {
@@ -52,8 +52,9 @@ test('ranking: every area at the same value does not divide by zero', () => {
 const area = (rent, to) => ({ id: 'z', rent: { cells: rent }, toCampus: to, nearestBudgetGroceryMinutes: 7 })
 test('model: rent per person depends on how you rent, and missing cells stay missing', () => {
   const a = area({ '1:any': 1500, '2:any': 2100 }, {})
-  assert.equal(rentPerPerson(a, 'own1').perPerson, 1500); assert.equal(rentPerPerson(a, 'own1').people, 1)
-  assert.equal(rentPerPerson(a, 'share2').perPerson, 1050)
+  assert.equal(rentPerPerson(a, 'own1').perPerson, toMarket(1500)); assert.equal(rentPerPerson(a, 'own1').people, 1)
+  assert.equal(rentPerPerson(a, 'own1').rtbTotal, 1500)
+  assert.equal(rentPerPerson(a, 'share2').perPerson, Math.round(toMarket(2100) / 2))
   assert.equal(rentPerPerson(a, 'share3'), null)
 })
 test('model: commute follows the chosen mode; no transit journey means no commute, not a guess', () => {
@@ -152,7 +153,7 @@ test('model: rent cells carry how they were obtained, and confidence follows the
   assert.equal(rentPerPerson(a, 'share2', 'terrace').confidence, 'medium')
   assert.equal(rentPerPerson(a, 'share2', 'detached').confidence, 'low')
   assert.equal(rentPerPerson(a, 'share2', 'semi').howLabel, 'Carried forward')
-  assert.equal(rentPerPerson(a, 'own2', 'any').perPerson, 2000)
+  assert.equal(rentPerPerson(a, 'own2', 'any').perPerson, toMarket(2000))
 })
 
 import { parseEircode, fromPoint, haversine, walkMin } from '../src/domain/geo.js'

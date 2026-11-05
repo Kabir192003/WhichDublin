@@ -3,6 +3,7 @@ import MapView from './MapView.jsx'
 import { Essentials, RoomReports, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock, HOW } from './AreaParts.jsx'
 import { eur, SHORT, Icon } from './ui.jsx'
 import { SaveButton } from './Shortlist.jsx'
+import { toMarket } from '../domain/model.js'
 
 const SCALE = ['#BFE3D8', '#7FC2AE', '#2E9A80', '#0B6B57', '#0B3F37']
 
@@ -12,7 +13,7 @@ export default function Explore({ data }) {
   const [q, setQ] = useState('')
   const [sort, setSort] = useState('name')
   const [tab, setTab] = useState('list')
-  const rent = (a) => a.rent.cells['all:any'].v
+  const rent = (a) => toMarket(a.rent.cells['all:any'].v)
   const breaks = useMemo(() => { const v = data.areas.map(rent).sort((a, b) => a - b); return [0.2, 0.4, 0.6, 0.8].map((p) => v[Math.floor(p * v.length)]) }, [data])
   const color = (v) => SCALE[breaks.filter((b) => v >= b).length]
   const points = useMemo(() => data.areas.map((a) => ({ id: a.id, name: a.name, lat: a.lat, lon: a.lon, color: color(rent(a)) })), [data, breaks])
@@ -45,12 +46,12 @@ export default function Explore({ data }) {
             <div className="glance">
               {['1:any', '2:any', '3:any'].map((k, i) => { const c = area.rent.cells[k]; return (
                 <div className={`stat ${['s-rent', 's-time', 's-groc'][i]}`} key={k}>
-                  <b>{eur(c.v)}{c.how !== 'published' && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} title={`${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}`} />}</b>
+                  <b>{eur(toMarket(c.v))}{c.how !== 'published' && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} title={`${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}`} />}</b>
                   <small>{i + 1}-bed average</small>
                 </div>
               )})}
             </div>
-            <p className="hint">Dots mark figures that are carried forward or estimated rather than freshly published, so bed sizes here can come from different quarters. <a href="#/method">How this is worked out</a></p>
+            <p className="hint">Scaled to new-tenancy level (see Method). Dots mark figures that are carried forward or estimated rather than freshly published, so bed sizes here can come from different quarters. <a href="#/method">How this is worked out</a></p>
             <div className="actions"><SaveButton id={area.id} /><a className="btn sm" href={`#/areas`}>Rank areas for my needs</a></div>
             <RentTable area={area} data={data} />
             <RoomReports area={area} />
@@ -71,7 +72,7 @@ export default function Explore({ data }) {
                 <li key={a.id}>
                   <button className="acard" style={{ width: '100%', textAlign: 'left', font: 'inherit', cursor: 'pointer', flexDirection: 'row', alignItems: 'center' }} onClick={() => pick(a.id)}>
                     <span className="rank" style={{ background: color(rent(a)), color: rent(a) >= breaks[2] ? '#fff' : 'var(--ink)' }} aria-hidden="true"><Icon name="home" size={16} /></span>
-                    <span style={{ flex: 1, minWidth: 0 }}><b style={{ display: 'block', fontSize: 16 }}>{a.label}</b><span className="hint">1-bed {eur(a.rent.cells['1:any'].v)} · 2-bed {eur(a.rent.cells['2:any'].v)} · {a.toCampus.tcd.distanceKm} km to Trinity</span></span>
+                    <span style={{ flex: 1, minWidth: 0 }}><b style={{ display: 'block', fontSize: 16 }}>{a.label}</b><span className="hint">1-bed {eur(toMarket(a.rent.cells['1:any'].v))} · 2-bed {eur(toMarket(a.rent.cells['2:any'].v))} · {a.toCampus.tcd.distanceKm} km to Trinity</span></span>
                     <Icon name="arrow" size={16} />
                   </button>
                 </li>))}
