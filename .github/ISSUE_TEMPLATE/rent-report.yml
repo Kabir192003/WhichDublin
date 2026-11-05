@@ -1,0 +1,47 @@
+name: Report what you pay for a room
+description: Help other students. Your report is public on GitHub. Averages are shown only when an area has 5 or more reports.
+title: "Rent report: [area]"
+labels: ["rent-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is public.** GitHub shows your username with this report. Don't include your address, name of the landlord, or anything that identifies the property.
+        We publish only the median per area and room type, and only once 5 or more people have reported.
+  - type: input
+    id: area
+    attributes:
+      label: Area
+      description: As listed in Which Dublin, e.g. "Rathmines, Dublin 6"
+    validations: { required: true }
+  - type: dropdown
+    id: room
+    attributes:
+      label: What you rent
+      options: ["Single room in a shared home", "Double room in a shared home", "En-suite room in a shared home", "Room in the owner's home (digs)", "Studio", "Whole 1-bed"]
+    validations: { required: true }
+  - type: input
+    id: rent
+    attributes:
+      label: Your rent per month (euro)
+      description: Just the number, e.g. 850
+    validations: { required: true }
+  - type: dropdown
+    id: bills
+    attributes:
+      label: Are bills included?
+      options: ["No", "Yes", "Some"]
+    validations: { required: true }
+  - type: input
+    id: since
+    attributes:
+      label: When did this rent start? (month and year)
+      description: e.g. 09/2026
+    validations: { required: true }
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Consent
+      options:
+        - label: I agree this report is public and can be used in anonymous averages.
+          required: true

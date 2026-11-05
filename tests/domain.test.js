@@ -187,3 +187,15 @@ test('cost: travel uses the 90-minute fare twice a day, only for public transpor
   assert.equal(travelCost('walk'), 0); assert.equal(travelCost('cycle'), 0)
   assert.equal(monthlyCost({ rentShare: 900, travel: 43, bills: 60, food: '200' }).total, 1203)
 })
+
+import { parse, aggregate } from '../pipeline/aggregate-reports.js'
+test('reports: issue form parsed; medians only with 5+ reports; nonsense dropped', () => {
+  const body = '### Area\n\nRathmines, Dublin 6\n\n### What you rent\n\nDouble room in a shared home\n\n### Your rent per month (euro)\n\n€900\n\n### Are bills included?\n\nNo\n\n### When did this rent start? (month and year)\n\n9/2026\n\n### Consent\n\n- [X] I agree this report is public'
+  const r = parse(body)
+  assert.deepEqual({ id: r.id, rent: r.rent, since: r.since, consent: r.consent }, { id: 'rathmines-6', rent: 900, since: '2026-09', consent: true })
+  const base = { id: 'rathmines-6', room: 'Double room in a shared home', consent: true }
+  const four = [800, 850, 900, 950].map((rent) => ({ ...base, rent }))
+  assert.deepEqual(aggregate(four)['rathmines-6']['Double room in a shared home'], { n: 4 })
+  const six = [...four, { ...base, rent: 1000 }, { ...base, rent: 50000 }, { ...base, rent: 700, consent: false }]
+  assert.deepEqual(aggregate(six)['rathmines-6']['Double room in a shared home'], { n: 5, median: 900 })
+})

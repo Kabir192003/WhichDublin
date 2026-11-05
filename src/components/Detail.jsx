@@ -3,7 +3,7 @@ import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor } from '../dom
 import { eur, SHORT, HOW_CHIP } from './ui.jsx'
 import { SaveButton } from './Shortlist.jsx'
 import { CostCard } from './Cost.jsx'
-import { Section, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
+import { RoomReports, Section, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
 
 const mapsLink = (a, campus, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lon}&destination=${campus.lat},${campus.lon}&travelmode=${mode === 'transit' ? 'transit' : mode === 'walk' ? 'walking' : 'bicycling'}`
 
@@ -44,6 +44,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
       </Section>
 
       <RentTable area={area} data={data} highlight={{ bed: RENT_TYPES[s.type].bed, ptype: s.ptype }} />
+      <RoomReports area={area} />
       <Colleges rows={collegeRowsForArea(area, data)} data={data} />
       <Groceries shops={shopsForArea(area)} data={data} />
       <Dock home={area.nearestDock} campusDock={campus.dock} campusName={college} data={data} />

@@ -1,0 +1,22 @@
+name: Aggregate rent reports
+on:
+  schedule: [{ cron: '17 3 * * *' }]
+  workflow_dispatch:
+permissions: { contents: write, issues: read }
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node pipeline/aggregate-reports.js
+        env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+      - name: Commit if changed
+        run: |
+          if git diff --quiet public/data/reports.json; then echo "no change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/reports.json
+          git commit -m "Update aggregated rent reports"
+          git push

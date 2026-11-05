@@ -145,3 +145,20 @@ export function Dock({ home, campusDock, campusName, data }) {
     </Section>
   )
 }
+
+let reportsP = null
+const REPORT_URL = 'https://github.com/Kabir192003/WhichDublin/issues/new?template=rent-report.yml'
+/** Room rents students reported for this area (medians only once 5+ people reported). */
+export function RoomReports({ area }) {
+  const [r, setR] = React.useState(null)
+  React.useEffect(() => { reportsP ||= fetch(`${import.meta.env.BASE_URL}data/reports.json`).then((x) => (x.ok ? x.json() : null)).catch(() => null); reportsP.then(setR) }, [])
+  const mine = r?.areas?.[area.id]
+  const rows = mine ? Object.entries(mine) : []
+  return (
+    <Section icon="home" badge="b-sand" title="Room rents students report" source={r?.updated ? `Student reports via GitHub, updated ${r.updated}. Medians shown only with ${r.minReports}+ reports.` : null}>
+      {rows.length ? <ul className="rows">{rows.map(([room, v]) => <li key={room}><span>{room}</span><b className="num">{v.median ? `€${v.median.toLocaleString('en-IE')} median (${v.n})` : `${v.n} of ${r.minReports} reports so far`}</b></li>)}</ul>
+        : <p>No reports for {area.name} yet. The RTB does not publish room prices, so these come from students.</p>}
+      <p style={{ marginTop: 8 }}><a href={REPORT_URL} target="_blank" rel="noreferrer">Report what you pay</a> <span className="hint">(public, needs a free GitHub account; no address needed)</span></p>
+    </Section>
+  )
+}

@@ -1,0 +1,30 @@
+name: Collect bus reliability
+on:
+  schedule: [{ cron: '*/15 6-23 * * *' }]
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: reliability, cancel-in-progress: false }
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: reliability-data, fetch-depth: 1 }
+        continue-on-error: true
+      - name: Start the data branch if it does not exist
+        run: git rev-parse --verify HEAD >/dev/null 2>&1 || (git checkout --orphan reliability-data && git rm -rf . >/dev/null 2>&1 || true)
+      - uses: actions/checkout@v4
+        with: { path: app, fetch-depth: 1 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node app/pipeline/collect-reliability.js
+        env: { NTA_API_KEY: '${{ secrets.NTA_API_KEY }}' }
+      - name: Commit samples
+        run: |
+          rm -rf app
+          git add data/reliability || exit 0
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Reliability samples"
+          git push origin HEAD:reliability-data
