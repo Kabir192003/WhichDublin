@@ -17,7 +17,10 @@ async function locate(e, data) {
   if (cache.has(e.full)) return cache.get(e.full)
   let res = null
   if (e.uid && hasGoogle()) {
-    try { const g = await geocodeEircode(e.full); if (g?.exact) res = { lat: g.lat, lon: g.lon, precision: 'exact', label: g.address, via: 'google' } } catch { /* fall back to open data */ }
+    try {
+      const g = await geocodeEircode(e.full)
+      if (g) res = { lat: g.lat, lon: g.lon, precision: g.exact ? 'exact' : 'approx', radius: g.radius, label: g.address, via: 'google' }
+    } catch { /* fall back to open data */ }
   }
   if (!res && e.uid) {
     try {
@@ -99,7 +102,7 @@ export default function Eircode({ data, code }) {
   useEffect(() => {
     setFound(undefined); setPoint(null); setRoutes(null); setPicking(false); setAddrRes(null)
     if (!e) { setFound(null); return }
-    locate(e, data).then((r) => { setFound(r); if (r?.precision === 'exact') setPoint(r); else if (r) setPicking(true) })
+    locate(e, data).then((r) => { setFound(r); if (r?.precision === 'exact' || r?.precision === 'approx') setPoint(r); else if (r) setPicking(true) })
   }, [code])
 
   useEffect(() => {
@@ -133,7 +136,8 @@ export default function Eircode({ data, code }) {
           <h1>{e ? e.full : 'Look up an Eircode'}</h1>
           {found === undefined && e && <p>Finding this Eircode…</p>}
           {found === null && <p>{e ? `We could not place ${e.full}. Is it a Dublin Eircode?` : 'Enter a Dublin Eircode.'}</p>}
-          {point && <p><span className="precision ok"><Icon name="check" size={14} stroke={2.4} />{point.precision === 'exact' ? 'Exact address found' : point.precision === 'address' ? `Using the address you chose` : 'Using the spot you pinned'}</span> All times below are routed from this point.</p>}
+          {point && point.precision === 'approx' && <p><span className="precision warn">Approximate location</span> Google only knows roughly where this Eircode is, not the exact building. <b>Tap the map at the property</b> (or drag the orange pin) and every time below updates.</p>}
+          {point && point.precision !== 'approx' && <p><span className="precision ok"><Icon name="check" size={14} stroke={2.4} />{point.precision === 'exact' ? 'Exact address found' : point.precision === 'address' ? `Using the address you chose` : 'Using the spot you pinned'}</span> All times below are routed from this point.</p>}
           {found?.precision === 'district' && !point && <p><span className="precision warn">Exact spot not in open map data</span> Only {found.label} is known. Pin the place on the map or search its street address below.</p>}
           <div style={{ marginTop: 16 }}><EircodeBox initial={e ? e.full : ''} /></div>
         </div>
@@ -153,7 +157,7 @@ export default function Eircode({ data, code }) {
             </div>
           )}
           <div className="card lift" style={{ padding: 0, overflow: 'hidden', height: picking ? 440 : 340, position: 'relative' }}>
-            {routes?.via === 'google' ? <GoogleMap point={point} campuses={data.campuses} shops={routes.shops} /> : <MapView points={area ? [{ id: area.id, name: area.name, lat: area.lat, lon: area.lon, color: '#0B7A65' }] : []} campuses={campuses} pin={pin} fitKey={`${code}-${point ? 'p' : 'd'}`} picking={picking} onPick={(p) => choose(p, 'pinned')} />}
+            {(found?.via === 'google' || routes?.via === 'google') && point ? <GoogleMap point={point} campuses={data.campuses} shops={routes?.shops || []} draggable onMove={(p) => setPoint({ ...p, precision: 'pinned', label: 'your pin' })} /> : <MapView points={area ? [{ id: area.id, name: area.name, lat: area.lat, lon: area.lon, color: '#0B7A65' }] : []} campuses={campuses} pin={pin} fitKey={`${code}-${point ? 'p' : 'd'}`} picking={picking} onPick={(p) => choose(p, 'pinned')} />}
           </div>
           {point && !picking && routes?.via !== 'google' && <p className="hint" style={{ marginTop: -6 }}>Wrong spot? <button className="link" onClick={() => setPicking(true)}>Move the pin</button></p>}
 

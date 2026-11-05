@@ -30,8 +30,12 @@ export async function geocodeEircode(full) {
   const res = await new Geocoder().geocode({ address: full, componentRestrictions: { country: 'IE' } }).catch(() => null)
   const r = res?.results?.[0]
   if (!r) return null
-  const exact = r.types?.includes('postal_code') || r.address_components?.some((c) => c.types.includes('postal_code') && c.long_name.replace(/\s/g, '') === full.replace(/\s/g, ''))
-  return { lat: r.geometry.location.lat(), lon: r.geometry.location.lng(), address: r.formatted_address, exact: !!exact }
+  // Only a rooftop (or interpolated street) match is a building. APPROXIMATE / GEOMETRIC_CENTER is just an area.
+  const lt = r.geometry.location_type
+  const exact = lt === 'ROOFTOP' || lt === 'RANGE_INTERPOLATED'
+  const vp = r.geometry.viewport?.toJSON?.()
+  const radius = vp ? Math.round(Math.hypot((vp.north - vp.south) * 111000, (vp.east - vp.west) * 66000) / 2) : null
+  return { lat: r.geometry.location.lat(), lon: r.geometry.location.lng(), address: r.formatted_address, exact, locationType: lt, radius }
 }
 
 const headers = (mask) => ({ 'Content-Type': 'application/json', 'X-Goog-Api-Key': GOOGLE_KEY, 'X-Goog-FieldMask': mask })
