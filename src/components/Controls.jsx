@@ -15,6 +15,7 @@ export default function Controls({ data, s, set }) {
         <div className="choices" role="group" aria-labelledby="lv">
           {Object.entries(RENT_TYPES).map(([k, v]) => <button key={k} type="button" className="choice" aria-pressed={s.type === k} onClick={() => set({ type: k })}>{v.label}</button>)}
         </div>
+        <span className="hint">{RENT_TYPES[s.type].hint}</span>
       </div>
 
       <Select id="ptype" label="Type of home" icon="home" value={s.ptype} onChange={(v) => set({ ptype: v })} options={Object.entries(HOME_TYPES)} />

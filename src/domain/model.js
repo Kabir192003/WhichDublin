@@ -1,11 +1,11 @@
 /** Turns the published dataset into rows for a chosen campus, rent type and commute mode. Pure, so it is unit-tested. */
 
 export const RENT_TYPES = {
-  own1: { label: 'Own 1-bed', short: 'a 1-bed on your own', bed: '1', people: 1, hint: 'A 1-bed home, all yours.' },
-  own2: { label: 'Own 2-bed', short: 'a 2-bed on your own (or as a couple)', bed: '2', people: 1, hint: 'A 2-bed home, whole rent.' },
-  share2: { label: 'Share a 2-bed', short: 'sharing a 2-bed', bed: '2', people: 2, hint: 'A 2-bed home split between 2 people.' },
-  share3: { label: 'Share a 3-bed', short: 'sharing a 3-bed', bed: '3', people: 3, hint: 'A 3-bed home split between 3 people.' },
-  share4: { label: 'Share a 4-bed', short: 'sharing a 4+ bed', bed: '4', people: 4, hint: 'A 4+ bed home split between 4 people.' }
+  own1: { label: 'Own 1-bed', short: 'a 1-bed on your own', bed: '1', people: 1, hint: 'A whole 1-bedroom home, all yours.' },
+  own2: { label: 'Own 2-bed', short: 'a whole 2-bed (you pay all of it)', bed: '2', people: 1, hint: 'A whole 2-bedroom home and you pay all of the rent, e.g. on your own or as a couple paying from one budget.' },
+  share2: { label: '2-bed, own room', short: 'sharing a 2-bed (own room each)', bed: '2', people: 2, hint: 'A 2-bedroom home shared by 2 people, each with their own bedroom. Your share is half the rent.' },
+  share3: { label: '3-bed, own room', short: 'sharing a 3-bed (own room each)', bed: '3', people: 3, hint: 'A 3-bedroom home shared by 3 people, each with their own bedroom. Your share is a third of the rent.' },
+  share4: { label: '4-bed, own room', short: 'sharing a 4-bed (own room each)', bed: '4', people: 4, hint: 'A 4-bedroom home shared by 4 people, each with their own bedroom. Your share is a quarter of the rent.' }
 }
 export const HOME_TYPES = { any: 'Any type', apartment: 'Apartment', terrace: 'Terraced house', semi: 'Semi-detached', detached: 'Detached house' }
 const HOW_LABEL = { published: 'Published', carried: 'Carried forward', estimated: 'Estimated' }
