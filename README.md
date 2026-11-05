@@ -2,6 +2,8 @@
 
 **Live: https://which-dublin.vercel.app**
 
+Full project overview (features, data, architecture, settings, roadmap): [`docs/PROJECT.md`](docs/PROJECT.md)
+
 Compare Dublin areas for renting near your college: **rent per person**, **door-to-campus commute**, and the **nearest Lidl, Aldi and Tesco**. Every number shows its source, date and a confidence label. No accounts, no cookies, no listing-site scraping.
 
 Also: part-time work (pay, weekly hour limits, employer counts by area), Dublinbikes as a travel mode, and a Settling-in guide (IRP, Leap card, bank account, mobile plan).
