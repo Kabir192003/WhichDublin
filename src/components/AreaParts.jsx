@@ -17,6 +17,31 @@ export function Section({ icon, badge, title, conf, children, source, how }) {
   )
 }
 
+/** Rent over the last three years for this area against Dublin, all homes, published quarters only. */
+export function RentTrend({ area, data }) {
+  const a = area.rent.trend || [], c = data.sources.rent.countyTrend || []
+  if (a.length < 4) return <p className="hint">Not enough published quarters here to show a trend.</p>
+  const qs = c.map((x) => x[0]), all = [...a.map((x) => x[1]), ...c.map((x) => x[1])]
+  const lo = Math.min(...all) * 0.95, hi = Math.max(...all) * 1.03, W = 300, H = 70
+  const xy = (q, v) => [((qs.indexOf(q) < 0 ? 0 : qs.indexOf(q)) / (qs.length - 1)) * W, H - ((v - lo) / (hi - lo)) * H]
+  const path = (pts) => pts.map(([q, v], i) => `${i ? 'L' : 'M'}${xy(q, v).map((n) => n.toFixed(1)).join(',')}`).join('')
+  const pct = (pts) => Math.round(((pts.at(-1)[1] - pts[0][1]) / pts[0][1]) * 100)
+  const sign = (n) => (n > 0 ? '+' : '') + n + '%'
+  return (
+    <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', margin: '4px 0 10px' }}>
+      <svg width={W} height={H + 6} viewBox={`0 -3 ${W} ${H + 6}`} role="img" aria-label={`All-homes rent here went from ${a[0][1]} to ${a.at(-1)[1]} euro between ${a[0][0]} and ${a.at(-1)[0]}; Dublin ${sign(pct(c))}.`} style={{ maxWidth: '100%' }}>
+        <path d={path(c)} fill="none" stroke="#B7C3C9" strokeWidth="2" strokeDasharray="4 3" />
+        <path d={path(a)} fill="none" stroke="var(--teal)" strokeWidth="2.5" strokeLinejoin="round" />
+        <circle cx={xy(...a.at(-1))[0]} cy={xy(...a.at(-1))[1]} r="3.5" fill="var(--teal)" />
+      </svg>
+      <div style={{ fontSize: 13 }}>
+        <p style={{ margin: 0 }}><b style={{ fontSize: 18, color: 'var(--teal-900)' }}>{sign(pct(a))}</b> here since {a[0][0]}</p>
+        <p style={{ margin: 0 }} className="hint">Dublin {sign(pct(c))} (dashed). All homes, new tenancies.</p>
+      </div>
+    </div>
+  )
+}
+
 /** Every size and type of home, with a marker for how each figure was obtained. */
 export function RentTable({ area, data, highlight }) {
   const src = data.sources.rent, bt = src.backtest
@@ -27,7 +52,9 @@ export function RentTable({ area, data, highlight }) {
         <p><b>Published</b>: the RTB average for new tenancies in {src.asOf}. <b>Carried forward</b>: the latest published figure from up to two years earlier, adjusted for rent growth since. <b>Estimated</b>: the RTB published nothing for that home here, so we take the closest figure it did publish for this area (same size, or same type) and scale it by how the two compare across Dublin.</p>
         {bt?.specific && <p>We tested the estimates by hiding {bt.specific.n} published figures and estimating them: half were within {bt.specific.medianPct}% and 8 in 10 within {bt.specific.p80Pct}%. Estimates from the area's all-homes average only are rougher (half within {bt.all?.medianPct}%).</p>}
         <p>Whole-home rent. Sharing? Divide by the number of people. These are averages, not asking prices for a specific listing.</p>
+        <p>The trend line uses only quarters the RTB published for this area. Small areas have few new tenancies each quarter, so single quarters can jump.</p>
       </>}>
+      <RentTrend area={area} data={data} />
       <div style={{ overflowX: 'auto' }}>
         <table className="rtable">
           <thead><tr><th scope="col"><span className="sr">Bedrooms</span></th>{TYPES.map(([k, l]) => <th key={k} scope="col">{l}</th>)}</tr></thead>

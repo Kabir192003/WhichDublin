@@ -72,7 +72,8 @@ for li, lc in enumerate(loc):
     name = lab('C03004V03625')[lc].strip()
     if 'Dublin' not in name: continue
     if name == 'Dublin':
-        county = {'cells': {f'{bk}:{tk}': round(v) for (bk, tk), v in county_last.items() if v}, 'prev': {'all:any': round(county_ser[('all', 'any')][prev] or 0) or None}}
+        county_trend = [[qlabel(p), round(county_ser[('all', 'any')][p])] for p in range(last - 12, last + 1) if county_ser[('all', 'any')][p]]
+        county = {'trend': county_trend, 'cells': {f'{bk}:{tk}': round(v) for (bk, tk), v in county_last.items() if v}, 'prev': {'all:any': round(county_ser[('all', 'any')][prev] or 0) or None}}
         continue
     m = re.match(r'^(.*?)\s*,\s*Dublin(?:\s+(\d+W?))?$', name)
     if not m: continue
@@ -80,7 +81,10 @@ for li, lc in enumerate(loc):
     if not cells: continue
     place, dn = m.group(1).strip(), m.group(2)
     prev_all = cell(prev, bi['All bedrooms'], pi_['All property types'], li)
-    areas.append({'id': re.sub(r'[^a-z0-9]+', '-', f'{place}-{dn or "co"}'.lower()).strip('-'), 'name': place, 'district': f'D{dn}' if dn else None,
+    ser = series(li, 'All bedrooms', 'All property types')
+    trend = [[qlabel(p), round(ser[p])] for p in range(last - 12, last + 1) if ser[p]]
+    areas_trend = trend
+    areas.append({'trend': trend, 'id': re.sub(r'[^a-z0-9]+', '-', f'{place}-{dn or "co"}'.lower()).strip('-'), 'name': place, 'district': f'D{dn}' if dn else None,
                   'label': f'{place}, Dublin {dn}' if dn else f'{place}, Co. Dublin', 'rent': cells,
                   'prevAll': round(prev_all) if prev_all else None, 'populatedCells': sum(1 for c in cells.values() if c['how'] == 'published')})
 

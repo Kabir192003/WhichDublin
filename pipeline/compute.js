@@ -138,7 +138,7 @@ for (const a of rent.areas) {
   const sentences = d ? (d.extract.match(/[^.!?]+[.!?]+(\s|$)/g) || [d.extract]).slice(0, 2).join('').trim() : null
   out.push({
     id: a.id, name: a.name, district: a.district, label: a.label, lat: g.lat, lon: g.lon,
-    rent: { cells: a.rent, quarter: rent.quarter, prevAll: a.prevAll, populatedCells: a.populatedCells,
+    rent: { cells: a.rent, trend: a.trend, quarter: rent.quarter, prevAll: a.prevAll, populatedCells: a.populatedCells,
             confidence: confidence('rent', { cells: a.populatedCells, ageDays }) },
     transit: { nearestStop: nearest ? { name: stops[nearest.stop].name, walkMinutes: Math.round(nearest.secs / 60) } : null, routes: modes },
     toCampus, groceries, nearestBudgetGroceryMinutes: nearestBudget,
@@ -163,7 +163,7 @@ for (const [k, id] of Object.entries(TOWN_KEYS)) { const a = out.find((x) => x.i
 const dataset = {
   version: new Date().toISOString().slice(0, 10),
   sources: {
-    rent: { name: 'RTB Average Monthly Rent Report via CSO (RIQ02)', licence: 'CC BY 4.0', url: rent.sourceUrl, asOf: asOfRent, definition: rent.definition, countyAverage: rent.county.cells['all:any'], methods: rent.methods, backtest: rent.backtest },
+    rent: { name: 'RTB Average Monthly Rent Report via CSO (RIQ02)', licence: 'CC BY 4.0', url: rent.sourceUrl, asOf: asOfRent, definition: rent.definition, countyAverage: rent.county.cells['all:any'], countyTrend: rent.county.trend, methods: rent.methods, backtest: rent.backtest },
     transit: { name: 'National Transport Authority GTFS static timetables', licence: 'CC BY 4.0', url: 'https://www.transportforireland.ie/transitData/PT_Data.html', serviceDate: net.date, sampled: '07:30 to 08:30, every 5 minutes (13 departures)', late: lateNet && { serviceDate: lateNet.date, sampled: 'from college, leaving 22:00 to 23:00 every 10 minutes' }, sat: satNet && { serviceDate: satNet.date, sampled: 'to college, leaving 10:00 to 11:00 every 10 minutes' } },
     geography: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', url: 'https://www.openstreetmap.org/copyright' },
     groceries: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: storeFetched, note: 'May be incomplete: community-maintained map data.' },

@@ -1,0 +1,11 @@
+{
+  "name": "Which Dublin",
+  "short_name": "Which Dublin",
+  "description": "Compare Dublin areas on rent, journeys to your college, cheap groceries and part-time work.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F3F5F2",
+  "theme_color": "#0B4F45",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
