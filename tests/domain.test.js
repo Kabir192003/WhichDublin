@@ -199,3 +199,18 @@ test('reports: issue form parsed; medians only with 5+ reports; nonsense dropped
   const six = [...four, { ...base, rent: 1000 }, { ...base, rent: 50000 }, { ...base, rent: 700, consent: false }]
   assert.deepEqual(aggregate(six)['rathmines-6']['Double room in a shared home'], { n: 5, median: 900 })
 })
+
+import { costRange } from '../src/domain/model.js'
+test('cost range: bills split between people, own figures override, energy rating moves only energy', () => {
+  const bills = { electricity: { low: 90, typical: 150, high: 180 }, gas: { low: 0, typical: 60, high: 125 }, broadband: { low: 40, typical: 50, high: 70 } }
+  const groceries = { low: 150, typical: 220, high: 300 }, phone = { typical: 15 }
+  const r = costRange({ rentShare: 900, travel: 43, people: 2, bills, groceries, phone })
+  assert.equal(r.typical.parts.bills, 130)            // (150+60+50)/2
+  assert.equal(r.low.total, 900 + 43 + 65 + 150 + 15)
+  assert.ok(r.low.total < r.typical.total && r.typical.total < r.high.total)
+  const own = costRange({ rentShare: 900, people: 3, bills, groceries, phone, own: { food: 180, bills: 70 } })
+  assert.equal(own.low.parts.food, 180); assert.equal(own.high.parts.bills, 70)
+  const good = costRange({ rentShare: 0, people: 1, berFactor: 0.7, bills, groceries, phone }), bad = costRange({ rentShare: 0, people: 1, berFactor: 1.35, bills, groceries, phone })
+  assert.ok(good.typical.parts.bills < bad.typical.parts.bills)
+  assert.equal(good.typical.parts.bills - 50, Math.round(150 * 0.7) + Math.round(60 * 0.7))   // broadband unaffected
+})

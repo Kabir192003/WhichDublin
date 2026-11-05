@@ -119,3 +119,28 @@ export function monthlyCost({ rentShare, travel = 0, bills = 0, food = 0, phone 
   const parts = { rent: rentShare || 0, travel, bills, food, phone }
   return { parts, total: Object.values(parts).reduce((a, b) => a + (Number(b) || 0), 0) }
 }
+
+/**
+ * Monthly cost range for one person. Household bills are split between the people sharing; energy (electricity and
+ * gas) is scaled by the home's energy rating when known. Every input can be overridden by the user's own figure.
+ * bills: { electricity, gas, broadband } each { low, typical, high }; groceries/phone: { low?, typical, high? }.
+ */
+export function costRange({ rentShare, travel = 0, people = 1, berFactor = null, bills, groceries, phone, own = {} }) {
+  const n = Math.max(1, people)
+  const energy = (k, lvl) => {
+    const v = bills[k][lvl]
+    if (berFactor == null) return v
+    return Math.round(bills[k].typical * berFactor * (lvl === 'low' ? 0.85 : lvl === 'high' ? 1.15 : 1))
+  }
+  const level = (lvl) => {
+    const billsHH = own.bills != null ? own.bills * n : energy('electricity', lvl) + energy('gas', lvl) + bills.broadband[lvl]
+    const parts = {
+      rent: rentShare || 0, travel,
+      bills: Math.round(billsHH / n),
+      food: own.food != null ? own.food : (groceries[lvl] ?? groceries.typical),
+      phone: own.phone != null ? own.phone : (phone[lvl] ?? phone.typical)
+    }
+    return { parts, total: Object.values(parts).reduce((a, b) => a + b, 0) }
+  }
+  return { low: level('low'), typical: level('typical'), high: level('high') }
+}

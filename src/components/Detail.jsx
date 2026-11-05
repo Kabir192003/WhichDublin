@@ -32,7 +32,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
         <p>{RENT_TYPES[s.type].label}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
       </Section>}
 
-      {rent && <CostCard rentShare={rent.perPerson} mode={s.mode} />}
+      {rent && <CostCard rentShare={rent.perPerson} mode={s.mode} people={rent.people} />}
 
       <Section icon="clock" badge="b-sky" title={`Getting to ${college}`} conf={commute?.confidence}
         source={s.mode === 'transit' ? `NTA timetables, ${src.transit.serviceDate}, ${src.transit.licence}` : s.mode === 'bikeshare' ? `${src.bikes.name}, ${src.bikes.licence}` : 'Distance between OpenStreetMap locations'}

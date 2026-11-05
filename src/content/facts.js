@@ -128,3 +128,33 @@ export const RENTING = {
   hap: 'HAP (Housing Assistance Payment) is a social housing support run by local councils for people with a long-term housing need. Most full-time students will not qualify; ask your council if your situation is different.',
   check: 'secondary'
 }
+
+/** Household running costs, monthly, for a whole home. Ranges, with where each number comes from. */
+export const BILLS = {
+  electricity: { low: 90, typical: 150, high: 180, note: 'Average household €1,794 a year (CRU estimated annual bill, August 2025). Small flats use less.', source: { name: 'Oireachtas written answer quoting CRU (Nov 2025)', url: 'https://www.oireachtas.ie/en/debates/question/2025-11-04/211/' } },
+  gas: { low: 0, typical: 60, high: 125, note: 'About €1,430–€1,480 a year for a gas-heated home. Many flats are all-electric (no gas bill).', source: { name: 'Selectra: average gas and electricity bill', url: 'https://selectra.ie/energy/guides/billing/average-gas-electricity-bill' } },
+  broadband: { low: 40, typical: 50, high: 70, note: 'Typical home broadband €40–€70 a month.', source: { name: 'Expat Focus: broadband in Ireland', url: 'https://www.expatfocus.com/?p=24089' } },
+  check: 'secondary'
+}
+export const GROCERIES = { low: 150, typical: 220, high: 300, note: 'Per person, shopping mainly at Lidl and Aldi. Student guides put groceries at €150–€350 a month.', sources: [{ name: 'Study in Europe: student cost of living in Dublin', url: 'https://www.studyineurope.eu/student-cost-of-living-in-dublin/' }, { name: 'UniAcco: cost of living in Dublin', url: 'https://uniacco.com/blog/cost-of-living-in-dublin' }] }
+export const PHONE = { typical: 15, note: 'A SIM-only plan; many are around €10–€20 a month.' }
+/** How a home's energy rating moves the energy part of the bill (rough, for the range only). */
+export const BER_FACTOR = { ab: { label: 'A or B', f: 0.7 }, c: { label: 'C', f: 0.9 }, d: { label: 'D', f: 1.05 }, eg: { label: 'E, F or G', f: 1.35 }, unknown: { label: "Don't know", f: null } }
+
+export const BER = {
+  intro: 'Every home advertised for rent in Ireland must show its Building Energy Rating (BER). It runs from A1 (most energy-efficient) to G (least). It’s on the ad, usually as a coloured badge, sometimes with a number in kWh/m²/yr.',
+  scale: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3', 'D1', 'D2', 'E1', 'E2', 'F', 'G'],
+  what: [
+    'The rating is the energy the home needs per square metre each year for heating, hot water, lighting and ventilation. The lower the number, the less energy it needs.',
+    'For two homes of the same size, one with double the kWh/m²/yr figure needs roughly double the energy, so expect heating bills to rise with it.',
+    'A and B homes are usually newer or retrofitted, well insulated and warm. E, F and G homes are often older, draughty, and expensive to keep warm in winter.',
+    'A cheaper rent on a G-rated home can be eaten up by higher bills. Compare rent plus bills, not rent alone.'
+  ],
+  tips: [
+    'Ask to see the BER certificate if it isn’t in the ad. If it’s missing, that’s against the rules for advertised homes.',
+    'Ask how the home is heated (gas, electric storage heaters, heat pump) and whether bills are included.',
+    'Damp patches, mould or single-glazed windows are signs of a cold, costly home whatever the rating says.'
+  ],
+  sources: [{ name: 'SEAI: BER advertising guidelines', url: 'https://www.seai.ie/home-energy/building-energy-rating-ber/ber-advertising' }, { name: 'SEAI: your guide to Building Energy Rating', url: 'https://www.seai.ie/publications/Your-Guide-to-Building-Energy-Rating.pdf' }],
+  check: 'secondary'
+}

@@ -1,13 +1,15 @@
 import React from 'react'
-import { IRP, LEAP, BANKS, BANK_DOCS, BANK_SOURCES, BANK_CHECK, MOBILE } from '../content/facts.js'
+import { IRP, LEAP, BANKS, BANK_DOCS, BANK_SOURCES, BANK_CHECK, MOBILE, BER } from '../content/facts.js'
 import Source from './Source.jsx'
 
+const BER_COLORS = ['#00A651','#19B459','#4CB848','#8CC63F','#B9D532','#E3E01B','#FFF200','#FCD20F','#F8B80F','#F59E1B','#F18A21','#EE6B23','#EA4E25','#E33A26','#D52027']
 const go = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 const STEPS = [
   ['irp', 'Register with immigration', 'Book an appointment as soon as you land. Slots fill up.', 'Within 90 days'],
   ['leap', 'Get a Leap card', 'Half-price travel on buses, Luas and trains.', 'First week'],
   ['bank', 'Open a bank account', 'Needed for rent and wages.', 'First weeks'],
-  ['mobile', 'Choose a mobile plan', 'Sort a SIM or eSIM early so you can book things.', 'Day one']
+  ['mobile', 'Choose a mobile plan', 'Sort a SIM or eSIM early so you can book things.', 'Day one'],
+  ['ber', 'Check the energy rating', 'A1 to G on every rental ad. It decides how much you pay to stay warm.', 'When viewing']
 ]
 const Toc = () => (
   <ol className="steps" aria-label="Your checklist">
@@ -67,6 +69,21 @@ export default function Settle() {
         <p className="muted">{MOBILE.notConfirmed}</p>
         <Source sources={MOBILE.sources} check={MOBILE.check} />
       </section>
+      <section className="card" id="ber" aria-labelledby="h-ber">
+        <h2 id="h-ber">5. Check the energy rating (BER)</h2>
+        <p>{BER.intro}</p>
+        <div className="ber-scale" role="img" aria-label="BER scale from A1, the most efficient, to G, the least efficient">
+          {BER.scale.map((b, i) => <span key={b} style={{ background: BER_COLORS[i], color: i > 5 && i < 9 ? '#10212B' : '#fff', width: `${48 + i * 3.4}%` }}>{b}</span>)}
+        </div>
+        <p className="hint" style={{ display: 'flex', justifyContent: 'space-between' }}><span>Lower energy use, lower bills</span><span>Higher energy use, higher bills</span></p>
+        <h3>What it means for you</h3>
+        <ul>{BER.what.map((t) => <li key={t}>{t}</li>)}</ul>
+        <h3>When you view a place</h3>
+        <ul className="checklist">{BER.tips.map((t) => <li key={t}>{t}</li>)}</ul>
+        <p>Area pages include a monthly cost estimate where you can pick the rating to see how it moves your bills.</p>
+        <Source sources={BER.sources} check={BER.check} note="SEAI revised the band thresholds recently, so we don't quote exact kWh figures per band; the order A1 to G is what matters." />
+      </section>
+
       <p className="disclaimer">General information, not legal or financial advice. Rules and prices change: confirm with the official source before you act.</p>
     </article>
     </>
