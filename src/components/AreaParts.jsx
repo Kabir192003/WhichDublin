@@ -51,7 +51,7 @@ export function RentTable({ area, data, highlight }) {
       source={`RTB via CSO, ${src.asOf}, ${src.licence}`}
       how={<>
         <p>Figures here are scaled up from the RTB's published existing-tenancy average by the same ratio the RTB's own data shows between new and existing tenancies in Dublin (about +15%, see the Method page), so they land closer to what a new tenancy actually costs rather than the blended average including long-standing, capped leases. Hover a figure to see the RTB's underlying published number.</p>
-        <p><b>Published</b>: the RTB average for that quarter, {src.asOf}, before the new-tenancy adjustment. <b>Carried forward</b>: the latest published figure from up to two years earlier, adjusted for rent growth since. <b>Estimated</b>: the RTB published nothing for that home here, so we take the closest figure it did publish for this area (same size, or same type) and scale it by how the two compare across Dublin.</p>
+        <p><b>Published</b>: the RTB average for that quarter, {src.asOf}, before the new-tenancy adjustment. <b>Carried forward</b>: the latest published figure from up to two years earlier, adjusted for rent growth since. <b>Estimated</b>: the RTB published nothing for that home here, so we take the closest figure it did publish for this area (same size, or same type) and scale it by how the two compare across Dublin. <b>Adjusted</b>: carried-forward and estimated figures for different bed sizes in the same area can come from different quarters, which can make a smaller home show as pricier than a bigger one here; where that happens we blend the two figures so sizes stay in a sensible order. Hover the figure to see what it was before.</p>
         {bt?.specific && <p>We tested the estimates by hiding {bt.specific.n} published figures and estimating them: half were within {bt.specific.medianPct}% and 8 in 10 within {bt.specific.p80Pct}%. Estimates from the area's all-homes average only are rougher (half within {bt.all?.medianPct}%).</p>}
         <p>Whole-home rent. Sharing? Divide by the number of people. These are averages, not asking prices for a specific listing.</p>
         <p>The trend line uses only quarters the RTB published for this area. Small areas have few new tenancies each quarter, so single quarters can jump.</p>
@@ -65,14 +65,15 @@ export function RentTable({ area, data, highlight }) {
             <tr key={b}><th scope="row">{bl}</th>{TYPES.map(([t]) => {
               const c = area.rent.cells[`${b}:${t}`]
               const on = highlight && highlight.bed === b && highlight.ptype === t
-              return <td key={t} className={on ? 'on num' : 'num'} title={c ? `${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}, ${cellConfidence(area, c)} confidence. RTB existing-tenancy figure: ${eur(c.v)}.` : ''}>
-                {c ? eur(toMarket(c.v)) : '–'}{c && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} />}
+              const pooledNote = c && c.pooled != null ? ` Adjusted from ${eur(c.pooled)} so this size isn't shown cheaper than a smaller home here, since the two come from different quarters.` : ''
+              return <td key={t} className={on ? 'on num' : 'num'} title={c ? `${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}, ${cellConfidence(area, c)} confidence. RTB existing-tenancy figure: ${eur(c.v)}.${pooledNote}` : ''}>
+                {c ? eur(toMarket(c.v)) : '–'}{c && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} />}{c && c.pooled != null && <span className="mk pooled" aria-label="adjusted to keep bed sizes in order" />}
               </td>
             })}</tr>))}</tbody>
         </table>
       </div>
       <p className="hint" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', margin: '8px 0 0' }}>
-        <span><span className="mk published" /> Published</span><span><span className="mk carried" /> Carried forward</span><span><span className="mk estimated" /> Estimated</span>
+        <span><span className="mk published" /> Published</span><span><span className="mk carried" /> Carried forward</span><span><span className="mk estimated" /> Estimated</span><span><span className="mk pooled" /> Adjusted to keep sizes in order</span>
       </p>
     </Section>
   )

@@ -620,10 +620,11 @@
      "anchor": "all:apartment"
     },
     "1:terrace": {
-     "v": 2084,
+     "v": 2080,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2084
     },
     "1:semi": {
      "v": 1757,
@@ -644,10 +645,11 @@
      "anchor": "2:any"
     },
     "2:terrace": {
-     "v": 2075,
+     "v": 2080,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 2075
     },
     "2:semi": {
      "v": 2048,
@@ -1080,10 +1082,11 @@
      "anchor": "2:any"
     },
     "3:apartment": {
-     "v": 2453,
+     "v": 2405,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2453
     },
     "3:terrace": {
      "v": 2167,
@@ -1104,10 +1107,11 @@
      "anchor": "3:any"
     },
     "4:apartment": {
-     "v": 2357,
+     "v": 2405,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:apartment"
+     "anchor": "all:apartment",
+     "pooled": 2357
     },
     "4:terrace": {
      "v": 2961,
@@ -3674,16 +3678,18 @@
      "anchor": "all:any"
     },
     "1:any": {
-     "v": 1554,
+     "v": 1544,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 1554
     },
     "2:any": {
-     "v": 1533,
+     "v": 1544,
      "how": "carried",
      "q": "2024Q4",
-     "growth": 1.069
+     "growth": 1.069,
+     "pooled": 1533
     },
     "3:any": {
      "v": 1970,
@@ -3704,10 +3710,11 @@
      "anchor": "all:apartment"
     },
     "1:terrace": {
-     "v": 1550,
+     "v": 1494,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 1550
     },
     "1:semi": {
      "v": 1214,
@@ -3728,10 +3735,11 @@
      "growth": 1.135
     },
     "2:terrace": {
-     "v": 1437,
+     "v": 1494,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 1437
     },
     "2:semi": {
      "v": 1418,
@@ -4120,16 +4128,18 @@
      "anchor": "all:any"
     },
     "1:apartment": {
-     "v": 2539,
+     "v": 2524,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2539
     },
     "1:terrace": {
-     "v": 2364,
+     "v": 2343,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2364
     },
     "1:semi": {
      "v": 1992,
@@ -4144,16 +4154,18 @@
      "anchor": "all:any"
     },
     "2:apartment": {
-     "v": 2510,
+     "v": 2524,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 2510
     },
     "2:terrace": {
-     "v": 2322,
+     "v": 2343,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 2322
     },
     "2:semi": {
      "v": 2292,
@@ -7051,10 +7063,11 @@
      "anchor": "2:any"
     },
     "3:apartment": {
-     "v": 3080,
+     "v": 2978,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 3080
     },
     "3:terrace": {
      "v": 2721,
@@ -7075,10 +7088,11 @@
      "anchor": "3:any"
     },
     "4:apartment": {
-     "v": 2876,
+     "v": 2978,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:apartment"
+     "anchor": "all:apartment",
+     "pooled": 2876
     },
     "4:terrace": {
      "v": 3463,
@@ -11076,16 +11090,18 @@
      "q": "2025Q4"
     },
     "3:any": {
-     "v": 2930,
+     "v": 2842,
      "how": "carried",
      "q": "2025Q3",
-     "growth": 1.031
+     "growth": 1.031,
+     "pooled": 2930
     },
     "4:any": {
-     "v": 2755,
+     "v": 2842,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2755
     },
     "1:apartment": {
      "v": 1609,
@@ -11134,10 +11150,11 @@
      "anchor": "2:any"
     },
     "3:apartment": {
-     "v": 3199,
+     "v": 2911,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 3199
     },
     "3:terrace": {
      "v": 2826,
@@ -11152,16 +11169,18 @@
      "anchor": "3:any"
     },
     "3:detached": {
-     "v": 3097,
+     "v": 3064,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 3097
     },
     "4:apartment": {
-     "v": 2623,
+     "v": 2911,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:apartment"
+     "anchor": "all:apartment",
+     "pooled": 2623
     },
     "4:terrace": {
      "v": 3855,
@@ -11176,10 +11195,11 @@
      "anchor": "all:semi"
     },
     "4:detached": {
-     "v": 3031,
+     "v": 3064,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 3031
     }
    },
    "prevAll": 1732,
@@ -12146,10 +12166,11 @@
      "anchor": "1:any"
     },
     "2:apartment": {
-     "v": 2307,
+     "v": 2255,
      "how": "carried",
      "q": "2024Q1",
-     "growth": 1.011
+     "growth": 1.011,
+     "pooled": 2307
     },
     "2:terrace": {
      "v": 1878,
@@ -12170,10 +12191,11 @@
      "anchor": "2:any"
     },
     "3:apartment": {
-     "v": 2283,
+     "v": 2255,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2283
     },
     "3:terrace": {
      "v": 2017,
@@ -12194,10 +12216,11 @@
      "anchor": "3:any"
     },
     "4:apartment": {
-     "v": 2176,
+     "v": 2255,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:apartment"
+     "anchor": "all:apartment",
+     "pooled": 2176
     },
     "4:terrace": {
      "v": 3350,
@@ -13601,10 +13624,11 @@
      "anchor": "2:any"
     },
     "3:apartment": {
-     "v": 2722,
+     "v": 2664,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2722
     },
     "3:terrace": {
      "v": 2592,
@@ -13625,10 +13649,11 @@
      "anchor": "3:any"
     },
     "4:apartment": {
-     "v": 2606,
+     "v": 2664,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:apartment"
+     "anchor": "all:apartment",
+     "pooled": 2606
     },
     "4:terrace": {
      "v": 3147,
@@ -15681,10 +15706,11 @@
      "anchor": "all:any"
     },
     "2:semi": {
-     "v": 2134,
+     "v": 2095,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:semi"
+     "anchor": "all:semi",
+     "pooled": 2134
     },
     "2:detached": {
      "v": 2094,
@@ -15693,10 +15719,11 @@
      "anchor": "all:any"
     },
     "3:apartment": {
-     "v": 2407,
+     "v": 2380,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2407
     },
     "3:terrace": {
      "v": 2127,
@@ -15705,10 +15732,11 @@
      "anchor": "3:any"
     },
     "3:semi": {
-     "v": 2056,
+     "v": 2095,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2056
     },
     "3:detached": {
      "v": 2330,
@@ -15717,10 +15745,11 @@
      "anchor": "3:any"
     },
     "4:apartment": {
-     "v": 2354,
+     "v": 2380,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:apartment"
+     "anchor": "all:apartment",
+     "pooled": 2354
     },
     "4:terrace": {
      "v": 3042,
@@ -16880,15 +16909,17 @@
      "q": "2025Q4"
     },
     "2:any": {
-     "v": 2005,
+     "v": 1993,
      "how": "published",
-     "q": "2025Q4"
+     "q": "2025Q4",
+     "pooled": 2005
     },
     "3:any": {
-     "v": 1981,
+     "v": 1993,
      "how": "carried",
      "q": "2024Q3",
-     "growth": 1.0
+     "growth": 1.0,
+     "pooled": 1981
     },
     "4:any": {
      "v": 2926,
@@ -16933,10 +16964,11 @@
      "anchor": "2:any"
     },
     "2:semi": {
-     "v": 1855,
+     "v": 1851,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 1855
     },
     "2:detached": {
      "v": 2008,
@@ -16957,10 +16989,11 @@
      "anchor": "3:any"
     },
     "3:semi": {
-     "v": 1847,
+     "v": 1851,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 1847
     },
     "3:detached": {
      "v": 2094,
@@ -17092,16 +17125,18 @@
      "anchor": "all:any"
     },
     "2:any": {
-     "v": 2494,
+     "v": 2391,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2494
     },
     "3:any": {
-     "v": 2288,
+     "v": 2391,
      "how": "carried",
      "q": "2024Q3",
-     "growth": 1.083
+     "growth": 1.083,
+     "pooled": 2288
     },
     "4:any": {
      "v": 3674,
@@ -17134,10 +17169,11 @@
      "anchor": "all:any"
     },
     "2:apartment": {
-     "v": 2527,
+     "v": 2512,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2527
     },
     "2:terrace": {
      "v": 2000,
@@ -17146,22 +17182,25 @@
      "anchor": "all:terrace"
     },
     "2:semi": {
-     "v": 2307,
+     "v": 2220,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2307
     },
     "2:detached": {
-     "v": 2497,
+     "v": 2458,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2497
     },
     "3:apartment": {
-     "v": 2498,
+     "v": 2512,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2498
     },
     "3:terrace": {
      "v": 2207,
@@ -17170,16 +17209,18 @@
      "anchor": "3:any"
     },
     "3:semi": {
-     "v": 2133,
+     "v": 2220,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2133
     },
     "3:detached": {
-     "v": 2418,
+     "v": 2458,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2418
     },
     "4:apartment": {
      "v": 3448,
@@ -17541,10 +17582,11 @@
      "anchor": "all:apartment"
     },
     "1:terrace": {
-     "v": 1546,
+     "v": 1519,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 1546
     },
     "1:semi": {
      "v": 1303,
@@ -17565,10 +17607,11 @@
      "growth": 0.991
     },
     "2:terrace": {
-     "v": 1492,
+     "v": 1519,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 1492
     },
     "2:semi": {
      "v": 1473,
@@ -18353,15 +18396,17 @@
      "anchor": "all:any"
     },
     "1:any": {
-     "v": 2091,
+     "v": 2080,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2091
     },
     "2:any": {
-     "v": 2068,
+     "v": 2080,
      "how": "published",
-     "q": "2025Q4"
+     "q": "2025Q4",
+     "pooled": 2068
     },
     "3:any": {
      "v": 2637,
@@ -18382,10 +18427,11 @@
      "anchor": "all:apartment"
     },
     "1:terrace": {
-     "v": 2086,
+     "v": 2012,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2086
     },
     "1:semi": {
      "v": 1800,
@@ -18406,10 +18452,11 @@
      "growth": 1.076
     },
     "2:terrace": {
-     "v": 1938,
+     "v": 2012,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "2:any"
+     "anchor": "2:any",
+     "pooled": 1938
     },
     "2:semi": {
      "v": 1913,
@@ -22201,10 +22248,11 @@
      "anchor": "all:any"
     },
     "3:apartment": {
-     "v": 4277,
+     "v": 3980,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 4277
     },
     "3:terrace": {
      "v": 3778,
@@ -22225,10 +22273,11 @@
      "anchor": "all:any"
     },
     "4:apartment": {
-     "v": 3683,
+     "v": 3980,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "4:any"
+     "anchor": "4:any",
+     "pooled": 3683
     },
     "4:terrace": {
      "v": 3875,
@@ -24018,16 +24067,18 @@
      "anchor": "all:any"
     },
     "2:any": {
-     "v": 2314,
+     "v": 2285,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2314
     },
     "3:any": {
-     "v": 2256,
+     "v": 2285,
      "how": "carried",
      "q": "2023Q4",
-     "growth": 1.161
+     "growth": 1.161,
+     "pooled": 2256
     },
     "4:any": {
      "v": 3408,
@@ -24072,10 +24123,11 @@
      "anchor": "all:any"
     },
     "2:semi": {
-     "v": 2140,
+     "v": 2122,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "all:any"
+     "anchor": "all:any",
+     "pooled": 2140
     },
     "2:detached": {
      "v": 2317,
@@ -24096,10 +24148,11 @@
      "anchor": "3:any"
     },
     "3:semi": {
-     "v": 2103,
+     "v": 2122,
      "how": "estimated",
      "q": "2025Q4",
-     "anchor": "3:any"
+     "anchor": "3:any",
+     "pooled": 2103
     },
     "3:detached": {
      "v": 2384,

@@ -67,6 +67,40 @@ def fill(li):
             if got: out[f'{bk}:{tk}'] = got
     return out
 
+def pava(vals):
+    """Isotonic regression (pool-adjacent-violators): the smallest non-decreasing fit to `vals`,
+    skipping None entries. Used because carried-forward and estimated cells for different bed
+    sizes in the same area can come from different quarters, which can otherwise make a smaller
+    home show as pricier than a bigger one here. Fixes real inversions without guessing a number;
+    where the data is already in order, nothing changes."""
+    idx = [i for i, x in enumerate(vals) if x is not None]
+    if len(idx) < 2: return list(vals)
+    level = [[vals[i], 1] for i in idx]
+    i = 0
+    while i < len(level) - 1:
+        if level[i][0] > level[i + 1][0]:
+            tot, w = level[i][0] * level[i][1] + level[i + 1][0] * level[i + 1][1], level[i][1] + level[i + 1][1]
+            level[i:i + 2] = [[tot / w, w]]
+            if i > 0: i -= 1
+        else:
+            i += 1
+    fitted = [x for avg, w in level for x in [avg] * w]
+    out = list(vals)
+    for pos, x in zip(idx, fitted): out[pos] = x
+    return out
+
+def fix_bed_order(cells):
+    """Beds should not cost less than the size below them, within the same property type."""
+    for tk, _ in TYPES:
+        keys = [f'{b}:{tk}' for b, _ in BEDS if b != 'all']
+        raw = [cells[k]['v'] if k in cells else None for k in keys]
+        fitted = pava(raw)
+        for k, v, f in zip(keys, raw, fitted):
+            if v is not None and round(f) != v:
+                cells[k]['pooled'] = v
+                cells[k]['v'] = round(f)
+    return cells
+
 areas, county = [], None
 for li, lc in enumerate(loc):
     name = lab('C03004V03625')[lc].strip()
@@ -79,6 +113,7 @@ for li, lc in enumerate(loc):
     if not m: continue
     cells = fill(li)
     if not cells: continue
+    cells = fix_bed_order(cells)
     place, dn = m.group(1).strip(), m.group(2)
     prev_all = cell(prev, bi['All bedrooms'], pi_['All property types'], li)
     ser = series(li, 'All bedrooms', 'All property types')
