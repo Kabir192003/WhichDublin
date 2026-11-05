@@ -1,0 +1,58 @@
+𝗜'𝘃𝗲 𝗯𝗲𝗲𝗻 𝗸𝗲𝗲𝗽𝗶𝗻𝗴 𝗮 𝗹𝗶𝘁𝘁𝗹𝗲 𝘀𝗲𝗰𝗿𝗲𝘁. 🤫
+
+For a while now, I've been quietly building something for a problem every student in Dublin knows too well.
+
+Finding a place to live here isn't just expensive. It's 𝗰𝗼𝗻𝗳𝘂𝘀𝗶𝗻𝗴.
+
+You open a listing site to see a flat.
+You open Google Maps to check the commute.
+You Google "average rent Rathmines".
+You ask Reddit if €950 for a room is fair.
+You guess what bills and groceries will cost.
+You wonder if the landlord is even real.
+
+Six tabs. Three apps. And still no clear answer to the only question that matters:
+
+"𝗖𝗮𝗻 𝗜 𝗮𝗰𝘁𝘂𝗮𝗹𝗹𝘆 𝗮𝗳𝗳𝗼𝗿𝗱 𝘁𝗼 𝗹𝗶𝘃𝗲 𝗵𝗲𝗿𝗲, 𝗮𝗻𝗱 𝗵𝗼𝘄 𝗹𝗼𝗻𝗴 𝘄𝗶𝗹𝗹 𝗶𝘁 𝘁𝗮𝗸𝗲 𝗺𝗲 𝘁𝗼 𝗴𝗲𝘁 𝘁𝗼 𝗰𝗼𝗹𝗹𝗲𝗴𝗲?"
+
+Listing apps show you a flat. Journey planners show you one trip. Cost-of-living guides give you a national average.
+
+𝗡𝗼 𝗮𝗽𝗽 𝗽𝘂𝘁𝘀 𝗶𝘁 𝗮𝗹𝗹 𝘁𝗼𝗴𝗲𝘁𝗵𝗲𝗿 𝗶𝗻 𝗼𝗻𝗲 𝗽𝗹𝗮𝗰𝗲.
+
+So I built one.
+
+🏙️ 𝗜𝗻𝘁𝗿𝗼𝗱𝘂𝗰𝗶𝗻𝗴 𝗪𝗵𝗶𝗰𝗵 𝗗𝘂𝗯𝗹𝗶𝗻. 𝗟𝗮𝘂𝗻𝗰𝗵𝗶𝗻𝗴 𝘀𝗼𝗼𝗻.
+
+One place for rent, living costs and travel time, for any area in Dublin.
+
+📍 𝗘𝗻𝘁𝗲𝗿 𝗮𝗻𝘆 𝗘𝗶𝗿𝗰𝗼𝗱𝗲. Google Maps pins the exact address. Then you see real walking routes and journeys to every college, the nearest Lidl, Aldi and Tesco, part-time work nearby and typical rents. Every route opens in Google Maps.
+
+🏠 𝗥𝗲𝗻𝘁 𝗳𝗼𝗿 𝗲𝘃𝗲𝗿𝘆 𝘁𝘆𝗽𝗲 𝗼𝗳 𝗵𝗼𝗺𝗲 across 106 areas, with the source on every number.
+
+🚌 𝗟𝗶𝘃𝗲 𝗯𝘂𝘀 𝗱𝗲𝗹𝗮𝘆𝘀, 𝗿𝗶𝗴𝗵𝘁 𝗻𝗼𝘄, plus timetabled journeys at 8am, late at night and on weekends.
+
+💶 𝗬𝗼𝘂𝗿 𝗿𝗲𝗮𝗹 𝗺𝗼𝗻𝘁𝗵𝗹𝘆 𝗰𝗼𝘀𝘁: rent + bills + travel + groceries + phone, adjusted for the home's energy rating.
+
+🚩 𝗦𝗰𝗮𝗺 𝗰𝗵𝗲𝗰𝗸𝘀, 𝗱𝗲𝗽𝗼𝘀𝗶𝘁 𝗿𝘂𝗹𝗲𝘀 and a first-weeks checklist: IRP, Leap, bank, SIM.
+
+💼 𝗣𝗮𝗿𝘁-𝘁𝗶𝗺𝗲 𝘄𝗼𝗿𝗸: wages, Stamp 2 hour limits and where the jobs are.
+
+💚 𝗔 𝗻𝗼𝘁𝗲 𝗼𝗻 𝗸𝗲𝗲𝗽𝗶𝗻𝗴 𝗶𝘁 𝗳𝗿𝗲𝗲
+
+I've plugged in Google's Maps APIs so Eircode lookups and walking routes are as accurate as possible. Those APIs cost money beyond a free monthly allowance, and I want this to stay 𝗳𝗿𝗲𝗲 𝗳𝗼𝗿 𝗲𝘃𝗲𝗿𝘆 𝘀𝘁𝘂𝗱𝗲𝗻𝘁.
+
+So I've capped usage inside that allowance. If the daily limit is reached, the app quietly switches back to open data (OpenStreetMap, NTA timetables, RTB rents) and keeps working.
+
+𝗡𝗼𝗯𝗼𝗱𝘆 𝗴𝗲𝘁𝘀 𝗮 𝗽𝗮𝘆𝘄𝗮𝗹𝗹. 𝗡𝗼𝗯𝗼𝗱𝘆 𝗴𝗲𝘁𝘀 𝗮𝗱𝘀.
+
+I'm not building this to sell anything. I'm building it because I know what it's like to land here and figure it all out alone, and 𝗻𝗼 𝘀𝘁𝘂𝗱𝗲𝗻𝘁 𝘀𝗵𝗼𝘂𝗹𝗱 𝗵𝗮𝘃𝗲 𝘁𝗼.
+
+It's for incoming and existing students, and really for anyone renting in Dublin who wants the full picture before they sign.
+
+𝗡𝗼 𝗮𝗰𝗰𝗼𝘂𝗻𝘁𝘀. 𝗡𝗼 𝗮𝗱𝘀. 𝗥𝗲𝗮𝗹 𝗱𝗮𝘁𝗮 from the RTB, CSO, National Transport Authority and OpenStreetMap, with live bus data from the NTA.
+
+This is a real problem. It deserves a real solution.
+
+👀 𝗥𝗲𝘃𝗲𝗮𝗹𝗶𝗻𝗴 𝗶𝘁 𝘃𝗲𝗿𝘆 𝘀𝗼𝗼𝗻. Follow along, and tag someone who's house-hunting in Dublin right now.
+
+#Dublin #StudentHousing #InternationalStudents #RentingInIreland #Ireland #BuildInPublic #ComingSoon #Startup

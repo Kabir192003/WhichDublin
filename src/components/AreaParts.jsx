@@ -10,7 +10,7 @@ const HOW = { published: 'published by the RTB', carried: 'carried forward from 
 export function Section({ icon, badge, title, conf, children, source, how }) {
   return (
     <section className="fact">
-      <div className="fact-head"><h2>{icon && <span className={`badge ${badge}`} style={{ width: 32, height: 32, borderRadius: 9 }}><Icon name={icon} size={18} /></span>}{title}</h2><Conf level={conf} /></div>
+      <div className="fact-head"><h2>{icon && <span className="sec-ico"><Icon name={icon} size={18} /></span>}{title}</h2><Conf level={conf} /></div>
       {children}
       {how && <details className="how"><summary>How this is worked out</summary><div>{how}</div></details>}
       {source && <p className="source">Source: {source}</p>}
@@ -87,7 +87,7 @@ export function Colleges({ rows, data, transitFrom, streets, origin, originLabel
     <Section icon="cap" badge="b-sky" title="Distance to every college" conf={null}
       source={`Timetables: NTA GTFS, ${data.sources.transit.licence}. ${streets ? 'Walking and cycling: real street routes, OpenStreetMap (OSRM).' : 'Distances: OpenStreetMap.'}`}
       how={<p>Bus, Luas and rail: middle value of several timetabled journeys {WHEN_NOTE[when]}, door to door{transitFrom ? `, ${transitFrom}` : ''}. {streets ? 'Walking and cycling follow real streets and paths on OpenStreetMap.' : 'Walking (1.25 m/s) and cycling (15 km/h) use straight-line distance times 1.3 for streets.'} Scheduled times, not live.</p>}>
-      {origin && <p className="hint" style={{ margin: '0 0 6px' }}>“Route ↗” opens Google Maps with the journey from {originLabel} already set, for live times.</p>}
+      {origin && <p className="hint" style={{ margin: '0 0 6px' }}>“Route” opens Google Maps with the journey from {originLabel} already set, for live times.</p>}
       <div className="seg-tabs" role="group" aria-label="When">
         {WHEN_TABS.map(([k, l]) => <button key={k} type="button" aria-pressed={when === k} disabled={(k === 'late' && !hasLate) || (k === 'sat' && !hasSat)} onClick={() => setWhen(k)}>{l}</button>)}
       </div>
@@ -95,7 +95,7 @@ export function Colleges({ rows, data, transitFrom, streets, origin, originLabel
         <table className="rtable">
           <thead><tr><th scope="col">College</th><th scope="col">{streets ? 'By street' : 'Distance'}</th><th scope="col">Bus/Luas</th><th scope="col">Bike</th><th scope="col">Walk</th>{origin && <th scope="col"><span className="sr">Route</span></th>}</tr></thead>
           <tbody>{rows.map((r) => { const t = r.transit?.[when]; return (
-            <tr key={r.id}><th scope="row" style={{ fontWeight: 600 }}>{SHORT[r.id] || r.name}</th><td className="num">{r.km} km</td><td className="num"><b>{t != null ? `${t} min` : '–'}</b></td><td className="num">{r.cycle != null ? `${r.cycle} min` : '–'}</td><td className="num">{r.walk == null ? '–' : r.walk > 90 ? '90+ min' : `${r.walk} min`}</td>{origin && (() => { const c = data.campuses.find((x) => x.id === r.id); const dest = `${c.name}, Dublin`; const href = when === 'late' ? gmapsDir(dest, origin, 'transit') : gmapsDir(origin, dest, 'transit'); return <td><a className="maplink" href={href} target="_blank" rel="noreferrer" aria-label={`Route ${when === 'late' ? 'from' : 'to'} ${c.name} in Google Maps`}>Route ↗</a></td> })()}</tr>) })}</tbody>
+            <tr key={r.id}><th scope="row" style={{ fontWeight: 600 }}>{SHORT[r.id] || r.name}</th><td className="num">{r.km} km</td><td className="num"><b>{t != null ? `${t} min` : '–'}</b></td><td className="num">{r.cycle != null ? `${r.cycle} min` : '–'}</td><td className="num">{r.walk == null ? '–' : r.walk > 90 ? '90+ min' : `${r.walk} min`}</td>{origin && (() => { const c = data.campuses.find((x) => x.id === r.id); const dest = `${c.name}, Dublin`; const href = when === 'late' ? gmapsDir(dest, origin, 'transit') : gmapsDir(origin, dest, 'transit'); return <td><a className="maplink" href={href} target="_blank" rel="noreferrer" aria-label={`Route ${when === 'late' ? 'from' : 'to'} ${c.name} in Google Maps`}><Icon name="external" size={13} stroke={2.2} />Route</a></td> })()}</tr>) })}</tbody>
         </table>
       </div>
     </Section>
@@ -117,7 +117,7 @@ export function Groceries({ shops, data, origin }) {  // origin: text or {lat, l
     <Section icon="cart" badge="b-sand" title="Nearest supermarkets" conf="medium" source={`${src.name}, fetched ${src.fetched}, ${src.licence}`} how={<p>{streets ? 'Walking route along real streets and paths (OpenStreetMap, OSRM).' : 'Straight-line distance times 1.3, walked at 1.25 m/s.'} {src.note}</p>}>
       <div className="stats">{shops.map((s) => (
         <div key={s.brand} className={`stat ${tint[s.brand]}`}><small style={{ fontWeight: 800, color: 'var(--ink)', fontSize: 13, marginTop: 0 }}>{s.brand}</small>
-          {s.walk != null ? <><b>{s.walk} min</b><small>{s.metres >= 1000 ? (s.metres / 1000).toFixed(1) + ' km' : s.metres + ' m'} walk</small>{origin && s.lat != null && <a className="maplink" href={gmapsDir(origin, s, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${s.brand} in Google Maps`}>Route ↗</a>}</> : <><b>–</b><small>none nearby</small></>}</div>))}
+          {s.walk != null ? <><b>{s.walk} min</b><small>{s.metres >= 1000 ? (s.metres / 1000).toFixed(1) + ' km' : s.metres + ' m'} walk</small>{origin && s.lat != null && <a className="maplink" href={gmapsDir(origin, s, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${s.brand} in Google Maps`}><Icon name="external" size={13} stroke={2.2} />Route</a>}</> : <><b>–</b><small>none nearby</small></>}</div>))}
       </div>
     </Section>
   )
@@ -143,7 +143,7 @@ export function Dock({ home, campusDock, campusName, data, origin }) {
   if (!home) return null
   return (
     <Section icon="bike" badge="b-sky" title="Dublinbikes" source={`${data.sources.bikes.name}, fetched ${data.sources.bikes.fetched}, ${data.sources.bikes.licence}`} how={<p>{data.sources.bikes.note}</p>}>
-      <p>Nearest dock: <b>{home.name}</b>, {home.walk ?? home.walkMinutes} min walk. {origin && home.lat != null && <a className="maplink" href={gmapsDir(origin, home, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${home.name} dock in Google Maps`}>Route ↗</a>}</p>
+      <p>Nearest dock: <b>{home.name}</b>, {home.walk ?? home.walkMinutes} min walk. {origin && home.lat != null && <a className="maplink" href={gmapsDir(origin, home, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${home.name} dock in Google Maps`}><Icon name="external" size={13} stroke={2.2} />Route</a>}</p>
       {campusName && <p>Nearest to {campusName}: {campusDock ? <><b>{campusDock.name}</b>, {campusDock.walkMinutes} min walk.</> : 'none within 1.5 km.'}</p>}
     </Section>
   )
@@ -166,7 +166,7 @@ export function RoomReports({ area }) {
   }
   const rows = r?.rooms ? Object.entries(r.rooms) : []
   return (
-    <Section icon="home" badge="b-sand" title="Room rents students report" source={r ? `Anonymous reports from students. Medians shown only once ${r.minReports} or more people report the same room type.` : null}>
+    <Section icon="message" title="Room rents students report" source={r ? `Anonymous reports from students. Medians shown only once ${r.minReports} or more people report the same room type.` : null}>
       {rows.length ? <ul className="rows">{rows.map(([room, v]) => <li key={room}><span>{room}</span><b className="num">{v.median ? `€${v.median.toLocaleString('en-IE')} median (${v.n})` : `${v.n} of ${r.minReports} reports so far`}</b></li>)}</ul>
         : <p>No reports for {area.name} yet. The RTB doesn’t publish room prices, so these come from students like you.</p>}
       {msg && <p className={`form-msg ${msg.ok ? 'ok' : 'err'}`} role="status">{msg.t}</p>}
@@ -193,13 +193,13 @@ export function Essentials({ area, data, origin }) {
   if (!area.essentials && !area.stations) return null
   const src = data.sources.essentials
   return (
-    <Section icon="check" badge="b-plum" title="Everyday essentials" source={src && `${src.name}, fetched ${src.fetched}, ${src.licence}`} how={src && <p>{src.note}</p>}>
+    <Section icon="gp" title="Everyday essentials" source={src && `${src.name}, fetched ${src.fetched}, ${src.licence}`} how={src && <p>{src.note}</p>}>
       <ul className="rows">
-        {Object.entries(ESS).map(([k, l]) => { const e = area.essentials?.[k]; return <li key={k}><span>{l}</span><span>{e ? <><b>{e.walkMinutes} min</b> <small className="muted">{e.name || ''}</small>{origin && e.lat != null && <> <a className="maplink" href={gmapsDir(origin, e, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to the ${l.toLowerCase()} in Google Maps`}>Route ↗</a></>}</> : <span className="muted">none found within 2 km</span>}</span></li> })}
+        {Object.entries(ESS).map(([k, l]) => { const e = area.essentials?.[k]; return <li key={k}><span>{l}</span><span>{e ? <><b>{e.walkMinutes} min</b> <small className="muted">{e.name || ''}</small>{origin && e.lat != null && <> <a className="maplink" href={gmapsDir(origin, e, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to the ${l.toLowerCase()} in Google Maps`}><Icon name="external" size={13} stroke={2.2} />Route</a></>}</> : <span className="muted">none found within 2 km</span>}</span></li> })}
       </ul>
       {area.stations?.length > 0 && <>
         <h3 style={{ fontSize: 14, margin: '12px 0 4px' }}>Luas and train stops nearby</h3>
-        <ul className="rows">{area.stations.map((x) => <li key={x.name + x.kind}><span>{x.name} <small className="muted">{x.kind === 'tram' ? 'Luas' : 'Rail'}</small></span><span><b>{x.walkMinutes} min</b> {origin && x.lat != null && <a className="maplink" href={gmapsDir(origin, x, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${x.name} in Google Maps`}>Route ↗</a>} {x.wheelchair ? <span className={`chip ${x.wheelchair === 'yes' ? 'pub' : 'estimated'}`}>{STEP[x.wheelchair] || x.wheelchair}</span> : <span className="chip">step-free not recorded</span>}</span></li>)}</ul>
+        <ul className="rows">{area.stations.map((x) => <li key={x.name + x.kind}><span>{x.name} <small className="muted">{x.kind === 'tram' ? 'Luas' : 'Rail'}</small></span><span><b>{x.walkMinutes} min</b> {origin && x.lat != null && <a className="maplink" href={gmapsDir(origin, x, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${x.name} in Google Maps`}><Icon name="external" size={13} stroke={2.2} />Route</a>} {x.wheelchair ? <span className={`chip ${x.wheelchair === 'yes' ? 'pub' : 'estimated'}`}>{STEP[x.wheelchair] || x.wheelchair}</span> : <span className="chip">step-free not recorded</span>}</span></li>)}</ul>
       </>}
     </Section>
   )

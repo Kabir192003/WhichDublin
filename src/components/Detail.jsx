@@ -1,6 +1,6 @@
 import React from 'react'
 import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor } from '../domain/model.js'
-import { eur, SHORT, HOW_CHIP } from './ui.jsx'
+import { eur, SHORT, HOW_CHIP, Icon } from './ui.jsx'
 import { SaveButton } from './Shortlist.jsx'
 import { CostCard } from './Cost.jsx'
 import { LiveRoutes } from './Live.jsx'
@@ -13,7 +13,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
   const src = data.sources, college = SHORT[s.campus]
   return (
     <article className="detail" aria-label={area.label}>
-      <button className="link back" onClick={onBack}>← Back to results</button>
+      <button className="link back" onClick={onBack}><Icon name="back" size={16} />Back to results</button>
       <h1>{area.label}</h1>
       <p className="verdict">{rank ? <>Ranked <b>{rank.rank}</b> for your choices.</> : <>Outside your budget, or no journey for this travel mode.</>}</p>
       <div className="glance">
@@ -23,8 +23,8 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
       </div>
       <div className="actions">
         <SaveButton id={area.id} />
-        <button className="btn sm" onClick={onCompare}>{inCompare ? '✓ In compare list' : '+ Add to compare'}</button>
-        <a className="btn ghost sm" href={mapsLink(area, campus, s.mode)} target="_blank" rel="noreferrer">Live route in Google Maps</a>
+        <button className="btn sm" onClick={onCompare}>{inCompare ? <><Icon name="tick" size={15} stroke={2.2} />In compare list</> : <><Icon name="plus" size={15} stroke={2.2} />Add to compare</>}</button>
+        <a className="btn ghost sm" href={mapsLink(area, campus, s.mode)} target="_blank" rel="noreferrer">Live route in Google Maps<Icon name="external" size={15} /></a>
       </div>
       {area.about && <p className="about">{area.about.text} <a href={area.about.url} target="_blank" rel="noreferrer">Wikipedia</a></p>}
 

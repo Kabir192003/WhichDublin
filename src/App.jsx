@@ -10,7 +10,7 @@ import Renting from './components/Renting.jsx'
 import Shortlist from './components/Shortlist.jsx'
 import { useShortlist } from './domain/shortlist.js'
 import { parseState, stateToSearch } from './domain/model.js'
-import { Logo, EircodeBox } from './components/ui.jsx'
+import { Logo, EircodeBox, Icon } from './components/ui.jsx'
 import Feedback from './components/Feedback.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
@@ -52,7 +52,7 @@ export default function App() {
         <div className="top-in">
           <a className="brand" href="#/" aria-label="Which Dublin, start"><Logo />Which Dublin</a>
           <nav className="nav" aria-label="Main">{NAV.map(([href, label, on]) => <a key={href} href={href} aria-current={on(hash) ? 'page' : undefined}>{label}</a>)}</nav>
-          <a className="saved-link" href="#/shortlist" aria-current={hash.startsWith('#/shortlist') ? 'page' : undefined}>★ Shortlist{saved.length ? ` (${saved.length})` : ''}</a>
+          <a className="saved-link" href="#/shortlist" aria-current={hash.startsWith('#/shortlist') ? 'page' : undefined}><Icon name="star" size={15} filled={saved.length > 0} stroke={2} />Shortlist{saved.length ? ` (${saved.length})` : ''}</a>
           <Feedback />
           {data && !(hash === '' || hash === '#/' || hash.startsWith('#/eircode')) && <div className="top-eir"><EircodeBox small /></div>}
         </div>

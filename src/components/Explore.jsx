@@ -39,7 +39,7 @@ export default function Explore({ data }) {
       <aside className="panel" aria-label="Areas">
         {area ? (
           <article className="detail">
-            <button className="link back" onClick={() => setSel(null)}>← All areas</button>
+            <button className="link back" onClick={() => setSel(null)}><Icon name="back" size={16} />All areas</button>
             <h1>{area.label}</h1>
             {area.about && <p className="about">{area.about.text} <a href={area.about.url} target="_blank" rel="noreferrer">Wikipedia</a></p>}
             <div className="glance">

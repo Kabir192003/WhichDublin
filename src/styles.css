@@ -265,3 +265,48 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:8px 0}
 .form-msg{font-size:14px;margin:8px 0 0}.form-msg.ok{color:var(--hi)}.form-msg.err{color:var(--lo)}
 textarea.select{min-height:96px;padding:10px 12px;font:inherit;width:100%;resize:vertical}
+
+/* ---------- refinements: calmer cards, consistent icons ---------- */
+:root{--radius:12px;--tint:#F3F6F4;--shadow:0 1px 2px rgba(16,33,43,.05),0 6px 16px rgba(16,33,43,.05);--shadow-lg:0 20px 48px rgba(4,40,34,.22)}
+.ico{flex:none;vertical-align:-3px}
+.btn .ico,.cmp-btn .ico,.link .ico,.saved-link .ico,.maplink .ico{margin-right:2px}
+.card{border-radius:14px}
+.setup{border-radius:16px}
+.tile{border-radius:12px;padding:20px}
+.tile:hover{transform:none;box-shadow:var(--shadow);border-color:var(--line2)}
+.tile-ico{color:var(--teal);display:block}
+.acard{border-radius:12px}
+.acard:hover{box-shadow:var(--shadow);border-color:var(--line2)}
+.fact{border-radius:12px}
+.fact-head h2{font-size:15.5px;gap:8px}
+.sec-ico{color:var(--teal);display:inline-flex}
+.stat,.s-rent,.s-time,.s-groc{background:var(--tint);border-radius:10px}
+.stat b{color:var(--ink)}
+.kpi{background:var(--tint)!important;border-radius:12px}
+.kpi b{color:var(--teal-900)}
+.cmp-btn{display:inline-flex;align-items:center;gap:4px;border-radius:8px}
+.btn{gap:6px}
+.btn.sm{border-radius:8px}
+.saved-link{display:inline-flex;align-items:center;gap:6px}
+.maplink{display:inline-flex;align-items:center;gap:3px}
+.back{display:inline-flex;align-items:center;gap:4px;text-decoration:none}
+.back:hover{text-decoration:underline}
+.legend,.modal-card{box-shadow:var(--shadow)}
+.rank{border-radius:8px}
+.chip{font-weight:600}
+.compare-bar{border-radius:10px}
+.select,.pill,.choice,.eirbox{transition:border-color .15s}
+.choice{border-radius:10px}
+.select{border-radius:10px}
+/* keep the top bar on one line on laptop screens */
+.top-in{flex-wrap:nowrap}
+.nav{flex-wrap:nowrap}
+.nav a{padding:8px 11px;white-space:nowrap}
+.top-eir .eirbox.small{max-width:210px}
+.top-eir{margin-left:0}
+@media (max-width:1360px){.top-eir{display:none}}
+@media (max-width:860px){.top-in{flex-wrap:wrap}}
+.eirbox.small{flex-wrap:nowrap;align-items:center}
+.eirbox.small .in{flex:1 1 auto;min-width:0}
+.eirbox.small input{min-width:0}
+.glance .stat{background:var(--surface);border:1px solid var(--line)}

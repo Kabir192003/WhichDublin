@@ -26,13 +26,13 @@ export function CostCard({ rentShare, mode, people = 1 }) {
     <label className="field" style={{ gap: 4 }}><span className="hint" style={{ fontWeight: 600, color: 'var(--ink2)' }}>{label}</span>
       <input className="select" style={{ minHeight: 42, fontWeight: 600, width: '100%', minWidth: 0, padding: '0 12px' }} inputMode="numeric" placeholder={ph} value={c[k]} onChange={(e) => set({ [k]: e.target.value.replace(/[^0-9]/g, '').slice(0, 5) })} /></label>)
   return (
-    <Section icon="info" badge="b-plum" title="Your monthly cost"
+    <Section icon="wallet" title="Your monthly cost"
       how={<>
         <p>Rent is your share of the average. Travel is the Dublin 90-minute fare ({c.card === 'adult' ? '€2 adult' : '€1 student or young adult Leap'}) twice a day, {c.days} days a week, without fare caps. Bills are a whole home's electricity, gas and broadband, split between {people} {people === 1 ? 'person' : 'people'}; the energy rating, if you pick it, moves the electricity and gas part. Groceries assume mostly Lidl and Aldi. Phone is a SIM-only plan.</p>
         <p>{BILLS.electricity.note} {BILLS.gas.note} {BILLS.broadband.note} {GROCERIES.note}</p>
         <Source sources={[BILLS.electricity.source, BILLS.gas.source, BILLS.broadband.source, ...GROCERIES.sources]} check="secondary" />
       </>}>
-      <div className="kpi" style={{ background: 'var(--plum-50)', margin: '4px 0 12px' }}>
+      <div className="kpi" style={{ margin: '4px 0 12px' }}>
         <b className="num">{eur(r.low.total)} – {eur(r.high.total)}</b>
         <p>a month, typically about <strong>{eur(r.typical.total)}</strong>. Rent, travel, bills, food and phone.</p>
       </div>

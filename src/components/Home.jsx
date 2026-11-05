@@ -8,7 +8,7 @@ const FEATURES = [
   ['clock', 'b-sky', 'Real journey times', 'Timetabled door-to-door trips at 8am, plus Dublinbikes, cycling and walking.', '#/areas'],
   ['cart', 'b-sand', 'Cheap groceries', 'Walking time to the nearest Lidl, Aldi and Tesco from every area.', '#/areas'],
   ['work', 'b-coral', 'Part-time work', 'Minimum wage, your weekly hour limit, and areas with the most shops and cafes.', '#/work'],
-  ['check', 'b-plum', 'Settling in', 'IRP registration, Leap card, bank account and mobile plan, in the right order.', '#/settle']
+  ['safe', 'b-plum', 'Settling in', 'IRP registration, Leap card, bank account and mobile plan, in the right order.', '#/settle']
 ]
 
 export default function Home({ data, s, set }) {
@@ -45,7 +45,7 @@ export default function Home({ data, s, set }) {
         <p className="lead">No listings and no ads. Open data you can trace back to its source.</p>
         <div className="tiles">
           {FEATURES.map(([icon, badge, title, text, href]) => (
-            <a key={title} className="tile" href={href}><span className={`badge ${badge}`}><Icon name={icon} size={22} stroke={1.9} /></span><b>{title}</b><span>{text}</span></a>
+            <a key={title} className="tile" href={href}><span className="tile-ico"><Icon name={icon} size={24} stroke={1.6} /></span><b>{title}</b><span>{text}</span></a>
           ))}
         </div>
       </section>

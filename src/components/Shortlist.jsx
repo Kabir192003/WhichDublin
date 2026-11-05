@@ -22,12 +22,12 @@ export default function Shortlist({ data, s, shared }) {
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
               <span className="badge b-teal" style={{ margin: '0 auto 10px' }}><Icon name="home" /></span>
               <h2>No areas saved yet</h2>
-              <p className="hint">Tap “☆ Save” on any area in <a href="#/areas">Find my area</a> or <a href="#/explore">Explore</a>.</p>
+              <p className="hint">Tap Save on any area in <a href="#/areas">Find my area</a> or <a href="#/explore">Explore</a>.</p>
             </div>
           ) : (
             <>
               <div className="actions" style={{ marginTop: 0 }}>
-                <button className="btn" onClick={copy}>{copied ? '✓ Link copied' : 'Copy link to share'}</button>
+                <button className="btn" onClick={copy}>{copied ? <><Icon name="tick" size={16} stroke={2.2} />Link copied</> : <><Icon name="copy" size={16} />Copy link to share</>}</button>
                 {sharedIds.length > 0 && <button className="btn ghost" onClick={() => { setAll([...mine, ...sharedIds]); location.hash = '#/shortlist' }}>Save these to my shortlist</button>}
               </div>
               <p className="hint">Figures for {SHORT[s.campus]}, {RENT_TYPES[s.type].short}{s.ptype !== 'any' ? `, ${HOME_TYPES[s.ptype].toLowerCase()}` : ''}. Change these in <a href="#/areas">Find my area</a>.</p>
@@ -62,5 +62,5 @@ export default function Shortlist({ data, s, shared }) {
 /** Small save toggle used on cards and area pages. */
 export function SaveButton({ id, small }) {
   const list = useShortlist(); const on = list.includes(id)
-  return <button type="button" className={small ? 'cmp-btn' : 'btn ghost sm'} aria-pressed={on} onClick={() => toggle(id)}>{on ? '★ Saved' : '☆ Save'}</button>
+  return <button type="button" className={small ? 'cmp-btn' : 'btn ghost sm'} aria-pressed={on} onClick={() => toggle(id)}><Icon name="star" size={15} filled={on} stroke={2} />{on ? 'Saved' : 'Save'}</button>
 }
