@@ -98,6 +98,24 @@ export const MOBILE = {
   check: 'secondary'
 }
 
+export const RENT_COMPARISON = {
+  dublinQuarter: '2025 Q4',
+  dublinTwoBedApartment: { low: 2517, high: 2696 },
+  intro: "The RTB figures on this page track rents of tenancies already registered, which can run behind the live market (see above). Daft.ie's own quarterly Rental Price Report measures something different: the asking prices of homes currently advertised for rent.",
+  why: [
+    'Timing: a tenancy agreed several months ago may only be registered with the RTB this quarter, so the RTB figure can reflect older rents in a rising market.',
+    "Different homes: Daft's figures lean towards properties being let for the first time, which are not bound by the lower rent-increase caps that apply to a sitting tenant's existing lease in a Rent Pressure Zone. The RTB figures include many long-standing, capped tenancies, which pulls that average down further.",
+    'Neither figure is the rent for one specific home: Daft reports what is being asked right now; the RTB reports what was actually agreed and registered.'
+  ],
+  granularity: "Daft splits Dublin into a handful of broad zones, not the 106 named areas we use, so we can only show one Dublin-wide figure for comparison, not an area-by-area one.",
+  sources: [
+    { name: 'RTÉ: Daft.ie Rental Price Report coverage', url: 'https://www.rte.ie/news/rental-prices' },
+    { name: "Echo Live: rental supply hits record low as prices keep climbing", url: 'https://www.echolive.ie/nationalnews/arid-41799134.html' },
+    { name: 'rentprices.ie: Daft Rental Report vs RTB Rent Index, why the figures differ', url: 'https://rentprices.ie/guides/daft-report-vs-rtb-rent-index/' }
+  ],
+  check: 'secondary. We could not reach daft.ie, reports.daft.ie or rte.ie directly to read the report or Daft\'s terms of use, so this figure is as reported by press coverage of Daft\'s report, not read from Daft directly, and press accounts of the same figure varied by a few percent.'
+}
+
 export const RENTING = {
   deposit: 'A deposit can be at most one month’s rent, and advance rent to secure a place at most one month. So you can’t be asked for more than two months’ rent in total to secure a tenancy.',
   depositNote: 'From the Residential Tenancies (No. 2) Act 2021. Purpose-built student accommodation can have different payment rules, so check its contract.',

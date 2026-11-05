@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
-import { Essentials, RoomReports, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock } from './AreaParts.jsx'
+import { Essentials, RoomReports, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock, HOW } from './AreaParts.jsx'
 import { eur, SHORT, Icon } from './ui.jsx'
 import { SaveButton } from './Shortlist.jsx'
 
@@ -43,10 +43,14 @@ export default function Explore({ data }) {
             <h1>{area.label}</h1>
             {area.about && <p className="about">{area.about.text} <a href={area.about.url} target="_blank" rel="noreferrer">Wikipedia</a></p>}
             <div className="glance">
-              <div className="stat s-rent"><b>{eur(area.rent.cells['1:any'].v)}</b><small>1-bed average</small></div>
-              <div className="stat s-time"><b>{eur(area.rent.cells['2:any'].v)}</b><small>2-bed average</small></div>
-              <div className="stat s-groc"><b>{eur(area.rent.cells['3:any'].v)}</b><small>3-bed average</small></div>
+              {['1:any', '2:any', '3:any'].map((k, i) => { const c = area.rent.cells[k]; return (
+                <div className={`stat ${['s-rent', 's-time', 's-groc'][i]}`} key={k}>
+                  <b>{eur(c.v)}{c.how !== 'published' && <span className={`mk ${c.how}`} aria-label={HOW[c.how]} title={`${HOW[c.how]}${c.how === 'carried' ? ` (${c.q})` : ''}`} />}</b>
+                  <small>{i + 1}-bed average</small>
+                </div>
+              )})}
             </div>
+            <p className="hint">Dots mark figures that are carried forward or estimated rather than freshly published, so bed sizes here can come from different quarters. <a href="#/method">How this is worked out</a></p>
             <div className="actions"><SaveButton id={area.id} /><a className="btn sm" href={`#/areas`}>Rank areas for my needs</a></div>
             <RentTable area={area} data={data} />
             <RoomReports area={area} />

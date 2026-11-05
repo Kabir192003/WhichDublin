@@ -1,4 +1,5 @@
 import React from 'react'
+import { RENT_COMPARISON } from '../content/facts.js'
 
 export default function Method({ data }) {
   const s = data.sources
@@ -17,7 +18,19 @@ export default function Method({ data }) {
         <li>Every area shows all 25 combinations of size (1, 2, 3, 4+ beds, all) and type (any, apartment, terraced, semi-detached, detached). Each figure is labelled: <b>published</b> by the RTB for that quarter; <b>carried forward</b> from the latest published quarter in the previous two years, adjusted for rent growth; or <b>estimated</b> from the closest figure the RTB did publish for that area, scaled by how the two compare across Dublin.</li>
         <li>We tested the estimates by hiding figures the RTB did publish and estimating them. Anchored on the same size or type: half within {s.rent.backtest?.specific?.medianPct}%, 8 in 10 within {s.rent.backtest?.specific?.p80Pct}% ({s.rent.backtest?.specific?.n} tests). Anchored only on the all-homes average: half within {s.rent.backtest?.all?.medianPct}%, 8 in 10 within {s.rent.backtest?.all?.p80Pct}%.</li>
         <li>Confidence: <b>high</b> needs at least 12 size and type groups with data and a figure under about 13 months old; <b>medium</b> needs 6 and under 2 years; otherwise <b>low</b>.</li>
+        <li>The RTB and CSO take roughly 10-11 months to publish a quarter's figures, since a tenancy has to be registered first. <b>{s.rent.asOf}</b> is the newest quarter published as of our last data refresh, not a lag on our side.</li>
+        <li>In a small area, different bed sizes can be carried forward from different, older quarters (one from a year back, another from two years back), each grown forward by its own small factor. That can occasionally make a smaller home show as more expensive than a bigger one in the same area, or vice versa. A marker next to a figure (hover for the quarter it's from) means it isn't a fresh, same-quarter number.</li>
       </ul>
+
+      <h2>Rent: how this compares with Daft.ie's own report</h2>
+      <p>{RENT_COMPARISON.intro}</p>
+      <p>Daft.ie's latest report (<b>{RENT_COMPARISON.dublinQuarter}</b>) put the Dublin-wide average for a two-bed apartment at roughly <b>€{RENT_COMPARISON.dublinTwoBedApartment.low.toLocaleString('en-IE')}–€{RENT_COMPARISON.dublinTwoBedApartment.high.toLocaleString('en-IE')}</b> a month (press coverage of the same figure varied slightly). That is noticeably higher than most of our RTB-based figures for similarly sized homes, for real reasons, not because either number is wrong:</p>
+      <ul>
+        {RENT_COMPARISON.why.map((w, i) => <li key={i}>{w}</li>)}
+      </ul>
+      <p>{RENT_COMPARISON.granularity}</p>
+      <p className="hint">{RENT_COMPARISON.check}</p>
+      <p className="source">Sources: {RENT_COMPARISON.sources.map((src, i) => <React.Fragment key={src.url}>{i > 0 && ', '}<a href={src.url} target="_blank" rel="noreferrer">{src.name}</a></React.Fragment>)}.</p>
 
       <h2>Commute</h2>
       <p>We run a timetable search over the National Transport Authority's GTFS data (<a href={s.transit.url}>{s.transit.name}</a>, {s.transit.licence}) for the service day <b>{s.transit.serviceDate}</b>, a Wednesday in term.</p>

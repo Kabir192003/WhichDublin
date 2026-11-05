@@ -5,7 +5,7 @@ import { getJson, postJson } from '../domain/api.js'
 
 const BEDS = [['1', '1 bed'], ['2', '2 bed'], ['3', '3 bed'], ['4', '4+ bed'], ['all', 'All sizes']]
 const TYPES = [['any', 'Any'], ['apartment', 'Apartment'], ['terrace', 'Terraced'], ['semi', 'Semi-d'], ['detached', 'Detached']]
-const HOW = { published: 'published by the RTB', carried: 'carried forward from an earlier quarter', estimated: 'estimated' }
+export const HOW = { published: 'published by the RTB', carried: 'carried forward from an earlier quarter', estimated: 'estimated' }
 
 export function Section({ icon, badge, title, conf, children, source, how }) {
   return (
@@ -55,7 +55,7 @@ export function RentTable({ area, data, highlight }) {
         <p>Whole-home rent. Sharing? Divide by the number of people. These are averages, not asking prices for a specific listing.</p>
         <p>The trend line uses only quarters the RTB published for this area. Small areas have few new tenancies each quarter, so single quarters can jump.</p>
       </>}>
-      <p className="hint">RTB figures track rents of registered tenancies, not live asking prices, so they can sit below what you'll see on a listing today, especially for larger homes.</p>
+      <p className="hint">RTB figures track rents of registered tenancies, not live asking prices, so they can sit below what you'll see on a listing today, especially for larger homes. <a href="#/method">How this compares with Daft.ie's own report</a></p>
       <RentTrend area={area} data={data} />
       <div style={{ overflowX: 'auto' }}>
         <table className="rtable">
