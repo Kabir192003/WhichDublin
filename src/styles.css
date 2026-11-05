@@ -245,3 +245,6 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 @media (max-width:860px){.saved-link{margin-left:auto;font-size:13px;padding:7px 12px}}
 .select select{width:100%}
 .band .badge{flex:none}
+
+.maplink{display:inline-block;font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none;color:var(--teal);background:var(--teal-50);padding:3px 8px;border-radius:999px;margin-top:4px}
+.maplink:hover{background:var(--teal);color:#fff}

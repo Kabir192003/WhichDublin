@@ -1,6 +1,6 @@
 import React from 'react'
 import { WORK_CATEGORIES, cellConfidence } from '../domain/model.js'
-import { eur, SHORT, Conf, Icon } from './ui.jsx'
+import { eur, SHORT, Conf, Icon, gmapsDir } from './ui.jsx'
 
 const BEDS = [['1', '1 bed'], ['2', '2 bed'], ['3', '3 bed'], ['4', '4+ bed'], ['all', 'All sizes']]
 const TYPES = [['any', 'Any'], ['apartment', 'Apartment'], ['terrace', 'Terraced'], ['semi', 'Semi-d'], ['detached', 'Detached']]
@@ -79,21 +79,22 @@ const WHEN_TABS = [['am', 'Weekday 8am'], ['late', 'Home at night'], ['sat', 'Sa
 const WHEN_NOTE = { am: 'to college, leaving 07:30 to 08:30', late: 'from college home, leaving 22:00 to 23:00', sat: 'to college on Saturday, leaving 10:00 to 11:00' }
 
 /** Distance and travel time to every college, with a switch for weekday morning, late night and Saturday. */
-export function Colleges({ rows, data, transitFrom, streets }) {
+export function Colleges({ rows, data, transitFrom, streets, origin }) {
   const [when, setWhen] = React.useState('am')
   const hasLate = rows.some((r) => r.transit?.late != null), hasSat = rows.some((r) => r.transit?.sat != null)
   return (
     <Section icon="cap" badge="b-sky" title="Distance to every college" conf={null}
       source={`Timetables: NTA GTFS, ${data.sources.transit.licence}. ${streets ? 'Walking and cycling: real street routes, OpenStreetMap (OSRM).' : 'Distances: OpenStreetMap.'}`}
       how={<p>Bus, Luas and rail: middle value of several timetabled journeys {WHEN_NOTE[when]}, door to door{transitFrom ? `, ${transitFrom}` : ''}. {streets ? 'Walking and cycling follow real streets and paths on OpenStreetMap.' : 'Walking (1.25 m/s) and cycling (15 km/h) use straight-line distance times 1.3 for streets.'} Scheduled times, not live.</p>}>
+      {origin && <p className="hint" style={{ margin: '0 0 6px' }}>“Route ↗” opens Google Maps with the journey from this address already set, for live times.</p>}
       <div className="seg-tabs" role="group" aria-label="When">
         {WHEN_TABS.map(([k, l]) => <button key={k} type="button" aria-pressed={when === k} disabled={(k === 'late' && !hasLate) || (k === 'sat' && !hasSat)} onClick={() => setWhen(k)}>{l}</button>)}
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table className="rtable">
-          <thead><tr><th scope="col">College</th><th scope="col">{streets ? 'By street' : 'Distance'}</th><th scope="col">Bus/Luas</th><th scope="col">Bike</th><th scope="col">Walk</th></tr></thead>
+          <thead><tr><th scope="col">College</th><th scope="col">{streets ? 'By street' : 'Distance'}</th><th scope="col">Bus/Luas</th><th scope="col">Bike</th><th scope="col">Walk</th>{origin && <th scope="col"><span className="sr">Route</span></th>}</tr></thead>
           <tbody>{rows.map((r) => { const t = r.transit?.[when]; return (
-            <tr key={r.id}><th scope="row" style={{ fontWeight: 600 }}>{SHORT[r.id] || r.name}</th><td className="num">{r.km} km</td><td className="num"><b>{t != null ? `${t} min` : '–'}</b></td><td className="num">{r.cycle != null ? `${r.cycle} min` : '–'}</td><td className="num">{r.walk == null ? '–' : r.walk > 90 ? '90+ min' : `${r.walk} min`}</td></tr>) })}</tbody>
+            <tr key={r.id}><th scope="row" style={{ fontWeight: 600 }}>{SHORT[r.id] || r.name}</th><td className="num">{r.km} km</td><td className="num"><b>{t != null ? `${t} min` : '–'}</b></td><td className="num">{r.cycle != null ? `${r.cycle} min` : '–'}</td><td className="num">{r.walk == null ? '–' : r.walk > 90 ? '90+ min' : `${r.walk} min`}</td>{origin && (() => { const c = data.campuses.find((x) => x.id === r.id); const dest = `${c.name}, Dublin`; const href = when === 'late' ? gmapsDir(dest, origin, 'transit') : gmapsDir(origin, dest, 'transit'); return <td><a className="maplink" href={href} target="_blank" rel="noreferrer" aria-label={`Route ${when === 'late' ? 'from' : 'to'} ${c.name} in Google Maps`}>Route ↗</a></td> })()}</tr>) })}</tbody>
         </table>
       </div>
     </Section>
@@ -108,14 +109,14 @@ export function collegeRowsForArea(area, data) {
   }).sort((a, b) => a.km - b.km)
 }
 
-export function Groceries({ shops, data }) {
+export function Groceries({ shops, data, origin }) {
   const src = data.sources.groceries, streets = !!data.sources.streets
   const tint = { Lidl: 's-groc', Aldi: 's-time', Tesco: 's-rent' }
   return (
     <Section icon="cart" badge="b-sand" title="Nearest supermarkets" conf="medium" source={`${src.name}, fetched ${src.fetched}, ${src.licence}`} how={<p>{streets ? 'Walking route along real streets and paths (OpenStreetMap, OSRM).' : 'Straight-line distance times 1.3, walked at 1.25 m/s.'} {src.note}</p>}>
       <div className="stats">{shops.map((s) => (
         <div key={s.brand} className={`stat ${tint[s.brand]}`}><small style={{ fontWeight: 800, color: 'var(--ink)', fontSize: 13, marginTop: 0 }}>{s.brand}</small>
-          {s.walk != null ? <><b>{s.walk} min</b><small>{s.metres >= 1000 ? (s.metres / 1000).toFixed(1) + ' km' : s.metres + ' m'} walk</small></> : <><b>–</b><small>none nearby</small></>}</div>))}
+          {s.walk != null ? <><b>{s.walk} min</b><small>{s.metres >= 1000 ? (s.metres / 1000).toFixed(1) + ' km' : s.metres + ' m'} walk</small>{origin && s.lat != null && <a className="maplink" href={gmapsDir(origin, s, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${s.brand} in Google Maps`}>Route ↗</a>}</> : <><b>–</b><small>none nearby</small></>}</div>))}
       </div>
     </Section>
   )

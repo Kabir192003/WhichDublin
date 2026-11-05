@@ -83,7 +83,7 @@ async function routeFrom(point, data) {
   const shops = ['Lidl', 'Aldi', 'Tesco'].map((brand) => {
     const opts = shopCands.map((s, j) => ({ s, r: foot?.[campuses.length + j] })).filter((o) => o.s.brand === brand && o.r)
     const best = opts.sort((a, b) => a.r.secs - b.r.secs)[0]
-    return best ? { brand, walk: min(best.r.secs), metres: best.r.metres } : { brand, walk: null }
+    return best ? { brand, name: best.s.name, lat: best.s.lat, lon: best.s.lon, walk: min(best.r.secs), metres: best.r.metres } : { brand, walk: null }
   })
   const docks = dockCands.map((d, j) => ({ d, r: foot?.[campuses.length + shopCands.length + j] })).filter((o) => o.r).sort((a, b) => a.r.secs - b.r.secs)
   const dock = docks[0] ? { name: docks[0].d.name, walk: min(docks[0].r.secs) } : null
@@ -124,6 +124,7 @@ export default function Eircode({ data, code }) {
     return out
   }, [near])
   const campuses = data.campuses.map((c) => ({ ...c, short: SHORT[c.id] }))
+  const origin = point && (point.precision === 'pinned' || point.precision === 'address' || !e ? { lat: point.lat, lon: point.lon } : e.full)
   const pin = point || (found && { ...found })
 
   const findAddress = async (ev) => { ev.preventDefault(); if (addr.trim().length < 3) return; setAddrRes(await searchAddress(addr.trim())) }
@@ -165,9 +166,9 @@ export default function Eircode({ data, code }) {
           {point && routes && (
             <div className="grid2" style={{ alignItems: 'start' }}>
               <div>
-                <Colleges rows={routes.colleges} data={data} streets={routes.streets} transitFrom={routes.via === 'google' ? 'from this exact address (public transport from our timetable planner; walking from Google Maps; cycling from OpenStreetMap)' : 'from this exact point'} />
+                <Colleges origin={origin} rows={routes.colleges} data={data} streets={routes.streets} transitFrom={routes.via === 'google' ? 'from this exact address (public transport from our timetable planner; walking from Google Maps; cycling from OpenStreetMap)' : 'from this exact point'} />
                 {routes.via === 'google' && <p className="source" style={{ marginTop: -6 }}>Exact location, map and walking routes: Google Maps. Supermarkets: OpenStreetMap. Not stored.</p>}
-                <Groceries shops={routes.shops} data={data} />
+                <Groceries origin={origin} shops={routes.shops} data={data} />
                 {routes.dock && <Dock home={routes.dock} data={data} />}
                 {!routes.streets && <p className="notice-inline">The street-routing service did not answer, so walking and cycling times are missing. Try again in a minute.</p>}
               </div>

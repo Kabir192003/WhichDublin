@@ -83,3 +83,9 @@ export function EircodeBox({ small, initial = '', autoFocus }) {
     </form>
   )
 }
+
+/** Google Maps directions link (free: opens the Maps app or site, no API key, no quota). origin/dest: text or {lat, lon}. */
+export function gmapsDir(origin, dest, mode = 'transit') {
+  const f = (x) => (typeof x === 'string' ? x : `${x.lat},${x.lon}`)
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(f(origin))}&destination=${encodeURIComponent(f(dest))}&travelmode=${mode}`
+}
