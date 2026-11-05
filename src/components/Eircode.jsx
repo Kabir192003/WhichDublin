@@ -147,7 +147,7 @@ export default function Eircode({ data, code }) {
           <div className="card lift" style={{ padding: 0, overflow: 'hidden', height: picking ? 440 : 340, position: 'relative' }}>
             {routes?.via === 'google' ? <GoogleMap point={point} campuses={data.campuses} shops={routes.shops} /> : <MapView points={area ? [{ id: area.id, name: area.name, lat: area.lat, lon: area.lon, color: '#0B7A65' }] : []} campuses={campuses} pin={pin} fitKey={`${code}-${point ? 'p' : 'd'}`} picking={picking} onPick={(p) => choose(p, 'pinned')} />}
           </div>
-          {point && !picking && <p className="hint" style={{ marginTop: -6 }}>Wrong spot? <button className="link" onClick={() => setPicking(true)}>Move the pin</button></p>}
+          {point && !picking && routes?.via !== 'google' && <p className="hint" style={{ marginTop: -6 }}>Wrong spot? <button className="link" onClick={() => setPicking(true)}>Move the pin</button></p>}
 
           {point && (busy || !routes) && <p className="notice">Routing from this point: real streets for walking and cycling, and every bus, Luas and train timetable…</p>}
           {point && routes && (

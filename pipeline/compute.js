@@ -47,6 +47,11 @@ const dockOut = (b) => b && { name: b.d.name, lat: b.d.lat, lon: b.d.lon, metres
 console.log('bike docks', docks.length)
 for (const c of campuses) c.dock = dockOut(nearestDock(c))
 
+// ---- everyday essentials and step-free stations (fetch-essentials.py)
+const ess = fs.existsSync('data/raw/essentials.json') ? read('data/raw/essentials.json') : null
+const near1 = (list, pt) => { let b = null; for (const x of list || []) { const m = haversineMetres(pt, x); if (!b || m < b.m) b = { x, m } } return b }
+const stations = ess ? ess.stations.filter((x) => x.name) : []
+
 // departures: arrive for a 09:00 start. Leave between 07:30 and 08:30 every 5 minutes.
 const DEPARTURES = Array.from({ length: 13 }, (_, i) => 7.5 * 3600 + i * 300)
 const asOfRent = rent.quarter
@@ -106,6 +111,14 @@ for (const a of rent.areas) {
     toCampus[c.id].bikeshare = { minutes: total, walkFromHomeMinutes: hd.walkMinutes, rideMinutes: rideMin, walkToCampusMinutes: cd.walkMinutes, rideKm: Math.round(rideM / 100) / 10, fromDock: hd.name, toDock: cd.name }
   }
 
+  const essentials = {}
+  if (ess?.areas?.[a.id]) for (const cat of ['pharmacy', 'doctors', 'laundry']) {
+    const b = near1(ess.areas[a.id][cat], origin)
+    essentials[cat] = b ? { name: b.x.name || null, walkMinutes: Math.round(walkSecs(b.m) / 60), metres: Math.round(b.m * 1.3 / 10) * 10 } : null
+  }
+  const stNear = stations.map((x) => ({ x, m: haversineMetres(origin, x) })).filter((o) => o.m <= 1500).sort((p, q) => p.m - q.m).slice(0, 3)
+  const stationsNear = stNear.map(({ x, m }) => ({ name: x.name, kind: x.kind, wheelchair: x.wheelchair || null, walkMinutes: Math.round(walkSecs(m) / 60) }))
+
   const work = {}
   const emp = empFile && empFile.areas[a.id]
   if (emp) for (const [cat, terms] of Object.entries(empFile.categories)) {
@@ -142,6 +155,7 @@ for (const a of rent.areas) {
             confidence: confidence('rent', { cells: a.populatedCells, ageDays }) },
     transit: { nearestStop: nearest ? { name: stops[nearest.stop].name, walkMinutes: Math.round(nearest.secs / 60) } : null, routes: modes },
     toCampus, groceries, nearestBudgetGroceryMinutes: nearestBudget,
+    essentials: ess ? essentials : null, stations: ess ? stationsNear : null,
     nearestDock: (() => { const d = dockOut(homeDock); const x = d && homeDock && st(a.id, 'foot', 'd:' + homeDock.d.osm); return d && x ? { ...d, walkMinutes: Math.round(x[1] / 60), metres: Math.round(x[0] / 10) * 10, routed: true } : d })(), work: emp ? work : null,
     about: d ? { text: sentences, title: d.title, url: d.url } : null
   })
@@ -170,6 +184,7 @@ const dataset = {
     bikes: { name: 'OpenStreetMap contributors (Dublinbikes docks)', licence: 'ODbL 1.0', fetched: bikeFile && bikeFile.fetched, note: 'Docks mapped in OpenStreetMap; not every station may be included. See dublinbikes.ie for the live map.' },
     employers: { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: empFile && empFile.fetched, radiusMetres: 1000, categories: empFile && empFile.categories, note: 'Counts places that could employ students within about 1 km. Not vacancies. Counts stop at 40 per place type.' },
     streets: streets && { name: 'OpenStreetMap contributors, routed with OSRM (routing.openstreetmap.de, FOSSGIS)', licence: 'ODbL 1.0', fetched: streets.fetched, areas: Object.keys(streets.areas).length },
+    essentials: ess && { name: 'OpenStreetMap contributors via Nominatim', licence: 'ODbL 1.0', fetched: ess.fetched, note: 'Within about 2 km; straight-line distance times 1.3. Step-free status is what OpenStreetMap records (wheelchair=yes/limited/no) and is often missing.' },
     descriptions: { name: 'Wikipedia', licence: 'CC BY-SA 4.0', url: 'https://en.wikipedia.org' }
   },
   campuses, areas: out, routingKeys,

@@ -100,6 +100,7 @@ export function Colleges({ rows, data, transitFrom, streets }) {
   )
 }
 
+export const areaStreets = (data) => !!data.sources.streets
 export function collegeRowsForArea(area, data) {
   return data.campuses.map((c) => {
     const t = area.toCampus[c.id]
@@ -108,10 +109,10 @@ export function collegeRowsForArea(area, data) {
 }
 
 export function Groceries({ shops, data }) {
-  const src = data.sources.groceries
+  const src = data.sources.groceries, streets = !!data.sources.streets
   const tint = { Lidl: 's-groc', Aldi: 's-time', Tesco: 's-rent' }
   return (
-    <Section icon="cart" badge="b-sand" title="Nearest supermarkets" conf="medium" source={`${src.name}, fetched ${src.fetched}, ${src.licence}`} how={<p>Straight-line distance times 1.3, walked at 1.25 m/s. {src.note}</p>}>
+    <Section icon="cart" badge="b-sand" title="Nearest supermarkets" conf="medium" source={`${src.name}, fetched ${src.fetched}, ${src.licence}`} how={<p>{streets ? 'Walking route along real streets and paths (OpenStreetMap, OSRM).' : 'Straight-line distance times 1.3, walked at 1.25 m/s.'} {src.note}</p>}>
       <div className="stats">{shops.map((s) => (
         <div key={s.brand} className={`stat ${tint[s.brand]}`}><small style={{ fontWeight: 800, color: 'var(--ink)', fontSize: 13, marginTop: 0 }}>{s.brand}</small>
           {s.walk != null ? <><b>{s.walk} min</b><small>{s.metres >= 1000 ? (s.metres / 1000).toFixed(1) + ' km' : s.metres + ' m'} walk</small></> : <><b>–</b><small>none nearby</small></>}</div>))}
@@ -159,6 +160,25 @@ export function RoomReports({ area }) {
       {rows.length ? <ul className="rows">{rows.map(([room, v]) => <li key={room}><span>{room}</span><b className="num">{v.median ? `€${v.median.toLocaleString('en-IE')} median (${v.n})` : `${v.n} of ${r.minReports} reports so far`}</b></li>)}</ul>
         : <p>No reports for {area.name} yet. The RTB does not publish room prices, so these come from students.</p>}
       <p style={{ marginTop: 8 }}><a href={REPORT_URL} target="_blank" rel="noreferrer">Report what you pay</a> <span className="hint">(public, needs a free GitHub account; no address needed)</span></p>
+    </Section>
+  )
+}
+
+const ESS = { pharmacy: 'Pharmacy', doctors: 'GP / doctor', laundry: 'Laundrette' }
+const STEP = { yes: 'step-free', limited: 'partly step-free', no: 'not step-free' }
+/** Everyday essentials and nearby stations, with step-free status where OpenStreetMap records it. */
+export function Essentials({ area, data }) {
+  if (!area.essentials && !area.stations) return null
+  const src = data.sources.essentials
+  return (
+    <Section icon="check" badge="b-plum" title="Everyday essentials" source={src && `${src.name}, fetched ${src.fetched}, ${src.licence}`} how={src && <p>{src.note}</p>}>
+      <ul className="rows">
+        {Object.entries(ESS).map(([k, l]) => { const e = area.essentials?.[k]; return <li key={k}><span>{l}</span><span>{e ? <><b>{e.walkMinutes} min</b> <small className="muted">{e.name || ''}</small></> : <span className="muted">none found within 2 km</span>}</span></li> })}
+      </ul>
+      {area.stations?.length > 0 && <>
+        <h3 style={{ fontSize: 14, margin: '12px 0 4px' }}>Luas and train stops nearby</h3>
+        <ul className="rows">{area.stations.map((x) => <li key={x.name + x.kind}><span>{x.name} <small className="muted">{x.kind === 'tram' ? 'Luas' : 'Rail'}</small></span><span><b>{x.walkMinutes} min</b> {x.wheelchair ? <span className={`chip ${x.wheelchair === 'yes' ? 'pub' : 'estimated'}`}>{STEP[x.wheelchair] || x.wheelchair}</span> : <span className="chip">step-free not recorded</span>}</span></li>)}</ul>
+      </>}
     </Section>
   )
 }
