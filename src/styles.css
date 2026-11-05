@@ -248,3 +248,9 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 
 .maplink{display:inline-block;font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none;color:var(--teal);background:var(--teal-50);padding:3px 8px;border-radius:999px;margin-top:4px}
 .maplink:hover{background:var(--teal);color:#fff}
+
+.work-controls{display:grid;grid-template-columns:2fr 1fr;gap:16px 24px;align-items:start;margin:14px 0 8px}
+.work-table{font-size:14px;margin-top:8px}.work-table th,.work-table td{text-align:left;white-space:normal;padding:10px 6px}
+.work-table td:nth-child(2){width:38%}.work-table td:last-child,.work-table th:last-child{text-align:right;white-space:nowrap}
+.work-table tbody th{font-weight:500}
+@media (max-width:860px){.work-controls{grid-template-columns:1fr}.work-table td:nth-child(2){width:auto}.work-table .track{display:none}.work-table th,.work-table td{padding:10px 4px}.work-table thead th{font-size:11px}.work-table .chip{display:none}}

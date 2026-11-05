@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react'
 import { WAGE, STUDENT_WORK, JOB_BOARDS } from '../content/facts.js'
 import { WORK_CATEGORIES, hourLimit, grossPay, workByArea, workMix, commuteFor } from '../domain/model.js'
 import Source from './Source.jsx'
+import { Select, SHORT } from './ui.jsx'
+const COLOR = { retail: 'var(--teal)', food: 'var(--coral)', hotels: 'var(--sky-700)', leisure: 'var(--sand-700)' }
 
 const eur = (n, d = 0) => `€${n.toLocaleString('en-IE', { minimumFractionDigits: d, maximumFractionDigits: d })}`
 
@@ -41,11 +43,13 @@ export default function Work({ data }) {
         <Source sources={[WAGE.source, ...STUDENT_WORK.sources]} check={WAGE.check} note={<>The official source for work permission is <a href={STUDENT_WORK.official} target="_blank" rel="noreferrer">irishimmigration.ie</a>.</>} />
 
         <h3>What that earns (before tax)</h3>
-        <label className="field"><span>Hours a week: <b>{h}</b></span>
-          <input type="range" min="4" max="40" step="1" value={h} onChange={(e) => setHours(Number(e.target.value))} />
-        </label>
+        <div className="field" style={{ maxWidth: 560 }}>
+          <label htmlFor="hours" className="flabel">Hours you work a week <span className="value-badge num">{h} hours</span></label>
+          <input id="hours" type="range" min="4" max="40" step="1" value={h} onChange={(e) => setHours(Number(e.target.value))} />
+        </div>
         <label className="check"><input type="checkbox" checked={stamp2} onChange={(e) => { setStamp2(e.target.checked); if (e.target.checked) setHours((x) => Math.min(x, lim.hours)) }} /> I am a non-EEA student on Stamp 2 (capped at {lim.hours} hours now)</label>
-        <div className="grid2" style={{ margin: "8px 0" }}><div className="kpi" style={{ background: "var(--sand-50)" }}><b>{eur(pay.week, 2)}</b><p>a week</p></div><div className="kpi" style={{ background: "var(--sky-50)" }}><b>{eur(pay.month)}</b><p>a month</p></div></div><p className="big" style={{ display: "none" }}> <small className="muted">at {eur(WAGE.adult, 2)}, gross. Tax, USC and PRSI reduce this. Tips and overtime are not included.</small></p>
+        <div className="grid2" style={{ margin: '8px 0' }}><div className="kpi" style={{ background: 'var(--sand-50)' }}><b>{eur(pay.week, 2)}</b><p>a week</p></div><div className="kpi" style={{ background: 'var(--sky-50)' }}><b>{eur(pay.month)}</b><p>a month</p></div></div>
+        <p className="hint">At {eur(WAGE.adult, 2)} an hour, before tax. Tax, USC and PRSI reduce this; tips and overtime are not included.</p>
         {!stamp2 && h > 20 && <p className="muted">Check your college timetable. Full-time study and long hours do not mix well.</p>}
       </section>
 
@@ -53,26 +57,27 @@ export default function Work({ data }) {
         <h2 id="areas">Where the work is</h2>
         {!available ? <p className="notice-inline">Employer data is still loading in this build.</p> : <>
           <p>We counted places in OpenStreetMap that could hire a student within about 1 km of each area. More places means more chances to be hired and a shorter trip to work. <b>It does not mean there are vacancies today.</b> Use the job boards below for live jobs.</p>
-          <div className="row2">
-            <fieldset className="field"><legend>Kind of work</legend>
-              <div className="seg wrap">{Object.entries(WORK_CATEGORIES).map(([k, v]) => <button key={k} type="button" aria-pressed={cat === k} onClick={() => setCat(k)}>{v.label}</button>)}</div>
-              <small>{WORK_CATEGORIES[cat].hint}</small>
-            </fieldset>
-            <label className="field"><span>Show journey to</span>
-              <select value={campus} onChange={(e) => setCampus(e.target.value)}>{data.campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-            </label>
+          <div className="work-controls">
+            <div className="field">
+              <span className="flabel" id="kind">Kind of work</span>
+              <div className="choices" role="group" aria-labelledby="kind" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))' }}>
+                {Object.entries(WORK_CATEGORIES).map(([k, v]) => <button key={k} type="button" className="choice" aria-pressed={cat === k} onClick={() => setCat(k)}>{v.label}</button>)}
+              </div>
+              <span className="hint">{WORK_CATEGORIES[cat].hint}</span>
+            </div>
+            <Select id="work-college" label="Show the journey to" icon="cap" value={campus} onChange={setCampus} options={data.campuses.map((c) => [c.id, c.name])} />
           </div>
-          <table className="bars">
+          <table className="rtable work-table">
             <caption className="sr">Areas by number of {WORK_CATEGORIES[cat].label.toLowerCase()} places within 1 km</caption>
-            <thead><tr><th scope="col">Area</th><th scope="col">Places within 1 km</th><th scope="col">To college</th></tr></thead>
+            <thead><tr><th scope="col">Area</th><th scope="col">Places within 1 km</th><th scope="col">To {SHORT[campus]} at 8am</th></tr></thead>
             <tbody>
               {rows.slice(0, 25).map((r) => {
                 const a = byId[r.id], mix = workMix(a, data.areas), c = commuteFor(a, campus, 'transit')
                 return (
                   <tr key={r.id}>
-                    <th scope="row">{a.label}{mix?.top && mix.top !== cat && <small className="muted"> · stands out for {WORK_CATEGORIES[mix.top].label.toLowerCase()}</small>}</th>
-                    <td><span className="bar" style={{ '--w': `${Math.max(2, r.share * 100)}%` }} aria-hidden="true" /> <b>{r.capped ? `${r.n}+` : r.n}</b></td>
-                    <td>{c ? `${c.minutes} min` : '–'}</td>
+                    <th scope="row"><b>{a.label}</b>{mix?.top && mix.top !== cat && <span className="chip" style={{ marginLeft: 8 }}>also good for {WORK_CATEGORIES[mix.top].label.toLowerCase()}</span>}</th>
+                    <td><span className="hbar" style={{ padding: 0 }}><span className="track"><span className="fill" style={{ width: `${Math.max(3, r.share * 100)}%`, background: COLOR[cat] }} /></span><span className="n num">{r.capped ? `${r.n}+` : r.n}</span></span></td>
+                    <td className="num">{c ? <b>{c.minutes} min</b> : '–'}</td>
                   </tr>)
               })}
             </tbody>
