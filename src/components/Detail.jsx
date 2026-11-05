@@ -31,6 +31,7 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
       {rent && <Section icon="home" badge="b-teal" title="Your rent" conf={rent.confidence} source={`RTB via CSO, ${src.rent.asOf}, ${src.rent.licence}`}>
         <p className="big"><b>{eur(rent.perPerson)}</b> a month, your share</p>
         <p>{RENT_TYPES[s.type].label}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
+        <p className="hint">This tracks rents of tenancies registered with the RTB, which can run below live asking prices, especially for family-sized homes that change tenants less often.</p>
       </Section>}
 
       {rent && <CostCard rentShare={rent.perPerson} mode={s.mode} people={rent.people} />}

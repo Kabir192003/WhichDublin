@@ -55,6 +55,7 @@ export function RentTable({ area, data, highlight }) {
         <p>Whole-home rent. Sharing? Divide by the number of people. These are averages, not asking prices for a specific listing.</p>
         <p>The trend line uses only quarters the RTB published for this area. Small areas have few new tenancies each quarter, so single quarters can jump.</p>
       </>}>
+      <p className="hint">RTB figures track rents of registered tenancies, not live asking prices, so they can sit below what you'll see on a listing today, especially for larger homes.</p>
       <RentTrend area={area} data={data} />
       <div style={{ overflowX: 'auto' }}>
         <table className="rtable">
