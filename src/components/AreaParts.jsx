@@ -79,14 +79,14 @@ const WHEN_TABS = [['am', 'Weekday 8am'], ['late', 'Home at night'], ['sat', 'Sa
 const WHEN_NOTE = { am: 'to college, leaving 07:30 to 08:30', late: 'from college home, leaving 22:00 to 23:00', sat: 'to college on Saturday, leaving 10:00 to 11:00' }
 
 /** Distance and travel time to every college, with a switch for weekday morning, late night and Saturday. */
-export function Colleges({ rows, data, transitFrom, streets, origin }) {
+export function Colleges({ rows, data, transitFrom, streets, origin, originLabel = 'this address' }) {
   const [when, setWhen] = React.useState('am')
   const hasLate = rows.some((r) => r.transit?.late != null), hasSat = rows.some((r) => r.transit?.sat != null)
   return (
     <Section icon="cap" badge="b-sky" title="Distance to every college" conf={null}
       source={`Timetables: NTA GTFS, ${data.sources.transit.licence}. ${streets ? 'Walking and cycling: real street routes, OpenStreetMap (OSRM).' : 'Distances: OpenStreetMap.'}`}
       how={<p>Bus, Luas and rail: middle value of several timetabled journeys {WHEN_NOTE[when]}, door to door{transitFrom ? `, ${transitFrom}` : ''}. {streets ? 'Walking and cycling follow real streets and paths on OpenStreetMap.' : 'Walking (1.25 m/s) and cycling (15 km/h) use straight-line distance times 1.3 for streets.'} Scheduled times, not live.</p>}>
-      {origin && <p className="hint" style={{ margin: '0 0 6px' }}>“Route ↗” opens Google Maps with the journey from this address already set, for live times.</p>}
+      {origin && <p className="hint" style={{ margin: '0 0 6px' }}>“Route ↗” opens Google Maps with the journey from {originLabel} already set, for live times.</p>}
       <div className="seg-tabs" role="group" aria-label="When">
         {WHEN_TABS.map(([k, l]) => <button key={k} type="button" aria-pressed={when === k} disabled={(k === 'late' && !hasLate) || (k === 'sat' && !hasSat)} onClick={() => setWhen(k)}>{l}</button>)}
       </div>
@@ -109,7 +109,7 @@ export function collegeRowsForArea(area, data) {
   }).sort((a, b) => a.km - b.km)
 }
 
-export function Groceries({ shops, data, origin }) {
+export function Groceries({ shops, data, origin }) {  // origin: text or {lat, lon}; adds Route links
   const src = data.sources.groceries, streets = !!data.sources.streets
   const tint = { Lidl: 's-groc', Aldi: 's-time', Tesco: 's-rent' }
   return (
@@ -121,7 +121,7 @@ export function Groceries({ shops, data, origin }) {
     </Section>
   )
 }
-export const shopsForArea = (area) => ['Lidl', 'Aldi', 'Tesco'].map((b) => { const g = area.groceries?.[b]; return g ? { brand: b, walk: g.walkMinutes, metres: g.metres } : { brand: b, walk: null } })
+export const shopsForArea = (area) => ['Lidl', 'Aldi', 'Tesco'].map((b) => { const g = area.groceries?.[b]; return g ? { brand: b, name: g.name, lat: g.lat, lon: g.lon, walk: g.walkMinutes, metres: g.metres } : { brand: b, walk: null } })
 
 export function Work({ work, data, hubs }) {
   const src = data.sources.employers
@@ -138,11 +138,11 @@ export function Work({ work, data, hubs }) {
   )
 }
 
-export function Dock({ home, campusDock, campusName, data }) {
+export function Dock({ home, campusDock, campusName, data, origin }) {
   if (!home) return null
   return (
     <Section icon="bike" badge="b-sky" title="Dublinbikes" source={`${data.sources.bikes.name}, fetched ${data.sources.bikes.fetched}, ${data.sources.bikes.licence}`} how={<p>{data.sources.bikes.note}</p>}>
-      <p>Nearest dock: <b>{home.name}</b>, {home.walk ?? home.walkMinutes} min walk.</p>
+      <p>Nearest dock: <b>{home.name}</b>, {home.walk ?? home.walkMinutes} min walk. {origin && home.lat != null && <a className="maplink" href={gmapsDir(origin, home, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${home.name} dock in Google Maps`}>Route ↗</a>}</p>
       {campusName && <p>Nearest to {campusName}: {campusDock ? <><b>{campusDock.name}</b>, {campusDock.walkMinutes} min walk.</> : 'none within 1.5 km.'}</p>}
     </Section>
   )
@@ -168,17 +168,17 @@ export function RoomReports({ area }) {
 const ESS = { pharmacy: 'Pharmacy', doctors: 'GP / doctor', laundry: 'Laundrette' }
 const STEP = { yes: 'step-free', limited: 'partly step-free', no: 'not step-free' }
 /** Everyday essentials and nearby stations, with step-free status where OpenStreetMap records it. */
-export function Essentials({ area, data }) {
+export function Essentials({ area, data, origin }) {
   if (!area.essentials && !area.stations) return null
   const src = data.sources.essentials
   return (
     <Section icon="check" badge="b-plum" title="Everyday essentials" source={src && `${src.name}, fetched ${src.fetched}, ${src.licence}`} how={src && <p>{src.note}</p>}>
       <ul className="rows">
-        {Object.entries(ESS).map(([k, l]) => { const e = area.essentials?.[k]; return <li key={k}><span>{l}</span><span>{e ? <><b>{e.walkMinutes} min</b> <small className="muted">{e.name || ''}</small></> : <span className="muted">none found within 2 km</span>}</span></li> })}
+        {Object.entries(ESS).map(([k, l]) => { const e = area.essentials?.[k]; return <li key={k}><span>{l}</span><span>{e ? <><b>{e.walkMinutes} min</b> <small className="muted">{e.name || ''}</small>{origin && e.lat != null && <> <a className="maplink" href={gmapsDir(origin, e, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to the ${l.toLowerCase()} in Google Maps`}>Route ↗</a></>}</> : <span className="muted">none found within 2 km</span>}</span></li> })}
       </ul>
       {area.stations?.length > 0 && <>
         <h3 style={{ fontSize: 14, margin: '12px 0 4px' }}>Luas and train stops nearby</h3>
-        <ul className="rows">{area.stations.map((x) => <li key={x.name + x.kind}><span>{x.name} <small className="muted">{x.kind === 'tram' ? 'Luas' : 'Rail'}</small></span><span><b>{x.walkMinutes} min</b> {x.wheelchair ? <span className={`chip ${x.wheelchair === 'yes' ? 'pub' : 'estimated'}`}>{STEP[x.wheelchair] || x.wheelchair}</span> : <span className="chip">step-free not recorded</span>}</span></li>)}</ul>
+        <ul className="rows">{area.stations.map((x) => <li key={x.name + x.kind}><span>{x.name} <small className="muted">{x.kind === 'tram' ? 'Luas' : 'Rail'}</small></span><span><b>{x.walkMinutes} min</b> {origin && x.lat != null && <a className="maplink" href={gmapsDir(origin, x, 'walking')} target="_blank" rel="noreferrer" aria-label={`Walking route to ${x.name} in Google Maps`}>Route ↗</a>} {x.wheelchair ? <span className={`chip ${x.wheelchair === 'yes' ? 'pub' : 'estimated'}`}>{STEP[x.wheelchair] || x.wheelchair}</span> : <span className="chip">step-free not recorded</span>}</span></li>)}</ul>
       </>}
     </Section>
   )

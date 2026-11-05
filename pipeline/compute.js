@@ -114,10 +114,10 @@ for (const a of rent.areas) {
   const essentials = {}
   if (ess?.areas?.[a.id]) for (const cat of ['pharmacy', 'doctors', 'laundry']) {
     const b = near1(ess.areas[a.id][cat], origin)
-    essentials[cat] = b ? { name: b.x.name || null, walkMinutes: Math.round(walkSecs(b.m) / 60), metres: Math.round(b.m * 1.3 / 10) * 10 } : null
+    essentials[cat] = b ? { lat: b.x.lat, lon: b.x.lon, name: b.x.name || null, walkMinutes: Math.round(walkSecs(b.m) / 60), metres: Math.round(b.m * 1.3 / 10) * 10 } : null
   }
   const stNear = stations.map((x) => ({ x, m: haversineMetres(origin, x) })).filter((o) => o.m <= 1500).sort((p, q) => p.m - q.m).slice(0, 3)
-  const stationsNear = stNear.map(({ x, m }) => ({ name: x.name, kind: x.kind, wheelchair: x.wheelchair || null, walkMinutes: Math.round(walkSecs(m) / 60) }))
+  const stationsNear = stNear.map(({ x, m }) => ({ lat: x.lat, lon: x.lon, name: x.name, kind: x.kind, wheelchair: x.wheelchair || null, walkMinutes: Math.round(walkSecs(m) / 60) }))
 
   const work = {}
   const emp = empFile && empFile.areas[a.id]
@@ -141,8 +141,8 @@ for (const a of rent.areas) {
     const best = ranked[0]
     // prefer the street-routed nearest among the candidates the router checked
     const routed = streets?.areas?.[a.id]?.foot ? ranked.slice(0, 3).map((r) => ({ r, x: st(a.id, 'foot', `s:${brand}:${r.s.osm}`) })).filter((o) => o.x && o.x[1] != null).sort((p, q) => p.x[1] - q.x[1])[0] : null
-    if (routed) { groceries[brand] = { name: routed.r.s.name, walkMinutes: Math.round(routed.x[1] / 60), metres: Math.round(routed.x[0] / 10) * 10, osm: routed.r.s.osm, within1km: ranked.filter((r) => r.d * 1.3 <= 1000).length, routed: true }; continue }
-    groceries[brand] = best && { name: best.s.name, walkMinutes: Math.round(walkSecs(best.d) / 60), metres: Math.round(best.d * 1.3 / 10) * 10, osm: best.s.osm, within1km: ranked.filter((r) => r.d * 1.3 <= 1000).length }
+    if (routed) { groceries[brand] = { lat: routed.r.s.lat, lon: routed.r.s.lon, name: routed.r.s.name, walkMinutes: Math.round(routed.x[1] / 60), metres: Math.round(routed.x[0] / 10) * 10, osm: routed.r.s.osm, within1km: ranked.filter((r) => r.d * 1.3 <= 1000).length, routed: true }; continue }
+    groceries[brand] = best && { lat: best.s.lat, lon: best.s.lon, name: best.s.name, walkMinutes: Math.round(walkSecs(best.d) / 60), metres: Math.round(best.d * 1.3 / 10) * 10, osm: best.s.osm, within1km: ranked.filter((r) => r.d * 1.3 <= 1000).length }
   }
   const budget = ['Lidl', 'Aldi'].map((b) => groceries[b]).filter(Boolean)
   const nearestBudget = budget.length ? Math.min(...budget.map((b) => b.walkMinutes)) : null

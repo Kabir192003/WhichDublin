@@ -45,10 +45,10 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
 
       <RentTable area={area} data={data} highlight={{ bed: RENT_TYPES[s.type].bed, ptype: s.ptype }} />
       <RoomReports area={area} />
-      <Colleges rows={collegeRowsForArea(area, data)} data={data} streets={!!data.sources.streets} />
-      <Groceries shops={shopsForArea(area)} data={data} />
-      <Essentials area={area} data={data} />
-      <Dock home={area.nearestDock} campusDock={campus.dock} campusName={college} data={data} />
+      <Colleges rows={collegeRowsForArea(area, data)} data={data} streets={!!data.sources.streets} origin={{ lat: area.lat, lon: area.lon }} originLabel={`the centre of ${area.name}`} />
+      <Groceries shops={shopsForArea(area)} data={data} origin={{ lat: area.lat, lon: area.lon }} />
+      <Essentials area={area} data={data} origin={{ lat: area.lat, lon: area.lon }} />
+      <Dock origin={{ lat: area.lat, lon: area.lon }} home={area.nearestDock} campusDock={campus.dock} campusName={college} data={data} />
       {area.work && <Work work={area.work} data={data} />}
 
       <Section icon="bus" badge="b-sky" title="Buses, Luas and trains near home" source={`${src.transit.name}, ${src.transit.licence}`}>

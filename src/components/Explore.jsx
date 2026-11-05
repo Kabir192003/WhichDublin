@@ -50,10 +50,10 @@ export default function Explore({ data }) {
             <div className="actions"><SaveButton id={area.id} /><a className="btn sm" href={`#/areas`}>Rank areas for my needs</a></div>
             <RentTable area={area} data={data} />
             <RoomReports area={area} />
-            <Colleges rows={collegeRowsForArea(area, data)} data={data} streets={!!data.sources.streets} />
-            <Groceries shops={shopsForArea(area)} data={data} />
-            <Essentials area={area} data={data} />
-      <Dock home={area.nearestDock} data={data} />
+            <Colleges rows={collegeRowsForArea(area, data)} data={data} streets={!!data.sources.streets} origin={{ lat: area.lat, lon: area.lon }} originLabel={`the centre of ${area.name}`} />
+            <Groceries shops={shopsForArea(area)} data={data} origin={{ lat: area.lat, lon: area.lon }} />
+            <Essentials area={area} data={data} origin={{ lat: area.lat, lon: area.lon }} />
+      <Dock origin={{ lat: area.lat, lon: area.lon }} home={area.nearestDock} data={data} />
             {area.work && <Work work={area.work} data={data} />}
           </article>
         ) : (
