@@ -5,8 +5,8 @@ import { getJson, ago } from '../domain/api.js'
 const STOPS_URL = `${import.meta.env.BASE_URL}data/stops.json`
 const hhmm = (mins) => { const h = Math.floor((mins % 1440) / 60), m = mins % 60; return `${h}:${String(m).padStart(2, '0')}` }
 const nowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() }
-const liveLabel = (r) => !r || r.medianMin == null ? null : r.medianMin <= 1 ? 'on time' : r.medianMin < 0 ? 'running early' : `~${r.medianMin} min late`
-const liveTone = (r) => !r || r.medianMin == null ? '' : r.medianMin <= 2 ? 'pub' : r.medianMin <= 5 ? 'carried' : 'estimated'
+const delayTone = (sec) => sec == null ? '' : sec <= 60 ? 'pub' : sec <= 300 ? 'carried' : 'estimated'
+const delayLabel = (sec) => sec == null ? null : Math.abs(sec) < 60 ? 'on time' : sec < 0 ? `${Math.round(-sec / 60)} min early` : `${Math.round(sec / 60)} min late`
 
 /** Enter the number printed on a Dublin Bus stop: see the routes that serve it, pick one, see its
  * full path and the next scheduled departures, with today's live delay for that route alongside. */
@@ -16,32 +16,31 @@ export default function Stop() {
   const [q, setQ] = useState('')
   const [code, setCode] = useState(null)
   const [sel, setSel] = useState(null)         // { stopId, routeId, directionId }
-  const [live, setLive] = useState(null)
+  const [delays, setDelays] = useState(null)   // { updated, delays: { tripId: seconds|null } }
 
   useEffect(() => { fetch(STOPS_URL).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() }).then(setData).catch((e) => setErr(String(e))) }, [])
 
   const stopIds = data && code ? (data.byCode[code] || []) : []
-
-  useEffect(() => {
-    if (!sel) return
-    const route = data.routes[sel.routeId]
-    if (!route) return
-    let alive = true
-    const load = () => getJson(`/api/live?routes=${encodeURIComponent(`bus:${route[0]}`)}`).then((x) => alive && setLive(x)).catch(() => alive && setLive(null))
-    load(); const t = setInterval(load, 60_000)
-    return () => { alive = false; clearInterval(t) }
-  }, [sel?.routeId])
 
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
   const departures = useMemo(() => {
     if (!sel || !data) return []
     const list = data.departures[`${sel.stopId}:${sel.routeId}:${sel.directionId}`] || []
     const now = nowMins()
-    const upcoming = list.filter((m) => m % 1440 >= now)
-    return (upcoming.length ? upcoming : list).slice(0, 6)
+    const upcoming = list.filter(([m]) => m % 1440 >= now)
+    return (upcoming.length ? upcoming : list).slice(0, 6).map(([mins, ti]) => ({ mins, tripId: data.trips[ti] }))
   }, [sel, data])
 
-  const submit = (e) => { e.preventDefault(); setSel(null); setLive(null); setCode(q.trim()) }
+  useEffect(() => {
+    if (!sel || !departures.length) { setDelays(null); return }
+    let alive = true
+    const load = () => getJson(`/api/stop-live?stop=${encodeURIComponent(sel.stopId)}&trips=${departures.map((d) => encodeURIComponent(d.tripId)).join(',')}`)
+      .then((x) => alive && setDelays(x)).catch(() => alive && setDelays(null))
+    load(); const t = setInterval(load, 30_000)
+    return () => { alive = false; clearInterval(t) }
+  }, [sel?.stopId, sel?.routeId, sel?.directionId, departures.map((d) => d.tripId).join(',')])
+
+  const submit = (e) => { e.preventDefault(); setSel(null); setDelays(null); setCode(q.trim()) }
 
   return (
     <>
@@ -73,27 +72,35 @@ export default function Stop() {
                     const r = data.routes[rid]; if (!r) return null
                     const on = sel && sel.stopId === stopId && sel.routeId === rid && sel.directionId === did
                     return <button key={rid + did} type="button" className={`chip ${on ? 'pub' : ''}`} style={{ cursor: 'pointer', border: on ? 'none' : '1px solid var(--line)' }}
-                      onClick={() => { setSel({ stopId, routeId: rid, directionId: did }); setLive(null) }}>{r[0]}</button>
+                      onClick={() => { setSel({ stopId, routeId: rid, directionId: did }); setDelays(null) }}>{r[0]}</button>
                   })}
                 </div>
 
                 {sel && sel.stopId === stopId && (() => {
                   const route = data.routes[sel.routeId]
-                  const key = `bus:${route[0]}`
-                  const r = live?.routes?.[key]
+                  const anyLive = delays && Object.values(delays.delays).some((v) => v != null)
                   return (
                     <div style={{ marginTop: 14, borderTop: '1px solid var(--line)', paddingTop: 14 }}>
-                      <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Route {route[0]}{route[1] ? ` · ${route[1]}` : ''}</p>
-                      {live && <p className="hint" style={{ margin: '0 0 10px' }}>
-                        {r && r.trips > 0
-                          ? <span className={`chip ${liveTone(r)}`}><span className="dot" aria-hidden="true" /> Live: {liveLabel(r)} right now, updated {ago(live.updated)}</span>
-                          : 'Not reporting live right now (may not be running at this hour).'}
-                      </p>}
-                      <p style={{ margin: '0 0 6px', fontWeight: 600, fontSize: 14 }}>Next scheduled departures from here</p>
-                      {departures.length
-                        ? <p style={{ margin: '0 0 12px', fontVariantNumeric: 'tabular-nums' }}>{departures.map(hhmm).join(' · ')}</p>
-                        : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
-                      <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times for {data.date}'s timetable, not vehicle-tracked. Live status is the route's typical delay right now, not a per-stop prediction.</p>
+                      <p style={{ margin: '0 0 10px', fontWeight: 700 }}>Route {route[0]}{route[1] ? ` · ${route[1]}` : ''}</p>
+                      <p style={{ margin: '0 0 6px', fontWeight: 600, fontSize: 14 }}>Next departures from here</p>
+                      {departures.length ? (
+                        <ul className="rows" style={{ margin: '0 0 10px' }}>
+                          {departures.map((d, i) => {
+                            const sec = delays?.delays?.[d.tripId]
+                            const expected = sec != null ? hhmm(Math.round(d.mins + sec / 60)) : null
+                            return (
+                              <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                <span style={{ fontVariantNumeric: 'tabular-nums', textDecoration: expected && expected !== hhmm(d.mins) ? 'line-through' : 'none', color: expected ? 'var(--muted)' : 'inherit' }}>{hhmm(d.mins)}</span>
+                                {expected
+                                  ? <span className={`chip ${delayTone(sec)}`}><span className="dot" aria-hidden="true" /> Expected {expected} ({delayLabel(sec)})</span>
+                                  : delays ? <span className="hint">no live update for this one yet</span> : null}
+                              </li>
+                            )
+                          })}
+                        </ul>
+                      ) : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
+                      {delays && !anyLive && <p className="hint" style={{ margin: '0 0 10px' }}>None of these are reporting live right now (may not be running yet, or too far off to be in the feed).</p>}
+                      <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are {data.date}'s timetable. "Expected" is that specific bus's live delay from the NTA feed, matched to this stop, not a city-wide average{delays?.updated ? `, updated ${ago(delays.updated)}` : ''}.</p>
                       {shape && <details>
                         <summary>Full route ({shape.length} stops)</summary>
                         <ol className="rows" style={{ marginTop: 8 }}>

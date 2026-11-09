@@ -28,14 +28,35 @@ export function summarise(feed) {
   return { updated: new Date((Number(feed.header?.timestamp) || Date.now() / 1000) * 1000).toISOString(), city: stat(all), routes: out }
 }
 
+async function fetchFeed() {
+  const key = process.env.NTA_API_KEY
+  if (!key) throw Object.assign(new Error('Live data not configured'), { status: 503 })
+  const r = await fetch('https://api.nationaltransport.ie/gtfsr/v2/TripUpdates?format=json', { headers: { 'x-api-key': key, 'Cache-Control': 'no-cache' } })
+  if (!r.ok) throw Object.assign(new Error(`NTA feed ${r.status}`), { status: 502 })
+  return r.json()
+}
+
 export async function live() {
   if (cache.data && Date.now() - cache.at < TTL) return cache.data
   if (cache.pending) return cache.pending
-  const key = process.env.NTA_API_KEY
-  if (!key) throw Object.assign(new Error('Live data not configured'), { status: 503 })
-  cache.pending = fetch('https://api.nationaltransport.ie/gtfsr/v2/TripUpdates?format=json', { headers: { 'x-api-key': key, 'Cache-Control': 'no-cache' } })
-    .then(async (r) => { if (!r.ok) throw Object.assign(new Error(`NTA feed ${r.status}`), { status: 502 }); return summarise(await r.json()) })
-    .then((d) => { cache = { at: Date.now(), data: d, pending: null }; return d })
+  cache.pending = fetchFeed()
+    .then((feed) => { const d = summarise(feed); cache = { at: Date.now(), data: d, feed, pending: null }; return d })
     .catch((e) => { cache.pending = null; if (cache.data) return cache.data; throw e })
   return cache.pending
+}
+
+/** Delay in seconds for specific trips at a specific stop, straight from the raw feed (not the
+ * per-route aggregate). Returns { [tripId]: delaySeconds|null }. Shares live()'s 30 s cache. */
+export async function tripStopDelays(tripIds, stopId) {
+  await live()
+  const want = new Set(tripIds)
+  const out = {}
+  for (const id of want) out[id] = null
+  for (const e of cache.feed?.entity || []) {
+    const tu = e.trip_update; if (!tu) continue
+    const tid = tu.trip?.trip_id; if (!tid || !want.has(tid)) continue
+    const hit = (tu.stop_time_update || []).find((s) => s.stop_id === stopId)
+    if (hit) out[tid] = hit.arrival?.delay ?? hit.departure?.delay ?? null
+  }
+  return { updated: cache.data?.updated, delays: out }
 }
