@@ -45,6 +45,22 @@ export async function live() {
   return cache.pending
 }
 
+/** TEMP diagnostic: sample raw trip_id/route_id pairs from the live feed for one route, to
+ * check the live feed's trip_id format against the static GTFS trip_id format. Remove once the
+ * stop-level matching is confirmed working. */
+export async function sampleTrips(routeName, n = 8) {
+  await live()
+  const out = []
+  for (const e of cache.feed?.entity || []) {
+    const tu = e.trip_update; if (!tu) continue
+    const [name] = routes[tu.trip?.route_id] || []
+    if (name !== routeName) continue
+    out.push({ tripId: tu.trip?.trip_id, routeId: tu.trip?.route_id, startDate: tu.trip?.start_date, firstStop: tu.stop_time_update?.[0]?.stop_id })
+    if (out.length >= n) break
+  }
+  return out
+}
+
 /** Delay in seconds for specific trips at a specific stop, straight from the raw feed (not the
  * per-route aggregate). Returns { [tripId]: delaySeconds|null }. Shares live()'s 30 s cache. */
 export async function tripStopDelays(tripIds, stopId) {
