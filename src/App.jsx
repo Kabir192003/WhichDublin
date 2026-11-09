@@ -16,7 +16,7 @@ import Feedback from './components/Feedback.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
 const NAV = [['#/', 'Start', (h) => h === '' || h === '#/' || h === '#'], ['#/explore', 'Explore', (h) => h.startsWith('#/explore')], ['#/areas', 'Find my area', (h) => h.startsWith('#/areas')],
-  ['#/work', 'Part-time work', (h) => h.startsWith('#/work')], ['#/stop', 'Bus stop', (h) => h.startsWith('#/stop')], ['#/settle', 'Settling in', (h) => h.startsWith('#/settle')], ['#/renting', 'Renting safely', (h) => h.startsWith('#/renting')], ['#/method', 'How we know', (h) => h.startsWith('#/method')]]
+  ['#/work', 'Part-time work', (h) => h.startsWith('#/work')], ['#/stop', 'Find a stop', (h) => h.startsWith('#/stop')], ['#/settle', 'Settling in', (h) => h.startsWith('#/settle')], ['#/renting', 'Renting safely', (h) => h.startsWith('#/renting')], ['#/method', 'How we know', (h) => h.startsWith('#/method')]]
 
 function useHash() {
   const [hash, setHash] = useState(location.hash)
