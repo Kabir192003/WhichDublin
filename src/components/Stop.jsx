@@ -211,7 +211,7 @@ export default function Stop() {
                       </ul>
                     ) : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No buses on this route are reporting live near this stop right now.</p>}
-                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are {data.date}'s timetable. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}.</p>
+                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are {data.date}'s timetable. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. Live tracking only covers buses already on the road, so it usually only shows for the next one or two departures, not ones further out.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} />
                       <details style={{ marginTop: 10 }}>
