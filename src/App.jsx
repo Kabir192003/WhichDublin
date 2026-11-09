@@ -4,6 +4,7 @@ import Finder from './components/Finder.jsx'
 import Explore from './components/Explore.jsx'
 import Eircode from './components/Eircode.jsx'
 import Method from './components/Method.jsx'
+import Stop from './components/Stop.jsx'
 import Work from './components/Work.jsx'
 import Settle from './components/Settle.jsx'
 import Renting from './components/Renting.jsx'
@@ -15,7 +16,7 @@ import Feedback from './components/Feedback.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
 const NAV = [['#/', 'Start', (h) => h === '' || h === '#/' || h === '#'], ['#/explore', 'Explore', (h) => h.startsWith('#/explore')], ['#/areas', 'Find my area', (h) => h.startsWith('#/areas')],
-  ['#/work', 'Part-time work', (h) => h.startsWith('#/work')], ['#/settle', 'Settling in', (h) => h.startsWith('#/settle')], ['#/renting', 'Renting safely', (h) => h.startsWith('#/renting')], ['#/method', 'How we know', (h) => h.startsWith('#/method')]]
+  ['#/work', 'Part-time work', (h) => h.startsWith('#/work')], ['#/stop', 'Bus stop', (h) => h.startsWith('#/stop')], ['#/settle', 'Settling in', (h) => h.startsWith('#/settle')], ['#/renting', 'Renting safely', (h) => h.startsWith('#/renting')], ['#/method', 'How we know', (h) => h.startsWith('#/method')]]
 
 function useHash() {
   const [hash, setHash] = useState(location.hash)
@@ -39,6 +40,7 @@ export default function App() {
   else if (hash.startsWith('#/explore')) { body = <Explore data={data} />; bleed = true }
   else if (hash.startsWith('#/eircode')) body = <Eircode data={data} code={decodeURIComponent(hash.split('/')[2] || '')} />
   else if (hash.startsWith('#/work')) body = <Work data={data} />
+  else if (hash.startsWith('#/stop')) body = <Stop />
   else if (hash.startsWith('#/settle')) body = <Settle />
   else if (hash.startsWith('#/method')) body = <Method data={data} />
   else if (hash.startsWith('#/renting')) body = <Renting />
