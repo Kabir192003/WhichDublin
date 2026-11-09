@@ -48,14 +48,14 @@ export async function live() {
 /** TEMP diagnostic: sample raw trip_id/route_id pairs from the live feed for one route, to
  * check the live feed's trip_id format against the static GTFS trip_id format. Remove once the
  * stop-level matching is confirmed working. */
-export async function sampleTrips(routeName, n = 8) {
+export async function sampleTrips(routeName, n = 3) {
   await live()
   const out = []
   for (const e of cache.feed?.entity || []) {
     const tu = e.trip_update; if (!tu) continue
     const [name] = routes[tu.trip?.route_id] || []
     if (name !== routeName) continue
-    out.push({ tripId: tu.trip?.trip_id, routeId: tu.trip?.route_id, startDate: tu.trip?.start_date, firstStop: tu.stop_time_update?.[0]?.stop_id })
+    out.push({ tripId: tu.trip?.trip_id, routeId: tu.trip?.route_id, stops: (tu.stop_time_update || []).slice(0, 4) })
     if (out.length >= n) break
   }
   return out
