@@ -12,8 +12,7 @@ Output: data/build/stops.json
     routes: { routeId: [shortName, longName, mode] },
     stopRoutes: { stopId: [[routeId, directionId], ...] },
     shapes: { "routeId:directionId": [stopId, ...] },                  # one representative pattern
-    trips: [tripId, ...],
-    departures: { "stopId:routeId:directionId": [[minutesAfterMidnight, tripIdx], ...] } }
+    departures: { "stopId:routeId:directionId": [minutesAfterMidnight, ...] } }
 """
 import sys, json, zipfile, datetime as dt
 import pandas as pd
@@ -55,7 +54,7 @@ routes_out = {r.route_id: [r.route_short_name, r.route_long_name, mode_of.get(st
 want_trips = set(trips.trip_id)
 trip_meta = trips.set_index('trip_id')[['route_id', 'direction_id']].to_dict('index')
 
-stop_routes, shapes, best_len, departures, trip_idx = {}, {}, {}, {}, {}
+stop_routes, shapes, best_len, departures = {}, {}, {}, {}
 for chunk in pd.read_csv(z.open('stop_times.txt'), dtype={'trip_id': str, 'stop_id': str}, usecols=['trip_id', 'departure_time', 'stop_id', 'stop_sequence'], chunksize=1_500_000):
     chunk = chunk[chunk.trip_id.isin(want_trips)]
     if chunk.empty: continue
@@ -69,14 +68,11 @@ for chunk in pd.read_csv(z.open('stop_times.txt'), dtype={'trip_id': str, 'stop_
         seq = g.stop_id.tolist()
         if len(seq) > best_len.get(shape_key, 0):
             shapes[shape_key] = seq; best_len[shape_key] = len(seq)
-        ti = trip_idx.setdefault(trip_id, len(trip_idx))
         for stop_id, dep in zip(g.stop_id, g.dep):
             stop_routes.setdefault(stop_id, set()).add((rid, did))
-            departures.setdefault(f'{stop_id}:{rid}:{did}', []).append([int(dep) // 60, ti])
+            departures.setdefault(f'{stop_id}:{rid}:{did}', []).append(int(dep) // 60)
 
-for k in departures: departures[k] = sorted({tuple(x) for x in departures[k]})
-trips_out = [None] * len(trip_idx)
-for t, i in trip_idx.items(): trips_out[i] = t
+for k in departures: departures[k] = sorted(set(departures[k]))
 
 used_stops = set(stop_routes)
 stops = stops[stops.stop_id.isin(used_stops)]
@@ -96,9 +92,8 @@ out = {
     'routes': routes_out,
     'stopRoutes': {k: sorted(v) for k, v in stop_routes.items()},
     'shapes': shapes,
-    'trips': trips_out,
-    'departures': {k: [list(x) for x in v] for k, v in departures.items()},
+    'departures': departures,
 }
 import os; os.makedirs('data/build', exist_ok=True)
 json.dump(out, open(OUT, 'w'), separators=(',', ':'))
-print('stops', len(stops_out), 'with code', len(by_code), 'routes', len(routes_out), 'shapes', len(shapes), 'departure lists', len(departures), 'trips', len(trips_out))
+print('stops', len(stops_out), 'with code', len(by_code), 'routes', len(routes_out), 'shapes', len(shapes), 'departure lists', len(departures))

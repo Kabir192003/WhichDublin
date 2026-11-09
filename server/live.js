@@ -45,34 +45,24 @@ export async function live() {
   return cache.pending
 }
 
-/** TEMP diagnostic: sample raw trip_id/route_id pairs from the live feed for one route, to
- * check the live feed's trip_id format against the static GTFS trip_id format. Remove once the
- * stop-level matching is confirmed working. */
-export async function sampleTrips(routeName, n = 3) {
+/** Live buses of one route currently due at one stop, straight from the raw feed. Matches by
+ * route_id + stop_id, not trip_id: the live feed's trip_id can use a different numbering from
+ * whatever static GTFS snapshot we last built the timetable from (operators re-version their
+ * schedule periodically), so trip_id matching silently finds nothing once that drifts. Each
+ * result is one bus; the caller matches these to its own scheduled times by closest arrival.
+ * Shares live()'s 30 s cache. */
+export async function stopRouteLive(stopId, routeId) {
   await live()
   const out = []
   for (const e of cache.feed?.entity || []) {
-    const tu = e.trip_update; if (!tu) continue
-    const [name] = routes[tu.trip?.route_id] || []
-    if (name !== routeName) continue
-    out.push({ tripId: tu.trip?.trip_id, routeId: tu.trip?.route_id, stops: (tu.stop_time_update || []).slice(0, 4) })
-    if (out.length >= n) break
-  }
-  return out
-}
-
-/** Delay in seconds for specific trips at a specific stop, straight from the raw feed (not the
- * per-route aggregate). Returns { [tripId]: delaySeconds|null }. Shares live()'s 30 s cache. */
-export async function tripStopDelays(tripIds, stopId) {
-  await live()
-  const want = new Set(tripIds)
-  const out = {}
-  for (const id of want) out[id] = null
-  for (const e of cache.feed?.entity || []) {
-    const tu = e.trip_update; if (!tu) continue
-    const tid = tu.trip?.trip_id; if (!tid || !want.has(tid)) continue
+    const tu = e.trip_update; if (!tu || tu.trip?.route_id !== routeId) continue
     const hit = (tu.stop_time_update || []).find((s) => s.stop_id === stopId)
-    if (hit) out[tid] = hit.arrival?.delay ?? hit.departure?.delay ?? null
+    if (!hit) continue
+    const a = hit.arrival || hit.departure || {}
+    const atMs = a.time ? Number(a.time) * 1000 : null
+    const delaySec = a.delay ?? null
+    if (atMs == null && delaySec == null) continue
+    out.push({ atMs, delaySec })
   }
-  return { updated: cache.data?.updated, delays: out }
+  return { updated: cache.data?.updated, live: out }
 }
