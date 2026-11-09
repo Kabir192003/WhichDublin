@@ -75,4 +75,11 @@ async function migrate(q) {
     created_at timestamptz not null default now(),
     primary key (user_id, area_id)
   )`
+  await q`create table if not exists auth_attempts (
+    id bigserial primary key,
+    ip_hash text not null,
+    kind text not null,
+    created_at timestamptz not null default now()
+  )`
+  await q`create index if not exists auth_attempts_ip on auth_attempts (ip_hash, kind, created_at)`
 }

@@ -10,9 +10,11 @@ import Settle from './components/Settle.jsx'
 import Renting from './components/Renting.jsx'
 import Shortlist from './components/Shortlist.jsx'
 import { useShortlist } from './domain/shortlist.js'
+import { checkSession } from './domain/account.js'
 import { parseState, stateToSearch } from './domain/model.js'
 import { Logo, EircodeBox, Icon } from './components/ui.jsx'
 import Feedback from './components/Feedback.jsx'
+import Account from './components/Account.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
 const NAV = [['#/', 'Start', (h) => h === '' || h === '#/' || h === '#'], ['#/explore', 'Explore', (h) => h.startsWith('#/explore')], ['#/areas', 'Find my area', (h) => h.startsWith('#/areas')],
@@ -29,6 +31,7 @@ export default function App() {
   const hash = useHash()
   const [s, setS] = useState(() => parseState(location.search, []))
   useEffect(() => { fetch(DATA_URL).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() }).then((d) => { setData(d); setS(parseState(location.search, d.campuses.map((c) => c.id))) }).catch((e) => setErr(String(e))) }, [])
+  useEffect(() => { checkSession() }, [])
   useEffect(() => { history.replaceState(null, '', `?${stateToSearch(s)}${location.hash}`) }, [s])
   const set = (patch) => setS((p) => ({ ...p, ...patch }))
   const saved = useShortlist()
@@ -56,6 +59,7 @@ export default function App() {
           <nav className="nav" aria-label="Main">{NAV.map(([href, label, on]) => <a key={href} href={href} aria-current={on(hash) ? 'page' : undefined}>{label}</a>)}</nav>
           <a className="saved-link" href="#/shortlist" aria-current={hash.startsWith('#/shortlist') ? 'page' : undefined}><Icon name="star" size={15} filled={saved.length > 0} stroke={2} />Shortlist{saved.length ? ` (${saved.length})` : ''}</a>
           <Feedback />
+          <Account />
           {data && !(hash === '' || hash === '#/' || hash.startsWith('#/eircode')) && <div className="top-eir"><EircodeBox small /></div>}
         </div>
       </header>

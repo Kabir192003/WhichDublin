@@ -30,3 +30,19 @@ export function sameOrigin(req) {
   const o = req.headers.origin, h = req.headers['x-forwarded-host'] || req.headers.host
   return !o || (h && new URL(o).host === h)
 }
+
+const COOKIE = 'settld_session'
+export function setSessionCookie(res, token, maxAgeSec) {
+  res.setHeader('Set-Cookie', `${COOKIE}=${token}; Path=/; Max-Age=${maxAgeSec}; HttpOnly; Secure; SameSite=Lax`)
+}
+export function clearSessionCookie(res) {
+  res.setHeader('Set-Cookie', `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`)
+}
+export function getSessionToken(req) {
+  const raw = req.headers.cookie || ''
+  for (const part of raw.split(';')) {
+    const [k, ...v] = part.trim().split('=')
+    if (k === COOKIE) return v.join('=')
+  }
+  return null
+}
