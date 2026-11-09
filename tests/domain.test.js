@@ -216,7 +216,7 @@ test('cost range: bills split between people, own figures override, energy ratin
   assert.equal(good.typical.parts.bills - 50, Math.round(150 * 0.7) + Math.round(60 * 0.7))   // broadband unaffected
 })
 
-import { summarise as liveSummary } from '../server/live.js'
+import { summarise as liveSummary, compact as liveCompact, matchStopRoute } from '../server/live.js'
 test('live: delays summarised per route by name, latest stop update per trip, city share late', () => {
   const feed = { header: { timestamp: '1793846000' }, entity: [
     { trip_update: { trip: { route_id: '1 11 c a' }, stop_time_update: [{ arrival: { delay: 30 } }, { arrival: { delay: 420 } }] } },
@@ -224,8 +224,37 @@ test('live: delays summarised per route by name, latest stop update per trip, ci
     { trip_update: { trip: { route_id: '10000 GREEN g a' }, stop_time_update: [{ arrival: { delay: 60 } }] } },
     { trip_update: { trip: { route_id: 'unknown' }, stop_time_update: [] } }
   ] }
-  const r = liveSummary(feed)
+  const r = liveSummary(liveCompact(feed), '2026-11-09T18:00:00.000Z')
   assert.equal(r.city.trips, 3); assert.equal(r.city.late5Pct, 33)
   assert.equal(r.routes['bus:11'].trips, 2); assert.equal(r.routes['bus:11'].operator, 'Dublin Bus')
   assert.equal(r.routes['tram:Green'].medianMin, 1)
+})
+test('live: compact drops entries with no delay or time, keeps stop order for propagation', () => {
+  const feed = { entity: [
+    { trip_update: { trip: { route_id: 'R1' }, stop_time_update: [{ stop_id: 'a', arrival: { delay: 10 } }, { stop_id: 'b' }, { stop_id: 'c', departure: { delay: 20 } }] } },
+    { trip_update: { trip: {}, stop_time_update: [{ stop_id: 'x', arrival: { delay: 5 } }] } },   // no route_id: dropped
+    { trip_update: { trip: { route_id: 'R2' }, stop_time_update: [] } }                            // no usable stops: dropped
+  ] }
+  const trips = liveCompact(feed)
+  assert.equal(trips.length, 1)
+  assert.equal(trips[0][0], 'R1')
+  assert.deepEqual(trips[0][1], [['a', 10, null], ['c', 20, null]])
+})
+test('live: stop match, exact beats propagated, and a trip already past the stop is dropped', () => {
+  const shape = ['a', 'b', 'c', 'd', 'e']
+  // exact hit at the target stop wins outright
+  const exact = matchStopRoute([['R1', [['a', 50, null], ['c', 200, null]]]], 'c', 'R1', shape)
+  assert.deepEqual(exact, [{ atMs: null, delaySec: 200, exact: true }])
+  // no update for the exact stop: carry the delay forward from the closest earlier one reported
+  const propagated = matchStopRoute([['R1', [['a', 10, null], ['b', 90, null]]]], 'd', 'R1', shape)
+  assert.deepEqual(propagated, [{ atMs: null, delaySec: 90, exact: false }])
+  // the trip's latest known position is already past our stop: it has gone by, don't show it as upcoming
+  const passed = matchStopRoute([['R1', [['a', 10, null], ['e', 40, null]]]], 'c', 'R1', shape)
+  assert.deepEqual(passed, [])
+  // a different route on the same stop_ids is ignored
+  const wrongRoute = matchStopRoute([['R2', [['c', 10, null]]]], 'c', 'R1', shape)
+  assert.deepEqual(wrongRoute, [])
+  // no shape given and no exact hit: can't place the trip, so it's skipped rather than guessed
+  const noShape = matchStopRoute([['R1', [['a', 10, null]]]], 'd', 'R1', [])
+  assert.deepEqual(noShape, [])
 })

@@ -44,4 +44,35 @@ async function migrate(q) {
     sum_delay integer not null,
     primary key (observed_at, route_id)
   )`
+  // A single-row shared cache of the compacted NTA live feed, so every serverless instance isn't
+  // independently hitting NTA's rate-limited upstream (observed directly: a 429 during testing
+  // with only a handful of manual requests). pg_try_advisory_lock in live.js dedupes concurrent
+  // refreshes across instances; this table is what they share the result through.
+  await q`create table if not exists live_cache (
+    id smallint primary key,
+    payload jsonb not null,
+    feed_updated_at timestamptz,
+    fetched_at timestamptz not null
+  )`
+  // Accounts are entirely optional: no personal info, just a username and a password. Used only
+  // so someone can keep a saved-areas list across devices if they want to; nothing requires one.
+  await q`create table if not exists users (
+    id bigserial primary key,
+    username text not null unique,
+    password_hash text not null,
+    created_at timestamptz not null default now()
+  )`
+  await q`create table if not exists sessions (
+    token text primary key,
+    user_id bigint not null references users(id) on delete cascade,
+    created_at timestamptz not null default now(),
+    expires_at timestamptz not null
+  )`
+  await q`create index if not exists sessions_user on sessions (user_id)`
+  await q`create table if not exists saved_areas (
+    user_id bigint not null references users(id) on delete cascade,
+    area_id text not null,
+    created_at timestamptz not null default now(),
+    primary key (user_id, area_id)
+  )`
 }
