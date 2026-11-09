@@ -4,6 +4,7 @@ import { getJson, ago } from '../domain/api.js'
 import RouteMap from './RouteMap.jsx'
 
 const STOPS_URL = `${import.meta.env.BASE_URL}data/stops.json`
+const PATHS_URL = `${import.meta.env.BASE_URL}data/stop-paths.json`
 const HIST_KEY = 'settld-stop-history'
 const hhmm = (mins) => { const h = Math.floor((mins % 1440) / 60), m = mins % 60; return `${h}:${String(m).padStart(2, '0')}` }
 const nowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() }
@@ -77,8 +78,13 @@ export default function Stop() {
   const [sel, setSel] = useState(null)         // { routeId, directionId } chosen route (no-destination mode)
   const [live, setLive] = useState(null)
   const [history, setHistory] = useState([])
+  const [paths, setPaths] = useState(null)   // road-following route geometry, fetched only once a map is actually needed
 
   useEffect(() => { fetch(STOPS_URL).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() }).then(setData).catch((e) => setErr(String(e))) }, [])
+  useEffect(() => {
+    if (paths || (!sel && !dest)) return
+    fetch(PATHS_URL).then((r) => r.ok ? r.json() : {}).then(setPaths).catch(() => setPaths({}))
+  }, [sel, dest, paths])
   useEffect(() => { setHistory(loadHistory()) }, [])
   useEffect(() => { if (origin) { pushHistory(origin); setHistory(loadHistory()) } }, [origin?.stopId])
 
@@ -172,6 +178,12 @@ export default function Stop() {
                 </div>
               )) : <p className="notice">No direct route found between these two stops in today's timetable. (A route that needs a change isn't covered yet.)</p>}
               <p className="hint" style={{ marginTop: 10 }}>Journey time is the gap to the nearest later scheduled departure at your destination on the same route, since the feed doesn't let us tie one specific bus's two stop times together exactly. Treat it as typical, not exact.</p>
+              {data.stops[origin.stopId] && data.stops[dest.stopId] && (() => {
+                const o = data.stops[origin.stopId], d2 = data.stops[dest.stopId]
+                return <RouteMap
+                  stops={[{ id: origin.stopId, name: o[1], lat: o[2], lon: o[3] }, { id: dest.stopId, name: d2[1], lat: d2[2], lon: d2[3] }]}
+                  youId={[origin.stopId, dest.stopId]} color="#1D4ED8" />
+              })()}
             </section>
           )}
 
@@ -214,7 +226,7 @@ export default function Stop() {
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No buses on this route are reporting live near this stop right now.</p>}
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are {data.date}'s timetable. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported this bus at this exact stop yet, so the delay is carried forward from where it was last seen on this route. Live tracking only covers buses already on the road, so it usually only shows for the next departure or two, not ones further out.</p>
                     {shape && <>
-                      <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} />
+                      <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} />
                       <details style={{ marginTop: 10 }}>
                         <summary>Full route ({shape.length} stops)</summary>
                         <ol className="rows" style={{ marginTop: 8 }}>
