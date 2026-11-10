@@ -167,7 +167,7 @@ export const BILLS = {
   broadband: { low: 40, typical: 50, high: 70, note: 'Typical home broadband €40–€70 a month.', source: { name: 'Expat Focus: broadband in Ireland', url: 'https://www.expatfocus.com/?p=24089' } },
   check: 'secondary'
 }
-export const GROCERIES = { low: 150, typical: 220, high: 300, note: 'Per person, shopping mainly at Lidl and Aldi. Student guides put groceries at €150–€350 a month.', sources: [{ name: 'Study in Europe: student cost of living in Dublin', url: 'https://www.studyineurope.eu/student-cost-of-living-in-dublin/' }, { name: 'UniAcco: cost of living in Dublin', url: 'https://uniacco.com/blog/cost-of-living-in-dublin' }] }
+export const GROCERIES = { low: 90, typical: 120, high: 160, note: 'Per person, shopping mainly at Lidl and Aldi and cooking at home. Typical is set at €120 a month; published student guides quote higher (€150–€350), so use "Your groceries" if you eat out more.', sources: [{ name: 'Study in Europe: student cost of living in Dublin', url: 'https://www.studyineurope.eu/student-cost-of-living-in-dublin/' }, { name: 'UniAcco: cost of living in Dublin', url: 'https://uniacco.com/blog/cost-of-living-in-dublin' }] }
 export const PHONE = { typical: 15, note: 'A SIM-only plan; many are around €10–€20 a month.' }
 /** How a home's energy rating moves the energy part of the bill (rough, for the range only). */
 export const BER_FACTOR = { ab: { label: 'A or B', f: 0.7 }, c: { label: 'C', f: 0.9 }, d: { label: 'D', f: 1.05 }, eg: { label: 'E, F or G', f: 1.35 }, unknown: { label: "Don't know", f: null } }
