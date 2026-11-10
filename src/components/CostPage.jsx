@@ -1,12 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useShortlist } from '../domain/shortlist.js'
-import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, hourLimit, grossPay, costRange, travelCost } from '../domain/model.js'
+import { HOME_TYPES, MODES, rentForHome, hourLimit, grossPay, costRange, travelCost } from '../domain/model.js'
 import { WAGE, STUDENT_WORK, BILLS, GROCERIES, PHONE, BER_FACTOR } from '../content/facts.js'
 import { CostCard, useCostSettings, fareFor } from './Cost.jsx'
 import { Pill, eur, HOW_CHIP, Icon } from './ui.jsx'
 
 const MODE_LABEL = { transit: 'Bus / Luas', bikeshare: 'Dublinbikes', cycle: 'Own bike', walk: 'Walk' }
-const KEY = 'settld.cost.area'
+const KEY = 'settld.cost.area', HOME_KEY = 'settld.cost.home'
+const BEDS = [['1', '1 bedroom'], ['2', '2 bedrooms'], ['3', '3 bedrooms'], ['4', '4+ bedrooms']]
+/** How a given number of people fills a home: whole rooms each, then pairs sharing. */
+function layout(beds, people) {
+  const b = Number(beds)
+  if (people <= b) return people === 1 ? 'one person' : `${people} people, own rooms`
+  const shared = people - b            // people who must double up
+  const pairs = Math.min(shared, b)    // rooms shared by two (more than two per room is not assumed)
+  return `${b - pairs} own ${b - pairs === 1 ? 'room' : 'rooms'}, ${pairs} shared`
+}
+const loadHome = () => { try { return { beds: '2', people: 2, ...JSON.parse(localStorage.getItem(HOME_KEY) || '{}') } } catch { return { beds: '2', people: 2 } } }
 const num = (v) => (v === '' || v == null ? null : Number(v))
 
 /** The monthly budget for one area and one way of living, with what part-time hours would cover.
@@ -18,7 +28,11 @@ export default function CostPage({ data, s, set }) {
   const area = data.areas.find((a) => a.id === id) || data.areas.find((a) => a.id === saved[0]) || null
   useEffect(() => { try { if (id) localStorage.setItem(KEY, id) } catch { /* storage blocked */ } }, [id])
 
-  const rent = area && rentPerPerson(area, s.type, s.ptype)
+  const [home, setHome] = useState(loadHome)
+  useEffect(() => { try { localStorage.setItem(HOME_KEY, JSON.stringify(home)) } catch { /* storage blocked */ } }, [home])
+  const maxPeople = Number(home.beds) * 2
+  const people = Math.min(Math.max(1, Number(home.people) || 1), maxPeople)
+  const rent = area && rentForHome(area, home.beds, s.ptype, people)
   const [c] = useCostSettings()
   const lim = hourLimit(new Date(), STUDENT_WORK)
   const [hours, setHours] = useState(0)
@@ -42,17 +56,18 @@ export default function CostPage({ data, s, set }) {
                 {saved.length > 0 && <optgroup label="Your shortlist">{saved.map((x) => data.areas.find((a) => a.id === x)).filter(Boolean).map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</optgroup>}
                 <optgroup label="All areas">{sorted.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</optgroup>
               </select><span className="chev"><Icon name="chev" size={14} stroke={2.2} /></span></label>
-            <Pill label="Living" value={s.type} onChange={(v) => set({ type: v })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
+            <Pill label="Home size" value={home.beds} onChange={(v) => setHome((h) => ({ ...h, beds: v, people: Math.min(h.people, Number(v) * 2) }))} options={BEDS} />
+            <Pill label="People living there" value={people} onChange={(v) => setHome((h) => ({ ...h, people: Number(v) }))} options={Array.from({ length: maxPeople }, (_, i) => [i + 1, String(i + 1)])} />
             <Pill label="Home" value={s.ptype} onChange={(v) => set({ ptype: v })} options={Object.entries(HOME_TYPES)} />
             <Pill label="Travel" value={s.mode} onChange={(v) => set({ mode: v })} options={Object.keys(MODES).map((k) => [k, MODE_LABEL[k]])} />
           </div>
           {!area && <p className="hint" style={{ marginBottom: 0 }}>Pick an area to see its monthly cost. Not sure where yet? <a href="#/areas">Explore areas</a> first.</p>}
-          {area && rent && <p className="hint" style={{ marginBottom: 0 }}>{RENT_TYPES[s.type].hint} Rent here is {eur(rent.total)} for the whole home, an average and not a quote. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}</span></p>}
+          {area && rent && <p className="hint" style={{ marginBottom: 0 }}>{BEDS.find(([k]) => k === home.beds)[1]}, {people} {people === 1 ? 'person' : 'people'} ({layout(home.beds, people)}). The whole home averages {eur(rent.total)}, so your share is {eur(rent.perPerson)}. Bills are split the same way. An average, not a quote. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}</span></p>}
           {area && !rent && <p className="notice-inline">There is no rent figure for this kind of home in {area.name}. Try another home type.</p>}
         </section>
 
         {area && rent && <>
-          <CostCard rentShare={rent.perPerson} mode={s.mode} people={rent.people} />
+          <CostCard rentShare={rent.perPerson} mode={s.mode} people={people} />
 
           <section className="fact" aria-labelledby="cost-work">
             <div className="fact-head"><h2 id="cost-work">What part-time work would cover</h2></div>

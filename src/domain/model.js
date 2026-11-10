@@ -33,6 +33,15 @@ export function rentPerPerson(area, type, ptype = 'any') {
   return { total: v, perPerson: Math.round(v / t.people), rtbTotal: rtb, people: t.people, how: c.how || 'published', howLabel: HOW_LABEL[c.how || 'published'], q: c.q, anchor: c.anchor, confidence: typeof c === 'number' ? area.rent.confidence : cellConfidence(area, c) }
 }
 
+/** Rent for a whole home of `bed` bedrooms split between `people`, for any mix of own and shared rooms. */
+export function rentForHome(area, bed, ptype = 'any', people = 1) {
+  const c = area.rent.cells[`${bed}:${ptype}`]
+  if (!c) return null
+  const rtb = typeof c === 'number' ? c : c.v
+  const total = toMarket(rtb), n = Math.max(1, people)
+  return { total, perPerson: Math.round(total / n), rtbTotal: rtb, people: n, how: c.how || 'published', q: c.q, confidence: typeof c === 'number' ? area.rent.confidence : cellConfidence(area, c) }
+}
+
 export const MODES = {
   transit: { label: 'Public transport' },
   bikeshare: { label: 'Dublinbikes' },
