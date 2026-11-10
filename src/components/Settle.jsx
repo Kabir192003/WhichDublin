@@ -1,27 +1,48 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { IRP, LEAP, BANKS, BANK_DOCS, BANK_SOURCES, BANK_CHECK, MOBILE, BER } from '../content/facts.js'
 import Source from './Source.jsx'
+import { MovingTabs } from './ui.jsx'
 
 const BER_COLORS = ['#00A651','#19B459','#4CB848','#8CC63F','#B9D532','#E3E01B','#FFF200','#FCD20F','#F8B80F','#F59E1B','#F18A21','#EE6B23','#EA4E25','#E33A26','#D52027']
 const go = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+// [id, title, why, when, essential]: essential ones have a legal or practical deadline.
 const STEPS = [
-  ['irp', 'Register with immigration', 'Book an appointment as soon as you land. Slots fill up.', 'Within 90 days'],
-  ['leap', 'Get a Leap card', 'Half-price travel on buses, Luas and trains.', 'First week'],
-  ['bank', 'Open a bank account', 'Needed for rent and wages.', 'First weeks'],
-  ['mobile', 'Choose a mobile plan', 'Sort a SIM or eSIM early so you can book things.', 'Day one'],
-  ['ber', 'Check the energy rating', 'A1 to G on every rental ad. It decides how much you pay to stay warm.', 'When viewing']
+  ['irp', 'Register with immigration', 'Non-EU/EEA students only. Book as soon as you land; slots fill up.', 'Within 90 days', true],
+  ['leap', 'Get a Leap card', 'Half-price travel on buses, Luas and trains.', 'First week', true],
+  ['bank', 'Open a bank account', 'Needed for rent and wages.', 'First weeks', true],
+  ['mobile', 'Choose a mobile plan', 'Sort a SIM or eSIM early so you can book things.', 'Day one', false],
+  ['ber', 'Check the energy rating', 'A1 to G on every rental ad. It decides what you pay to stay warm.', 'When viewing', false]
 ]
-const Toc = () => (
-  <ol className="steps" aria-label="Your checklist">
-    {STEPS.map(([id, title, why, when], i) => (
-      <li key={id}><a href={`#${id}`} onClick={go(id)}><span className="stepno">{i + 1}</span><span><b>{title}</b><small>{why}</small></span><em>{when}</em></a></li>))}
-  </ol>
-)
+const KEY = 'settld.checklist'
+const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : [] } catch { return [] } }
+
+/** The first-weeks list. Ticks are kept in this browser only. Each row jumps to its section. */
+function Toc() {
+  const [done, setDone] = useState(load)
+  useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(done)) } catch { /* storage blocked */ } }, [done])
+  const flip = (id) => setDone((d) => (d.includes(id) ? d.filter((x) => x !== id) : [...d, id]))
+  const n = STEPS.filter(([id]) => done.includes(id)).length
+  return (
+    <>
+      <div className="progress" role="status"><span><b>{n}</b> of {STEPS.length} done</span><span className="track" aria-hidden="true"><span className="fill" style={{ width: `${(100 * n) / STEPS.length}%` }} /></span></div>
+      <ol className="steps" aria-label="Your checklist">
+        {STEPS.map(([id, title, why, when, essential]) => (
+          <li key={id} className={done.includes(id) ? 'done' : ''}>
+            <input type="checkbox" checked={done.includes(id)} onChange={() => flip(id)} aria-label={`${title}: done`} />
+            <a href={`#${id}`} onClick={go(id)}><b>{title}</b><small>{why}</small></a>
+            <em>{when}</em>
+            {!essential && <span className="chip">Optional</span>}
+          </li>))}
+      </ol>
+      <p className="hint" style={{ margin: '10px 0 0' }}>Ticks are saved in this browser only.</p>
+    </>
+  )
+}
 
 export default function Settle() {
   return (
     <>
-    <section className="page-hero"><div className="wrap"><h1>Settling in</h1><p>What to sort out after you land, in a sensible order. Each section says where the information comes from and what we could not confirm.</p></div></section>
+    <section className="page-hero"><div className="wrap"><h1>Moving to Dublin</h1><p>What to sort out in your first weeks, in a sensible order. Each section names its sources and says what we couldn't confirm.</p><MovingTabs page="settle" /></div></section>
     <article className="wrap page-body">
       <div className="card lift"><h2>Your first weeks</h2><Toc /></div>
 

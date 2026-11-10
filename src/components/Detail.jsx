@@ -8,14 +8,14 @@ import { Essentials, RoomReports, Section, RentTable, Colleges, collegeRowsForAr
 
 const mapsLink = (a, campus, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lon}&destination=${campus.lat},${campus.lon}&travelmode=${mode === 'transit' ? 'transit' : mode === 'walk' ? 'walking' : 'bicycling'}`
 
-export default function Detail({ area, s, campus, rank, data, onBack, inCompare, onCompare }) {
+export default function Detail({ area, s, campus, rank, data, onBack }) {
   const rent = rentPerPerson(area, s.type, s.ptype), commute = commuteFor(area, s.campus, s.mode)
   const src = data.sources, college = SHORT[s.campus]
   return (
     <article className="detail" aria-label={area.label}>
       <button className="link back" onClick={onBack}><Icon name="back" size={16} />Back to results</button>
       <h1>{area.label}</h1>
-      <p className="verdict">{rank ? <>Ranked <b>{rank.rank}</b> for your choices.</> : <>Outside your budget, or no journey for this travel mode.</>}</p>
+      <p className="verdict">{rank ? <>Position <b>{rank.rank}</b> in your list, for {college} and {RENT_TYPES[s.type].short}.</> : <>Over your budget, or no journey by this travel mode.</>}</p>
       <div className="glance">
         <div className="stat s-rent"><b>{rent ? eur(rent.perPerson) : '–'}</b><small>your share / month</small></div>
         <div className="stat s-time"><b>{commute ? `${commute.minutes} min` : '–'}</b><small>to {college}</small></div>
@@ -23,8 +23,8 @@ export default function Detail({ area, s, campus, rank, data, onBack, inCompare,
       </div>
       <div className="actions">
         <SaveButton id={area.id} />
-        <button className="btn sm" onClick={onCompare}>{inCompare ? <><Icon name="tick" size={15} stroke={2.2} />In compare list</> : <><Icon name="plus" size={15} stroke={2.2} />Add to compare</>}</button>
-        <a className="btn ghost sm" href={mapsLink(area, campus, s.mode)} target="_blank" rel="noreferrer">Live route in Google Maps<Icon name="external" size={15} /></a>
+        <a className="btn ghost sm" href="#/shortlist"><Icon name="scale" size={15} />Compare shortlist</a>
+        <a className="btn ghost sm" href={mapsLink(area, campus, s.mode)} target="_blank" rel="noreferrer">Route in Google Maps<Icon name="external" size={15} /></a>
       </div>
       {area.about && <p className="about">{area.about.text} <a href={area.about.url} target="_blank" rel="noreferrer">Wikipedia</a></p>}
 

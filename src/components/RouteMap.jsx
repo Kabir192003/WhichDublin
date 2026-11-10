@@ -58,5 +58,5 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57' }) {
   }
   useEffect(() => { draw(); fit() }, [stops, youId, path, color])
 
-  return <div className="map" style={{ height: 320, borderRadius: 12, overflow: 'hidden' }} ref={el} role="region" aria-label="Map of the route, your stop highlighted" />
+  return <div className="routemap" ref={el} role="region" aria-label="Map of the route, your stop highlighted" />
 }

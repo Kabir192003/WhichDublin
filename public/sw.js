@@ -1,4 +1,4 @@
-// Which Dublin service worker: the app shell and data work offline after the first visit.
+// Settld service worker: the app shell and data work offline after the first visit.
 // Same-origin only. Pages and data: network first, cache as fallback. Built assets: cache first (hashed names).
 const CACHE = 'wd-v1'
 self.addEventListener('install', (e) => { self.skipWaiting() })

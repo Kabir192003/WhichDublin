@@ -1,57 +1,49 @@
 import React, { useState } from 'react'
 import { useAccount, login, signup, logout } from '../domain/account.js'
-import { Icon } from './ui.jsx'
+import { Icon, Modal } from './ui.jsx'
 
-/** Fully optional sign-in, just to keep a saved-areas list across devices. No real-world identity
- * is collected, and the form says so plainly rather than leaving people to assume otherwise. */
-export default function Account() {
+/** Optional sign-in. Its only purpose is keeping your shortlist across devices, and the form says so. */
+export default function Account({ className = 'top-btn outline' }) {
   const username = useAccount()
   const [open, setOpen] = useState(false)
-  const [mode, setMode] = useState('login')   // 'login' | 'signup'
-  const [user, setUser] = useState('')
-  const [pass, setPass] = useState('')
-  const [err, setErr] = useState(null)
-  const [busy, setBusy] = useState(false)
-
-  if (username) {
-    return (
-      <div className="pill" style={{ gap: 8 }}>
-        <Icon name="check" size={15} stroke={2.2} />
-        <span>{username}</span>
-        <button type="button" className="link" onClick={() => logout()}>Sign out</button>
-      </div>
-    )
-  }
+  const [mode, setMode] = useState('login')
+  const [user, setUser] = useState(''), [pass, setPass] = useState('')
+  const [err, setErr] = useState(null), [busy, setBusy] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault(); setErr(null); setBusy(true)
-    try {
-      if (mode === 'signup') await signup(user, pass); else await login(user, pass)
-      setOpen(false); setUser(''); setPass('')
-    } catch (e2) { setErr(e2.message) } finally { setBusy(false) }
+    try { await (mode === 'signup' ? signup(user, pass) : login(user, pass)); setOpen(false); setUser(''); setPass('') }
+    catch (e2) { setErr(e2.message) } finally { setBusy(false) }
   }
-
-  if (!open) return <button type="button" className="btn ghost sm" onClick={() => setOpen(true)}>Sign in</button>
+  const input = { className: 'select', style: { width: '100%' } }
 
   return (
-    <div className="card lift doc" style={{ position: 'absolute', right: 16, top: 64, zIndex: 20, width: 300, padding: 16 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <strong>{mode === 'signup' ? 'Create an account' : 'Sign in'}</strong>
-        <button type="button" className="link" onClick={() => setOpen(false)} aria-label="Close">×</button>
-      </div>
-      <p className="hint" style={{ margin: '0 0 10px' }}>Fully optional, only used to keep your saved areas across devices. No name, email or anything else is asked for. Use a made-up username, and a password you don't use anywhere important.</p>
-      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <label className="pill"><span className="k">Username</span>
-          <input className="select" style={{ border: 'none', minHeight: 34, width: '100%' }} value={user} onChange={(e) => setUser(e.target.value)} autoComplete="username" required minLength={3} maxLength={24} /></label>
-        <label className="pill"><span className="k">Password</span>
-          <input className="select" style={{ border: 'none', minHeight: 34, width: '100%' }} type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required minLength={5} /></label>
-        {mode === 'signup' && <p className="hint" style={{ margin: 0 }}>At least 5 characters, nothing else required.</p>}
-        {err && <p className="notice" style={{ margin: 0 }}>{err}</p>}
-        <button className="btn" type="submit" disabled={busy}>{busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}</button>
-        <button type="button" className="link" onClick={() => { setMode(mode === 'signup' ? 'login' : 'signup'); setErr(null) }}>
-          {mode === 'signup' ? 'Already have an account? Sign in' : "No account yet? Create one"}
-        </button>
-      </form>
-    </div>
+    <>
+      <button type="button" className={className} onClick={() => { setErr(null); setOpen(true) }}>
+        <Icon name="user" size={16} />{username || 'Sign in'}
+      </button>
+      {open && username && (
+        <Modal title="Your account" onClose={() => setOpen(false)} width={420}>
+          <p>Signed in as <b>{username}</b>. Your shortlist is saved to this account and follows you to other devices.</p>
+          <div className="actions"><button className="btn ghost" onClick={async () => { await logout(); setOpen(false) }}>Sign out</button></div>
+          <p className="hint">Signing out keeps the shortlist in this browser.</p>
+        </Modal>)}
+      {open && !username && (
+        <Modal as="form" title={mode === 'signup' ? 'Create an account' : 'Sign in'} onClose={() => setOpen(false)} width={420} onSubmit={submit}>
+          <p className="hint" style={{ marginTop: 0 }}>Optional. An account only keeps your shortlist across devices. We don't ask for a name or email, so use a made-up username and a password you don't use anywhere else.</p>
+          <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
+            <label className="field"><span className="flabel">Username</span>
+              <input {...input} value={user} onChange={(e) => setUser(e.target.value)} autoComplete="username" required minLength={3} maxLength={24} /></label>
+            <label className="field"><span className="flabel">Password</span>
+              <input {...input} type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required minLength={5} />
+              {mode === 'signup' && <span className="hint">At least 5 characters. It can't be recovered if you forget it.</span>}</label>
+            {err && <p className="form-msg err" role="alert">{err}</p>}
+            <button className="btn" type="submit" disabled={busy}>{busy ? 'One moment…' : mode === 'signup' ? 'Create account' : 'Sign in'}</button>
+            <button type="button" className="link" onClick={() => { setMode(mode === 'signup' ? 'login' : 'signup'); setErr(null) }}>
+              {mode === 'signup' ? 'I already have an account' : 'Create an account instead'}
+            </button>
+          </div>
+        </Modal>)}
+    </>
   )
 }

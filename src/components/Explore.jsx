@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
 import { Essentials, RoomReports, RentTable, Colleges, collegeRowsForArea, Groceries, shopsForArea, Work, Dock, HOW } from './AreaParts.jsx'
-import { eur, SHORT, Icon } from './ui.jsx'
-import { SaveButton } from './Shortlist.jsx'
+import { eur, SHORT, Icon, ExploreSwitch } from './ui.jsx'
+import { SaveButton, ShortlistBar } from './Shortlist.jsx'
 import { toMarket } from '../domain/model.js'
 
 const SCALE = ['#BFE3D8', '#7FC2AE', '#2E9A80', '#0B6B57', '#0B3F37']
@@ -26,10 +26,9 @@ export default function Explore({ data }) {
   return (
     <div className="finder" data-tab={tab}>
       <div className="filters">
-        <strong style={{ fontSize: 15 }}>Explore all {data.areas.length} areas</strong>
-        <span className="hint">Click any dot or name. No setup needed.</span>
+        <ExploreSwitch view="all" />
         <label className="pill grow" htmlFor="ex-sort"><span className="k">Sort</span>
-          <select id="ex-sort" value={sort} onChange={(e) => setSort(e.target.value)}><option value="name">A to Z</option><option value="rent">Cheapest first</option><option value="district">By postal district</option></select>
+          <select id="ex-sort" value={sort} onChange={(e) => setSort(e.target.value)}><option value="name">A to Z</option><option value="rent">Lowest rent first</option><option value="district">By postal district</option></select>
           <span className="chev"><Icon name="chev" size={14} stroke={2.2} /></span></label>
       </div>
       <div className="tabs" role="tablist" aria-label="View">
@@ -52,7 +51,7 @@ export default function Explore({ data }) {
               )})}
             </div>
             <p className="hint">Scaled to new-tenancy level (see Method). Dots mark figures that are carried forward or estimated rather than freshly published, so bed sizes here can come from different quarters. <a href="#/method">How this is worked out</a></p>
-            <div className="actions"><SaveButton id={area.id} /><a className="btn sm" href={`#/areas`}>Rank areas for my needs</a></div>
+            <div className="actions"><SaveButton id={area.id} /><a className="btn ghost sm" href="#/shortlist"><Icon name="scale" size={15} />Compare shortlist</a></div>
             <RentTable area={area} data={data} />
             <RoomReports area={area} />
             <Colleges rows={collegeRowsForArea(area, data)} data={data} streets={!!data.sources.streets} origin={{ lat: area.lat, lon: area.lon }} originLabel={`the centre of ${area.name}`} />
@@ -63,16 +62,19 @@ export default function Explore({ data }) {
           </article>
         ) : (
           <>
+            <ShortlistBar />
             <div className="res-head">
-              <h1>All areas</h1>
-              <input className="select" style={{ minHeight: 40, maxWidth: 220, fontWeight: 500 }} type="search" placeholder="Search areas" aria-label="Search areas" value={q} onChange={(e) => setQ(e.target.value)} />
+              <h1>All {data.areas.length} areas</h1>
+              <input className="select" type="search" placeholder="Search areas" aria-label="Search areas" value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
+            <p className="hint" style={{ margin: 0 }}>Typical rents for a whole home. For your share and your commute, switch to <a href="#/areas">Matched to me</a>.</p>
+            {list.length === 0 && <p className="notice-inline">No area matches "{q}". Check the spelling, or clear the search.</p>}
             <ul className="list">
               {list.map((a) => (
                 <li key={a.id}>
-                  <button className="acard" style={{ width: '100%', textAlign: 'left', font: 'inherit', cursor: 'pointer', flexDirection: 'row', alignItems: 'center' }} onClick={() => pick(a.id)}>
-                    <span className="rank" style={{ background: color(rent(a)), color: rent(a) >= breaks[2] ? '#fff' : 'var(--ink)' }} aria-hidden="true"><Icon name="home" size={16} /></span>
-                    <span style={{ flex: 1, minWidth: 0 }}><b style={{ display: 'block', fontSize: 16 }}>{a.label}</b><span className="hint">1-bed {eur(toMarket(a.rent.cells['1:any'].v))} · 2-bed {eur(toMarket(a.rent.cells['2:any'].v))} · {a.toCampus.tcd.distanceKm} km to Trinity</span></span>
+                  <button className={`acard ${sel === a.id ? 'sel' : ''}`} onClick={() => pick(a.id)}>
+                    <span className="swatch" style={{ background: color(rent(a)) }} aria-hidden="true" />
+                    <span style={{ flex: 1, minWidth: 0 }}><b style={{ display: 'block', fontSize: 15 }}>{a.label}</b><span className="hint num">1-bed {eur(toMarket(a.rent.cells['1:any'].v))} · 2-bed {eur(toMarket(a.rent.cells['2:any'].v))} · {a.toCampus.tcd.distanceKm} km to Trinity</span></span>
                     <Icon name="arrow" size={16} />
                   </button>
                 </li>))}

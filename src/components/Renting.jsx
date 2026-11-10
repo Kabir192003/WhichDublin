@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { RENTING } from '../content/facts.js'
 import Source from './Source.jsx'
-import { Icon } from './ui.jsx'
+import { Icon, MovingTabs } from './ui.jsx'
 
 const LEVEL = [
   [0, 'b-teal', 'No warning signs ticked', 'Still view it, get a receipt and a written agreement before paying.'],
@@ -15,7 +15,7 @@ export default function Renting() {
   const [, badge, title, text] = n === 0 ? LEVEL[0] : n === 1 ? LEVEL[1] : LEVEL[2]
   return (
     <>
-      <section className="page-hero"><div className="wrap"><h1>Renting safely</h1><p>Check a listing for scam signs, know the deposit rules, and understand digs before you pay anything.</p></div></section>
+      <section className="page-hero"><div className="wrap"><h1>Renting safely</h1><p>Check a listing for scam signs, know the deposit rules, and understand digs before you pay anything.</p><MovingTabs page="renting" /></div></section>
       <article className="wrap page-body">
         <section className="card lift" aria-labelledby="chk">
           <h2 id="chk">Is this listing a scam?</h2>

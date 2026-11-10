@@ -1,19 +1,19 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
 import Detail from './Detail.jsx'
-import Compare from './Compare.jsx'
-import { SaveButton } from './Shortlist.jsx'
+import Controls from './Controls.jsx'
+import { SaveButton, ShortlistBar } from './Shortlist.jsx'
 import { rankAreas, PRESETS } from '../domain/rank.js'
 import { RENT_TYPES, HOME_TYPES, MODES, WORK_CATEGORIES, buildRows, workMix } from '../domain/model.js'
-import { eur, SHORT, Pill, HOW_CHIP, Icon } from './ui.jsx'
+import { eur, SHORT, Pill, HOW_CHIP, Icon, Modal, ExploreSwitch } from './ui.jsx'
 
 const BUDGETS = Array.from({ length: 23 }, (_, i) => 400 + i * 100)
 const MODE_LABEL = { transit: 'Bus / Luas', bikeshare: 'Dublinbikes', cycle: 'Own bike', walk: 'Walk' }
 
-export default function Finder({ data, s, set }) {
-  const [selected, setSelected] = useState(null)
-  const [compare, setCompare] = useState([])
-  const [showCompare, setShowCompare] = useState(false)
+export default function Finder({ data, s, set, initial }) {
+  const [selected, setSelected] = useState(initial || null)
+  useEffect(() => { if (initial) setSelected(initial) }, [initial])
+  const [editing, setEditing] = useState(false)
   const [tab, setTab] = useState('list')
   const [q, setQ] = useState('')
   const campus = data.campuses.find((c) => c.id === s.campus)
@@ -30,7 +30,6 @@ export default function Finder({ data, s, set }) {
     const color = !r ? '#C3CCC8' : r.rank <= 3 ? '#E8613C' : r.score > 0.5 ? '#0B7A65' : '#7FB5A8'
     return { id: a.id, name: a.name, lat: a.lat, lon: a.lon, color, shown: !!r }
   })
-  const toggleCompare = (id) => setCompare((c) => c.includes(id) ? c.filter((x) => x !== id) : c.length >= 2 ? [c[1], id] : [...c, id])
   const area = selected && byId[selected]
   const budgets = BUDGETS.includes(s.budget) ? BUDGETS : [...BUDGETS, s.budget].sort((a, b) => a - b)
   const timeNote = s.mode === 'transit' ? 'at 8am' : 'estimate'
@@ -39,12 +38,14 @@ export default function Finder({ data, s, set }) {
   return (
     <div className="finder" data-tab={tab}>
       <div className="filters" role="group" aria-label="Your choices">
-        <Pill label="College" value={s.campus} onChange={(v) => set({ campus: v })} options={data.campuses.map((c) => [c.id, SHORT[c.id]])} />
-        <Pill label="Living" value={s.type} onChange={(v) => set({ type: v })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
-        <Pill label="Home" value={s.ptype} onChange={(v) => set({ ptype: v })} options={Object.entries(HOME_TYPES)} />
-        <Pill label="Up to" value={s.budget} onChange={(v) => set({ budget: Number(v) })} options={budgets.map((b) => [b, eur(b)])} />
-        <Pill label="Travel" value={s.mode} onChange={(v) => set({ mode: v })} options={Object.keys(MODES).map((k) => [k, MODE_LABEL[k]])} />
-        <Pill label="Sort" value={s.priority} onChange={(v) => set({ priority: v })} options={Object.entries(PRESETS).map(([k, v]) => [k, v.label])} />
+        <ExploreSwitch view="matched" />
+        <span className="sep" />
+        <button type="button" className="filter-summary" onClick={() => setEditing(true)}><span>{SHORT[s.campus]} · up to {eur(s.budget)} · {RENT_TYPES[s.type].label} · {MODE_LABEL[s.mode]}</span><b>Edit</b></button>
+        <Pill className="collapsible" label="College" value={s.campus} onChange={(v) => set({ campus: v })} options={data.campuses.map((c) => [c.id, SHORT[c.id]])} />
+        <Pill className="collapsible" label="Living" value={s.type} onChange={(v) => set({ type: v })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
+        <Pill className="collapsible" label="Home" value={s.ptype} onChange={(v) => set({ ptype: v })} options={Object.entries(HOME_TYPES)} />
+        <Pill className="collapsible" label="Budget" value={s.budget} onChange={(v) => set({ budget: Number(v) })} options={budgets.map((b) => [b, `up to ${eur(b)}`])} />
+        <Pill className="collapsible" label="Travel" value={s.mode} onChange={(v) => set({ mode: v })} options={Object.keys(MODES).map((k) => [k, MODE_LABEL[k]])} />
       </div>
       <div className="tabs" role="tablist" aria-label="View">
         <button role="tab" aria-selected={tab === 'list'} onClick={() => setTab('list')}>List</button>
@@ -54,20 +55,18 @@ export default function Finder({ data, s, set }) {
       <aside className="panel" aria-label="Areas">
         {area ? (
           <Detail area={area} s={s} campus={campus} rank={scoreOf[area.id]} data={data}
-            onBack={() => setSelected(null)} inCompare={compare.includes(area.id)} onCompare={() => toggleCompare(area.id)} />
+            onBack={() => setSelected(null)} />
         ) : (
           <>
-            {compare.length > 0 && (
-              <div className="compare-bar" role="status">
-                <span style={{ flex: 1 }}>{compare.length === 1 ? 'Pick one more area to compare' : '2 areas picked'}</span>
-                <button className="btn coral sm" disabled={compare.length < 2} onClick={() => setShowCompare(true)}>Compare</button>
-                <button className="link" onClick={() => setCompare([])}>Clear</button>
-              </div>)}
+            <ShortlistBar />
             <div className="res-head">
               <h1>{result.ranked.length} {result.ranked.length === 1 ? 'area fits' : 'areas fit'} your budget</h1>
-              <input className="select" style={{ minHeight: 40, maxWidth: 200, fontWeight: 500 }} type="search" placeholder="Search areas" aria-label="Search areas" value={q} onChange={(e) => setQ(e.target.value)} />
+              <Pill label="Sort" value={s.priority} onChange={(v) => set({ priority: v })} options={Object.entries(PRESETS).map(([k, v]) => [k, v.label])} />
             </div>
-            <p className="hint" style={{ marginTop: -4 }}>Best match first for {RENT_TYPES[s.type].short}{s.ptype !== 'any' ? `, ${HOME_TYPES[s.ptype].toLowerCase()}` : ''}. Rent is an average for new tenancies, not a quote.</p>
+            <input className="select" style={{ width: '100%', minHeight: 40, marginBottom: 8 }} type="search" placeholder="Search these areas by name" aria-label="Search areas" value={q} onChange={(e) => setQ(e.target.value)} />
+            <p className="hint" style={{ margin: 0 }}>{PRESETS[s.priority].label} first, for {RENT_TYPES[s.type].short}{s.ptype !== 'any' ? `, ${HOME_TYPES[s.ptype].toLowerCase()}` : ''}. Rent is an area average, not a quote.</p>
+            <details className="explain"><summary>How the order is worked out</summary>
+              <p>Areas over your budget are set aside. The rest are compared with each other on three things: rent, travel time to {SHORT[s.campus]} and the walk to a Lidl or Aldi. Your sort choice decides how much each one counts. The number is a position in this list for your choices, not a rating of the area, and it says nothing about safety or what a place is like to live in. <a href="#/method">Sources and methods</a></p></details>
 
             {result.ranked.length === 0 && (
               <div className="notice-inline">
@@ -78,16 +77,15 @@ export default function Finder({ data, s, set }) {
 
             <ol className="list">
               {filtered.map((r) => {
-                const a = byId[r.id], row = rowById[r.id], on = compare.includes(r.id), mix = workMix(a, data.areas)
+                const a = byId[r.id], row = rowById[r.id], mix = workMix(a, data.areas)
                 return (
                   <li key={r.id} className={`acard ${selected === r.id ? 'sel' : ''}`}>
                     <div className="ahead">
-                      <span className={`rank ${r.rank <= 3 ? 'top' : ''}`}>{r.rank}</span>
+                      <span className={`rank ${r.rank <= 3 ? 'top' : ''}`} title={`Position ${r.rank} for your choices`}>{r.rank}</span>
                       <button className="aname" onClick={() => pick(r.id)}><b>{a.name}</b><span>{a.district ? `Dublin ${a.district.slice(1)}` : 'Co. Dublin'}</span></button>
                       <SaveButton id={r.id} small />
-                      <button className="cmp-btn" aria-pressed={on} onClick={() => toggleCompare(r.id)}>{on ? <><Icon name="tick" size={15} stroke={2.2} />Added</> : <><Icon name="plus" size={15} stroke={2.2} />Compare</>}</button>
                     </div>
-                    <button className="stats" style={{ font: 'inherit', background: 'none', border: 0, padding: 0, textAlign: 'left', cursor: 'pointer', color: 'inherit' }} onClick={() => pick(r.id)} aria-label={`Open ${a.label}`}>
+                    <button className="stats" onClick={() => pick(r.id)} aria-label={`Open ${a.label}`}>
                       <span className="stat s-rent"><b>{eur(row.rent)}</b><small>your share / month</small></span>
                       <span className="stat s-time"><b>{row._commute.minutes} min</b><small>to {SHORT[s.campus]} {timeNote}</small></span>
                       <span className="stat s-groc"><b>{a.nearestBudgetGroceryMinutes ?? '–'} min</b><small>walk to Lidl/Aldi</small></span>
@@ -118,7 +116,15 @@ export default function Finder({ data, s, set }) {
           <span><i style={{ background: '#E8613C' }} />Top 3</span><span><i style={{ background: '#0B7A65' }} />Good match</span><span><i style={{ background: '#7FB5A8' }} />Fits budget</span><span><i style={{ background: '#C3CCC8' }} />Over budget</span><span><i style={{ background: '#10212B', boxShadow: '0 0 0 2px #F4B740' }} />{SHORT[s.campus]}</span>
         </div>
       </section>
-      {showCompare && compare.length === 2 && <Compare a={byId[compare[0]]} b={byId[compare[1]]} s={s} onClose={() => setShowCompare(false)} />}
+      {editing && (
+        <Modal title="Your choices" onClose={() => setEditing(false)} width={520}>
+          <Controls data={data} s={s} set={set} />
+          <div className="field" style={{ marginTop: 18 }}>
+            <span className="flabel" id="sort-l">Show first</span>
+            <div className="choices" role="group" aria-labelledby="sort-l">{Object.entries(PRESETS).map(([k, v]) => <button key={k} type="button" className="choice" aria-pressed={s.priority === k} onClick={() => set({ priority: k })}>{v.label}</button>)}</div>
+          </div>
+          <button className="btn block" style={{ marginTop: 20 }} onClick={() => setEditing(false)}>Show {result.ranked.length} {result.ranked.length === 1 ? 'area' : 'areas'}</button>
+        </Modal>)}
     </div>
   )
 }

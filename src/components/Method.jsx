@@ -5,7 +5,7 @@ export default function Method({ data }) {
   const s = data.sources
   return (
     <>
-    <section className="page-hero"><div className="wrap"><h1>How we know this</h1><p>Sources, dates, and what each label means.</p></div></section>
+    <section className="page-hero"><div className="wrap"><h1>Sources and methods</h1><p>Where every number comes from, how recent it is, and what each label means.</p></div></section>
     <article className="wrap page-body"><div className="card lift doc">
       <p className="lead" style={{ fontSize: 17 }}>Every number on Settld comes from an open dataset, shows where it came from and when, and carries a confidence label. Here is what that means, and where it can be wrong.</p>
 
@@ -74,7 +74,7 @@ export default function Method({ data }) {
       <ul>
         <li>Not a listing site and not a live asking-price tracker.</li>
         <li>Not a guarantee of any commute time or rent.</li>
-        <li>No accounts, no cookies, no tracking of your searches.</li>
+        <li>Not a tracker. There are no ads and no analytics on your searches. Accounts are optional: if you create one, a single sign-in cookie keeps you signed in and your shortlist is stored against your username, nothing else.</li>
       </ul>
       <p>Found something wrong? <a href="https://github.com/Kabir192003/WhichDublin/issues/new">Tell us</a>. Data was last built on {data.version}.</p>
 

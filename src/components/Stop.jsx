@@ -200,7 +200,7 @@ export default function Stop() {
 
   return (
     <>
-      <section className="page-hero"><div className="wrap"><h1>Find your stop</h1><p>Search by the number on a bus stop, or by name for any bus, Luas or DART stop. Add a destination to see a direct journey.</p></div></section>
+      <section className="page-hero"><div className="wrap"><h1>Commute</h1><p>Look up any bus, Luas or rail stop by number or name to see its routes and next departures. Add a destination to plan a journey.</p></div></section>
       <article className="wrap page-body"><div className="card lift doc">
         {err && <p className="notice">Could not load stop data ({err}). Please refresh.</p>}
         {!data && !err && <p className="notice">Loading Dublin's stops…</p>}

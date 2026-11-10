@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MapPin, GraduationCap, House, Clock, ShoppingCart, Briefcase, CircleCheck, Bus, Bike, Footprints, ArrowRight, ArrowLeft, ChevronDown, Search, Map as MapIcon, Info, Star, Check, ArrowUpRight, Plus, Copy, TrainFront, TramFront, Wallet, ShieldAlert, ShieldCheck, Pill as PillIcon, Stethoscope, WashingMachine, Receipt, MessageSquare } from 'lucide-react'
+import { MapPin, GraduationCap, House, Clock, ShoppingCart, Briefcase, CircleCheck, Bus, Bike, Footprints, ArrowRight, ArrowLeft, ChevronDown, Search, Map as MapIcon, Info, Star, Check, ArrowUpRight, Plus, Copy, Menu, X, Scale, User, ListChecks, Share2, TrainFront, TramFront, Wallet, ShieldAlert, ShieldCheck, Pill as PillIcon, Stethoscope, WashingMachine, Receipt, MessageSquare } from 'lucide-react'
 import { parseEircode } from '../domain/geo.js'
 
 export const eur = (n) => `€${Math.round(n).toLocaleString('en-IE')}`
@@ -12,7 +12,7 @@ export const HOW_CHIP = { published: 'Rent published', carried: 'Rent carried fo
 const ICONS = {
   pin: MapPin, cap: GraduationCap, home: House, clock: Clock, cart: ShoppingCart, work: Briefcase, check: CircleCheck,
   bus: Bus, bike: Bike, walk: Footprints, arrow: ArrowRight, back: ArrowLeft, chev: ChevronDown, search: Search, map: MapIcon,
-  info: Info, star: Star, tick: Check, external: ArrowUpRight, plus: Plus, copy: Copy, train: TrainFront, tram: TramFront,
+  info: Info, star: Star, tick: Check, external: ArrowUpRight, plus: Plus, copy: Copy, menu: Menu, close: X, scale: Scale, user: User, list: ListChecks, share: Share2, train: TrainFront, tram: TramFront,
   wallet: Wallet, alert: ShieldAlert, safe: ShieldCheck, pill: PillIcon, gp: Stethoscope, laundry: WashingMachine, receipt: Receipt, message: MessageSquare
 }
 export const Icon = ({ name, size = 20, stroke = 1.75, filled = false }) => {
@@ -41,10 +41,10 @@ export function Select({ id, label, value, onChange, options, icon, hideLabel })
 }
 
 /** Compact filter pill around a native select. */
-export function Pill({ label, value, onChange, options }) {
+export function Pill({ label, value, onChange, options, className = '' }) {
   const id = 'pill-' + label.toLowerCase().replace(/\W+/g, '-')
   return (
-    <label className="pill" htmlFor={id}>
+    <label className={`pill ${className}`} htmlFor={id}>
       <span className="k">{label}</span>
       <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>{options.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>
       <span className="chev"><Icon name="chev" size={14} stroke={2.2} /></span>
@@ -81,3 +81,40 @@ export function gmapsDir(origin, dest, mode = 'transit') {
   const f = (x) => (typeof x === 'string' ? x : `${x.lat},${x.lon}`)
   return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(f(origin))}&destination=${encodeURIComponent(f(dest))}&travelmode=${mode}`
 }
+
+/** Dialog shell: closes on Escape or a click outside, takes focus when it opens and gives it back when it closes. */
+export function Modal({ title, onClose, children, width = 720, as: Tag = 'div', ...rest }) {
+  const card = React.useRef(null)
+  React.useEffect(() => {
+    const before = document.activeElement
+    const first = [...(card.current?.querySelectorAll('input, select, textarea, button') || [])].find((el) => !el.closest('.modal-head'))
+    ;(first || card.current)?.focus()
+    const key = (e) => { if (e.key === 'Escape') onClose() }
+    addEventListener('keydown', key)
+    return () => { removeEventListener('keydown', key); before?.focus?.() }
+  }, [])
+  return (
+    <div className="modal" role="dialog" aria-modal="true" aria-label={title} onClick={onClose}>
+      <Tag className="modal-card" ref={card} tabIndex={-1} style={{ maxWidth: width }} onClick={(e) => e.stopPropagation()} {...rest}>
+        <div className="modal-head"><h2>{title}</h2><button type="button" className="btn ghost sm" onClick={onClose}>Close</button></div>
+        {children}
+      </Tag>
+    </div>
+  )
+}
+
+/** The two ways into the same list of areas, shown on both so they read as one section. */
+export const ExploreSwitch = ({ view }) => (
+  <nav className="seg" aria-label="Explore view">
+    <a href="#/areas" aria-current={view === 'matched' ? 'page' : undefined}>Matched<span className="wide"> to me</span></a>
+    <a href="#/explore" aria-current={view === 'all' ? 'page' : undefined}>All<span className="wide"> areas</span></a>
+  </nav>
+)
+
+/** Moving to Dublin has two parts; this keeps them one click apart. */
+export const MovingTabs = ({ page }) => (
+  <nav className="seg" aria-label="Moving to Dublin sections">
+    <a href="#/settle" aria-current={page === 'settle' ? 'page' : undefined}>First weeks checklist</a>
+    <a href="#/renting" aria-current={page === 'renting' ? 'page' : undefined}>Renting safely</a>
+  </nav>
+)
