@@ -4,7 +4,7 @@
 // was last built from). `shape` (the route's ordered stop list) lets the server place a bus that
 // hasn't reported an update for this exact stop yet by its last known position on the route.
 import { stopRouteLive } from '../server/live.js'
-import { send, fail } from '../server/http.js'
+import { send, fail, crash } from '../server/http.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return fail(res, 405, 'GET only')
@@ -15,5 +15,5 @@ export default async function handler(req, res) {
   try {
     const d = await stopRouteLive(stop, route, shape)
     send(res, 200, d, 'public, s-maxage=30, stale-while-revalidate=30')
-  } catch (e) { fail(res, e.status || 500, e.status ? e.message : 'Live data unavailable') }
+  } catch (e) { await crash(res, e, 'Live data unavailable') }
 }

@@ -15,6 +15,7 @@ import { parseState, stateToSearch } from './domain/model.js'
 import { Logo, EircodeBox, Icon } from './components/ui.jsx'
 import Feedback from './components/Feedback.jsx'
 import Account from './components/Account.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/areas.json`
 const NAV = [['#/', 'Start', (h) => h === '' || h === '#/' || h === '#'], ['#/explore', 'Explore', (h) => h.startsWith('#/explore')], ['#/areas', 'Find my area', (h) => h.startsWith('#/areas')],
@@ -63,7 +64,7 @@ export default function App() {
           {data && !(hash === '' || hash === '#/' || hash.startsWith('#/eircode')) && <div className="top-eir"><EircodeBox small /></div>}
         </div>
       </header>
-      <main id="main" className={bleed ? 'bleed' : 'scroll'}>{body}</main>
+      <main id="main" className={bleed ? 'bleed' : 'scroll'}><ErrorBoundary resetKey={hash}>{body}</ErrorBoundary></main>
     </>
   )
 }

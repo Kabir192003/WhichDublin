@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from 'react'
-import maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import maplibregl, { MAP_STYLE as STYLE } from '../domain/maplibre.js'
 
-const STYLE = 'https://tiles.openfreemap.org/styles/positron'
 const fc = (features) => ({ type: 'FeatureCollection', features })
 const pt = (lon, lat, properties) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties })
 

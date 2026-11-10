@@ -1,6 +1,6 @@
 // POST /api/auth/login { username, password }
 import { db } from '../../server/db.js'
-import { send, fail, ipHash, readJson, sameOrigin, setSessionCookie } from '../../server/http.js'
+import { send, fail, ipHash, readJson, sameOrigin, setSessionCookie, crash } from '../../server/http.js'
 import { verifyPassword, createSession, tooManyAttempts, recordAttempt } from '../../server/auth.js'
 
 export default async function handler(req, res) {
@@ -23,5 +23,5 @@ export default async function handler(req, res) {
     const { token, maxAgeSec } = await createSession(sql, user.id)
     setSessionCookie(res, token, maxAgeSec)
     send(res, 200, { username })
-  } catch (e) { fail(res, e.status || 500, e.status ? e.message : 'Something went wrong; try again') }
+  } catch (e) { await crash(res, e, 'Something went wrong; try again') }
 }

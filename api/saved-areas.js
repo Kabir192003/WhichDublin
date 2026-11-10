@@ -4,7 +4,7 @@
 // Requires a signed-in session; this is the only account-gated data the app has, and it's just an
 // area id list, nothing else.
 import { db } from '../server/db.js'
-import { send, fail, sameOrigin, readJson, getSessionToken } from '../server/http.js'
+import { send, fail, sameOrigin, readJson, getSessionToken, crash } from '../server/http.js'
 import { sessionUser } from '../server/auth.js'
 import areaIds from '../server/area-ids.js'
 const AREAS = new Set(areaIds)
@@ -34,5 +34,5 @@ export default async function handler(req, res) {
       return send(res, 200, { ok: true })
     }
     fail(res, 405, 'GET, POST or DELETE only')
-  } catch (e) { fail(res, e.status || 500, e.status ? e.message : 'Something went wrong; try again') }
+  } catch (e) { await crash(res, e, 'Something went wrong; try again') }
 }

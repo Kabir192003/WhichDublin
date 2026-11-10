@@ -46,3 +46,19 @@ export function getSessionToken(req) {
   }
   return null
 }
+
+/** Ends a request that threw. Expected failures (ones we raised with a status) go back as-is;
+ * anything else is a bug, so it is logged (visible in Vercel's function logs) and, when a
+ * SENTRY_DSN is configured, reported there before the generic message is sent. */
+let sentry = null
+export async function crash(res, e, fallback = 'Something went wrong; try again') {
+  if (e?.status) return fail(res, e.status, e.message)
+  console.error(e)
+  if (process.env.SENTRY_DSN) {
+    try {
+      if (!sentry) { sentry = await import('@sentry/node'); sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0 }) }
+      sentry.captureException(e); await sentry.flush(2000)
+    } catch { /* monitoring must never break the response */ }
+  }
+  fail(res, 500, fallback)
+}
