@@ -67,7 +67,7 @@ export default function CostPage({ data, s, set }) {
         </section>
 
         {area && rent && <>
-          <CostCard rentShare={rent.perPerson} mode={s.mode} people={people} />
+          <CostCard rentShare={rent.perPerson} rentLow={Math.round(rent.rtbTotal / people)} mode={s.mode} people={people} />
 
           <section className="fact" aria-labelledby="cost-work">
             <div className="fact-head"><h2 id="cost-work">What part-time work would cover</h2></div>

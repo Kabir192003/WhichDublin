@@ -34,7 +34,7 @@ export default function Detail({ area, s, campus, rank, data, onBack }) {
         <p className="hint">Scaled up from the RTB's published existing-tenancy figure ({eur(rent.rtbTotal)}) to new-tenancy level, using the RTB's own new-vs-existing split for Dublin. Still not a live asking price for a specific listing. <a href="#/method">How this is worked out, and how it compares with Daft.ie's own report</a></p>
       </Section>}
 
-      {rent && <CostCard rentShare={rent.perPerson} mode={s.mode} people={rent.people} />}
+      {rent && <CostCard rentShare={rent.perPerson} rentLow={Math.round(rent.rtbTotal / rent.people)} mode={s.mode} people={rent.people} />}
 
       <Section icon="clock" badge="b-sky" title={`Getting to ${college}`} conf={commute?.confidence}
         source={s.mode === 'transit' ? `NTA timetables, ${src.transit.serviceDate}, ${src.transit.licence}` : s.mode === 'bikeshare' ? `${src.bikes.name}, ${src.bikes.licence}` : 'Distance between OpenStreetMap locations'}

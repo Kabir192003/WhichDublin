@@ -150,8 +150,9 @@ export function costRange({ rentShare, travel = 0, people = 1, berFactor = null,
   }
   const level = (lvl) => {
     const billsHH = own.bills != null ? own.bills * n : energy('electricity', lvl) + energy('gas', lvl) + bills.broadband[lvl]
+    const pick = (v) => (v != null && typeof v === 'object' ? v[lvl] : v)
     const parts = {
-      rent: rentShare || 0, travel,
+      rent: pick(rentShare) || 0, travel: pick(travel) || 0,
       bills: Math.round(billsHH / n),
       food: own.food != null ? own.food : (groceries[lvl] ?? groceries.typical),
       phone: own.phone != null ? own.phone : (phone[lvl] ?? phone.typical)
