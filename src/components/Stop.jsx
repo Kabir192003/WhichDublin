@@ -4,6 +4,8 @@ import { getJson, ago } from '../domain/api.js'
 import { haversine, walkMin } from '../domain/geo.js'
 import RouteMap from './RouteMap.jsx'
 
+const delayColor = (sec) => (sec == null ? '#6B7C85' : sec <= 60 ? '#1F9D6B' : sec <= 300 ? '#2F6FD0' : '#D4522A')   // same bands as the Expected chips
+
 const STOPS_URL = `${import.meta.env.BASE_URL}data/stops.json`
 const PATHS_URL = `${import.meta.env.BASE_URL}data/stop-paths.json`
 const HIST_KEY = 'settld-stop-history'
@@ -147,10 +149,20 @@ export default function Stop() {
       const i = departures.findIndex((d) => d.mins === slot); if (i < 0) continue
       if (slot - nowMins() > AHEAD) continue
       const expMin = c.atMs != null ? Math.round(nowMins() + (c.atMs - Date.now()) / 60000) : Math.round(slot + (c.delaySec || 0) / 60)
-      out.set(i, { expMin, delaySec: c.delaySec, exact: c.exact })
+      out.set(i, { expMin, delaySec: c.delaySec, exact: c.exact, tripId: c.tripId })
     }
     return out
   }, [live, departures, tripList])
+
+  /** GPS fixes of this route's buses, coloured by how late each is, and each bus's straight-line distance to this stop. */
+  const busPos = useMemo(() => {
+    const here = origin && data?.stops[origin.stopId]
+    const delayOf = new Map((live?.live || []).map((c) => [c.tripId, c.delaySec]))
+    const byTrip = new Map()
+    for (const v of live?.vehicles || []) byTrip.set(v.tripId, { ...v, color: delayColor(delayOf.get(v.tripId)), metres: here ? Math.round(haversine({ lat: v.lat, lon: v.lon }, { lat: here[2], lon: here[3] })) : null })
+    return byTrip
+  }, [live, origin?.stopId, data])
+  const away = (m) => (m == null ? null : m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)} m away` : `${(m / 1000).toFixed(1)} km away`)
 
   // Direct routes serving both origin and destination, in the right order, with a typical journey time
   // estimated from the nearest later departure at the destination on the same route — not a specific
@@ -304,11 +316,12 @@ export default function Stop() {
                           const expected = m ? hhmm(m.expMin) : null
                           const sec = m?.delaySec ?? (m ? (m.expMin - d.mins) * 60 : null)
                           return (
-                            <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                            <li key={i} style={{ display: 'flex', gap: '2px 10px', alignItems: 'center', flexWrap: 'wrap' }}>
                               <span style={{ fontVariantNumeric: 'tabular-nums', color: expected ? 'var(--muted)' : 'inherit' }}>{hhmm(d.mins)}</span>
                               {expected
                                 ? <span className={`chip ${delayTone(sec)}`} title={m.exact ? 'Reported directly at this stop' : "Estimated: this bus's delay carried forward from its last reported stop, since the feed hasn't updated this exact stop yet"}><span className="dot" aria-hidden="true" /> {m.exact ? 'Expected' : '~Expected'} {expected}{sec != null ? ` (${delayLabel(sec)})` : ''}</span>
                                 : null}
+                              {m && busPos.get(m.tripId)?.metres != null && <span className="hint" style={{ whiteSpace: 'nowrap', marginLeft: 'auto' }} title="Straight-line distance from the bus's latest GPS fix to this stop">{away(busPos.get(m.tripId).metres)}</span>}
                             </li>
                           )
                         })}
@@ -317,7 +330,8 @@ export default function Stop() {
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
-                      <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} />
+                      <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
+                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Dots are this route's buses at their latest GPS position ({busPos.size} right now): green on time, blue a few minutes late, orange more than five.</p>}
                       <details style={{ marginTop: 10 }}>
                         <summary>Full route ({shape.length} stops)</summary>
                         <ol className="rows" style={{ marginTop: 8 }}>

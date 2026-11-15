@@ -143,5 +143,59 @@ export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
 
 export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
   await live()
-  return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds) }
+  const vs = await vehicles()
+  return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds), vehicles: routeVehicles(vs, routeId) }
+}
+
+// ---- vehicle positions (GPS), shown on the route map and as "x km away" ----------------------------
+// A second NTA feed (Vehicles) with each bus's latest GPS fix. Cached in the shared live_cache table (row 2)
+// the same way as the trip updates (row 1). Optional: any failure here just means no bus markers.
+const VLOCK = 847_202
+let vcache = { at: 0, data: null }
+
+export function compactVehicles(feed) {
+  const out = []
+  for (const e of feed.entity || []) {
+    const v = e.vehicle; if (!v) continue
+    const t = v.trip || {}, p = v.position || {}
+    if (!t.trip_id || p.latitude == null || p.longitude == null) continue
+    out.push([t.trip_id, t.route_id || null, p.latitude, p.longitude, v.timestamp ? Number(v.timestamp) : null])
+  }
+  return out
+}
+
+async function fetchVehicles() {
+  const key = process.env.NTA_API_KEY
+  if (!key) throw new Error('Live data not configured')
+  const r = await fetch('https://api.nationaltransport.ie/gtfsr/v2/Vehicles?format=json', { headers: { 'x-api-key': key, 'Cache-Control': 'no-cache' } })
+  if (!r.ok) throw new Error(`NTA vehicles ${r.status}`)
+  return compactVehicles(await r.json())
+}
+
+async function vehiclesShared() {
+  const q = await db()
+  const save = async (list) => { await q`insert into live_cache (id, payload, feed_updated_at, fetched_at) values (2, ${JSON.stringify(list)}::jsonb, now(), now())
+    on conflict (id) do update set payload = excluded.payload, feed_updated_at = excluded.feed_updated_at, fetched_at = excluded.fetched_at`; return list }
+  const row = (await q`select payload, fetched_at from live_cache where id = 2`)[0]
+  if (row && Date.now() - new Date(row.fetched_at).getTime() < TTL) return row.payload
+  const [{ locked }] = await q`select pg_try_advisory_lock(${VLOCK}) as locked`
+  if (locked) { try { return await save(await fetchVehicles()) } finally { await q`select pg_advisory_unlock(${VLOCK})` } }
+  await new Promise((r) => setTimeout(r, 400))
+  const row2 = (await q`select payload from live_cache where id = 2`)[0]
+  return row2 ? row2.payload : fetchVehicles()
+}
+
+export async function vehicles() {
+  if (vcache.data && Date.now() - vcache.at < TTL) return vcache.data
+  try {
+    const list = hasDb() ? await vehiclesShared() : await fetchVehicles()
+    vcache = { at: Date.now(), data: list }
+    return list
+  } catch { return vcache.data || [] }   // optional extra: never break the departures if this feed is down
+}
+
+/** Buses of one route with their latest GPS fix: [{ tripId, lat, lon, ts }]. */
+export function routeVehicles(list, routeId) {
+  const want = rkey(routeId)
+  return (list || []).filter((v) => v[1] && rkey(v[1]) === want).map(([tripId, , lat, lon, ts]) => ({ tripId, lat, lon, ts }))
 }

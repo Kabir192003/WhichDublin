@@ -263,3 +263,15 @@ test('live: feed route ids (underscores) match the timetable ids (spaces)', () =
   const hit = matchStopRoute([['1_38A_c_a', [['s', 120, null]]]], 's', '1 38A c a', ['s'])
   assert.deepEqual(hit, [{ atMs: null, delaySec: 120, exact: true }])
 })
+
+import { compactVehicles, routeVehicles } from '../server/live.js'
+test('live: vehicle positions are compacted and filtered to one route (underscore or space ids)', () => {
+  const list = compactVehicles({ entity: [
+    { vehicle: { trip: { trip_id: '6055_1', route_id: '1_38A_c_a' }, position: { latitude: 53.39, longitude: -6.38 }, timestamp: '1794760000' } },
+    { vehicle: { trip: { trip_id: '6055_2', route_id: '1_11_c_a' }, position: { latitude: 53.3, longitude: -6.2 } } },
+    { vehicle: { trip: { route_id: '1_38A_c_a' }, position: { latitude: 1, longitude: 2 } } },
+    { trip_update: {} }
+  ] })
+  assert.equal(list.length, 2)
+  assert.deepEqual(routeVehicles(list, '1 38A c a'), [{ tripId: '6055_1', lat: 53.39, lon: -6.38, ts: 1794760000 }])
+})

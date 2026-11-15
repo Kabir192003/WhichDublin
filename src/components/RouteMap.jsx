@@ -13,9 +13,9 @@ const line = (coords) => ({ type: 'Feature', geometry: { type: 'LineString', coo
  *        lines stop-to-stop when not available (e.g. before it's loaded, or a feed with none)
  * color: line colour; teal by default, pass a different one (e.g. for a journey leg) to distinguish it
  */
-export default function RouteMap({ stops, youId, path, color = '#0B6B57' }) {
+export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses = [] }) {
   const el = useRef(null), map = useRef(null), ready = useRef(false)
-  const latest = useRef({}); latest.current = { stops, youId, path }
+  const latest = useRef({}); latest.current = { stops, youId, path, buses }
 
   useEffect(() => {
     const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, attributionControl: { compact: true } })
@@ -23,12 +23,15 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57' }) {
     m.on('load', () => {
       m.addSource('line', { type: 'geojson', data: fc([]) })
       m.addSource('stops', { type: 'geojson', data: fc([]) })
+      m.addSource('buses', { type: 'geojson', data: fc([]) })
       m.addLayer({ id: 'line', type: 'line', source: 'line', paint: { 'line-color': color, 'line-width': 3 } })
       m.addLayer({ id: 'stops', type: 'circle', source: 'stops', paint: {
         'circle-radius': ['case', ['get', 'you'], 9, 4],
         'circle-color': ['case', ['get', 'you'], '#E8613C', color],
         'circle-stroke-color': '#fff', 'circle-stroke-width': ['case', ['get', 'you'], 3, 1.5] } })
       m.addLayer({ id: 'you-label', type: 'symbol', source: 'stops', filter: ['get', 'you'], layout: { 'text-field': ['get', 'name'], 'text-size': 12, 'text-offset': [0, -1.4], 'text-anchor': 'bottom', 'text-font': ['Noto Sans Bold'] }, paint: { 'text-color': '#10212B', 'text-halo-color': '#fff', 'text-halo-width': 1.8 } })
+      m.addLayer({ id: 'buses-halo', type: 'circle', source: 'buses', paint: { 'circle-radius': 11, 'circle-color': '#fff', 'circle-opacity': 0.95 } })
+      m.addLayer({ id: 'buses', type: 'circle', source: 'buses', paint: { 'circle-radius': 7.5, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#10212B', 'circle-stroke-width': 1.5 } })
       ready.current = true; draw(); fit()
     })
     map.current = m
@@ -38,7 +41,8 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57' }) {
 
   function draw() {
     const m = map.current; if (!m || !ready.current) return
-    const { stops, youId, path } = latest.current
+    const { stops, youId, path, buses } = latest.current
+    m.getSource('buses').setData(fc((buses || []).map((b) => pt(b.lon, b.lat, { color: b.color || '#C9441F' }))))
     const pts = stops.filter((s) => s.lat != null)
     const lineCoords = path && path.length > 1 ? path.map(([lat, lon]) => [lon, lat]) : pts.map((s) => [s.lon, s.lat])
     m.setPaintProperty('line', 'line-color', color)
@@ -57,6 +61,7 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57' }) {
     m.fitBounds(b, { padding: 40, maxZoom: 15, duration: 400 })
   }
   useEffect(() => { draw(); fit() }, [stops, youId, path, color])
+  useEffect(() => { draw() }, [buses])   // bus markers move every 30 s without re-fitting the map
 
-  return <div className="routemap" ref={el} role="region" aria-label="Map of the route, your stop highlighted" />
+  return <div className="routemap" ref={el} role="region" aria-label="Map of the route, your stop highlighted, with live bus positions when available" />
 }
