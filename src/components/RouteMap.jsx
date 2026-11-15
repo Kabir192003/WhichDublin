@@ -13,9 +13,9 @@ const line = (coords) => ({ type: 'Feature', geometry: { type: 'LineString', coo
  *        lines stop-to-stop when not available (e.g. before it's loaded, or a feed with none)
  * color: line colour; teal by default, pass a different one (e.g. for a journey leg) to distinguish it
  */
-export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses = [] }) {
+export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses = [], legs }) {
   const el = useRef(null), map = useRef(null), ready = useRef(false)
-  const latest = useRef({}); latest.current = { stops, youId, path, buses }
+  const latest = useRef({}); latest.current = { stops, youId, path, buses, legs }
 
   useEffect(() => {
     const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, attributionControl: { compact: true } })
@@ -24,7 +24,10 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
       m.addSource('line', { type: 'geojson', data: fc([]) })
       m.addSource('stops', { type: 'geojson', data: fc([]) })
       m.addSource('buses', { type: 'geojson', data: fc([]) })
+      m.addSource('legs', { type: 'geojson', data: fc([]) })
       m.addLayer({ id: 'line', type: 'line', source: 'line', paint: { 'line-color': color, 'line-width': 3 } })
+      m.addLayer({ id: 'legs-solid', type: 'line', source: 'legs', filter: ['!', ['get', 'dashed']], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'color'], 'line-width': 5 } })
+      m.addLayer({ id: 'legs-walk', type: 'line', source: 'legs', filter: ['get', 'dashed'], paint: { 'line-color': ['get', 'color'], 'line-width': 3.5, 'line-dasharray': [1.2, 1.4] } })
       m.addLayer({ id: 'stops', type: 'circle', source: 'stops', paint: {
         'circle-radius': ['case', ['get', 'you'], 9, 4],
         'circle-color': ['case', ['get', 'you'], '#E8613C', color],
@@ -44,10 +47,11 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
 
   function draw() {
     const m = map.current; if (!m || !ready.current) return
-    const { stops, youId, path, buses } = latest.current
+    const { stops, youId, path, buses, legs } = latest.current
+    m.getSource('legs').setData(fc((legs || []).map((l) => ({ type: 'Feature', geometry: { type: 'LineString', coordinates: l.coords.map(([la, lo]) => [lo, la]) }, properties: { color: l.color, dashed: !!l.dashed } }))))
     m.getSource('buses').setData(fc((buses || []).map((b) => pt(b.lon, b.lat, { color: b.color || '#C9441F', name: b.name || '', label: b.label || '' }))))
     const pts = stops.filter((s) => s.lat != null)
-    const lineCoords = path && path.length > 1 ? path.map(([lat, lon]) => [lon, lat]) : pts.map((s) => [s.lon, s.lat])
+    const lineCoords = legs ? [] : path && path.length > 1 ? path.map(([lat, lon]) => [lon, lat]) : pts.map((s) => [s.lon, s.lat])   // a planned journey draws its own legs instead
     m.setPaintProperty('line', 'line-color', color)
     m.setPaintProperty('stops', 'circle-color', ['case', ['get', 'you'], '#E8613C', color])
     m.getSource('line').setData(fc(lineCoords.length > 1 ? [line(lineCoords)] : []))
@@ -56,14 +60,14 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
   }
   function fit() {
     const m = map.current; if (!m || !ready.current) return
-    const { stops, path } = latest.current
-    const pts = (path && path.length ? path.map(([lat, lon]) => ({ lat, lon })) : stops.filter((s) => s.lat != null))
+    const { stops, path, legs } = latest.current
+    const pts = (legs && legs.length ? legs.flatMap((l) => l.coords.map(([lat, lon]) => ({ lat, lon }))) : path && path.length ? path.map(([lat, lon]) => ({ lat, lon })) : stops.filter((s) => s.lat != null))
     if (!pts.length) return
     const b = new maplibregl.LngLatBounds([pts[0].lon, pts[0].lat], [pts[0].lon, pts[0].lat])
     pts.forEach((p) => b.extend([p.lon, p.lat]))
     m.fitBounds(b, { padding: 40, maxZoom: 15, duration: 400 })
   }
-  useEffect(() => { draw(); fit() }, [stops, youId, path, color])
+  useEffect(() => { draw(); fit() }, [stops, youId, path, color, legs])
   useEffect(() => { draw() }, [buses])   // bus markers move every 30 s without re-fitting the map
 
   return <div className="routemap" ref={el} role="region" aria-label="Map of the route, your stop highlighted, with live bus positions when available" />

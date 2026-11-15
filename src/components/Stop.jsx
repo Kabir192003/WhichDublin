@@ -3,6 +3,7 @@ import { Icon } from './ui.jsx'
 import { getJson, ago } from '../domain/api.js'
 import { haversine, walkMin } from '../domain/geo.js'
 import RouteMap from './RouteMap.jsx'
+import { buildIndex, plan, stationGroup } from '../domain/planner.js'
 
 const delayColor = (sec) => (sec == null ? '#6B7C85' : sec <= 60 ? '#1F9D6B' : sec <= 300 ? '#2F6FD0' : '#D4522A')   // same bands as the Expected chips
 
@@ -90,6 +91,38 @@ function direction(data, rid, did, stopId) {
   return { to: last[1], way: dLast < dHere - 500 ? 'towards the city centre' : dLast > dHere + 500 ? 'away from the city centre' : null }
 }
 
+const LINE_COLOR = { Red: '#D52027', Green: '#00A651' }
+const legColor = (data, l) => {
+  if (l.type === 'walk') return '#6B7C85'
+  const rid = l.pattern.split(':')[0], r = data.routes[rid], mode = r?.[2]
+  return mode === 'tram' ? LINE_COLOR[r[0]] || '#00A651' : mode === 'rail' ? '#1D4ED8' : '#0B6B57'
+}
+const legCoords = (data, l) => (l.type === 'walk' ? [l.from, l.to] : l.stops).map((id) => [data.stops[id][2], data.stops[id][3]])
+const stopLabel = (data, id) => `${data.stops[id][1]}${data.stops[id][0] && data.stops[id][4] === 'bus' ? ` (stop ${data.stops[id][0]})` : ''}`
+
+/** The step-by-step list for one journey: which vehicle, where to board, how far, where to get off, and the walks between. */
+function JourneyLegs({ data, journey }) {
+  return (
+    <ol style={{ listStyle: 'none', padding: 0, margin: '14px 0 0', display: 'grid', gap: 0 }}>
+      {journey.legs.map((l, i) => {
+        const color = legColor(data, l)
+        if (l.type === 'walk') return (
+          <li key={i} style={{ display: 'flex', gap: 12, padding: '8px 0', borderLeft: `3px dotted ${color}`, marginLeft: 10, paddingLeft: 14 }}>
+            <span className="hint">Walk {l.mins} min ({l.metres} m) to {stopLabel(data, l.to)}</span>
+          </li>)
+        const rid = l.pattern.split(':')[0], did = l.pattern.split(':')[1], r = data.routes[rid], dir = direction(data, rid, did, l.from)
+        return (
+          <li key={i} style={{ padding: '8px 0 8px 14px', marginLeft: 10, borderLeft: `3px solid ${color}` }}>
+            <p style={{ margin: 0, fontWeight: 700 }}><Icon name={MODE_ICON[data.stops[l.from][4]] || 'bus'} size={15} /> {MODE_NAME[data.stops[l.from][4]] === 'Bus' ? 'Bus' : ''} {r?.[0]}{dir ? ` towards ${dir.to}` : ''}</p>
+            <p style={{ margin: '2px 0 0', fontSize: 14 }}>{hhmm(l.depart)} board at {stopLabel(data, l.from)}</p>
+            <p className="hint" style={{ margin: '2px 0' }}>{l.stops.length - 1} stop{l.stops.length - 1 === 1 ? '' : 's'}, about {l.arrive - l.depart} min on board</p>
+            <p style={{ margin: 0, fontSize: 14 }}>{hhmm(l.arrive)} get off at {stopLabel(data, l.to)}</p>
+          </li>)
+      })}
+    </ol>
+  )
+}
+
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
 const DAYTYPE = (() => { const d = dublinNow().day; return d === 'Sat' ? 'sat' : d === 'Sun' ? 'sun' : 'wk' })()   // which timetable is running today (in Dublin)
@@ -119,7 +152,7 @@ export default function Stop() {
     let alive = true
     const url = `${import.meta.env.BASE_URL}data/trips/${DAYTYPE}/${shardOf(origin.stopId)}.json`
     const get = () => fetch(url).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() })
-    get().catch(() => new Promise((res) => setTimeout(res, 800)).then(get)).then((x) => alive && setTrips(x)).catch(() => alive && setTrips('error'))
+    get().catch(() => new Promise((res) => setTimeout(res, 800)).then(get)).then((x) => alive && setTrips({ stopId: origin.stopId, data: x })).catch(() => alive && setTrips('error'))
     return () => { alive = false }
   }, [origin?.stopId, tripsTry])
   useEffect(() => { setHistory(loadHistory()) }, [])
@@ -127,7 +160,8 @@ export default function Stop() {
 
   const routes = origin && data ? (data.stopRoutes[origin.stopId] || []) : []
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
-  const tripList = sel && origin && trips && trips !== 'error' ? trips[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, tripId], ...] for today
+  const tripsHere = trips && trips !== 'error' && trips.stopId === origin?.stopId ? trips.data : null   // never use another stop's file while the new one loads
+  const tripList = sel && origin && tripsHere ? tripsHere[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, tripId], ...] for today
   const departures = useMemo(() => {
     if (!sel || !origin || !data) return []
     const key = `${origin.stopId}:${sel.routeId}:${sel.directionId}`
@@ -195,76 +229,30 @@ export default function Stop() {
   }, [sel?.routeId, sel?.directionId, origin?.stopId, data])
   const away = (m) => (m == null ? null : m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)} m away` : `${(m / 1000).toFixed(1)} km away`)
 
-  // Direct routes serving both origin and destination, in the right order, with a typical journey time
-  // estimated from the nearest later departure at the destination on the same route — not a specific
-  // trip match (the feeds don't give us one reliably), so this is a typical duration, not an exact one.
-  const journeys = useMemo(() => {
-    if (!origin || !dest || !data || origin.stopId === dest.stopId) return []
-    const originRoutes = new Map((data.stopRoutes[origin.stopId] || []).map(([r, d2]) => [`${r}:${d2}`, [r, d2]]))
-    const destRoutes = new Set((data.stopRoutes[dest.stopId] || []).map(([r, d2]) => `${r}:${d2}`))
-    const out = []
-    for (const [key, [rid, did]] of originRoutes) {
-      if (!destRoutes.has(key)) continue
-      const shape = data.shapes[key]; if (!shape) continue
-      const oi = shape.indexOf(origin.stopId), di = shape.indexOf(dest.stopId)
-      if (oi === -1 || di === -1 || oi >= di) continue
-      const oTimes = (data.departures[`${origin.stopId}:${key}`] || [])
-      const dTimes = (data.departures[`${dest.stopId}:${key}`] || [])
-      if (!oTimes.length || !dTimes.length) continue
-      const now = nowMins()
-      const upcoming = oTimes.filter((m) => m >= now).slice(0, 4)
-      const legs = upcoming.map((ot) => { const at = dTimes.find((t) => t > ot); return at != null ? { depart: ot, arrive: at, mins: at - ot } : null }).filter(Boolean)
-      if (legs.length) out.push({ routeId: rid, directionId: did, route: data.routes[rid], legs })
+  /** Journeys from the origin station to the destination station: direct or with changes, any mix of bus, Luas, DART and rail. */
+  const idx = useMemo(() => (data ? buildIndex(data) : null), [data])
+  const plans = useMemo(() => {
+    if (!idx || !origin || !dest || origin.stopId === dest.stopId) return null
+    const from = stationGroup(idx, origin.stopId), to = stationGroup(idx, dest.stopId)
+    const now = nowMins(), seen = new Set(), out = []
+    for (const later of [0, 12, 25]) for (const j of plan(idx, from, to, now + later)) {
+      const key = j.legs.map((l) => (l.type === 'ride' ? l.pattern + l.depart : 'w')).join('|')
+      if (!seen.has(key)) { seen.add(key); out.push(j) }
     }
-    return out.sort((a, b) => (a.legs[0]?.depart ?? 1e9) - (b.legs[0]?.depart ?? 1e9))
-  }, [origin, dest, data])
-
-  // When no single route covers both stops: find a walking connection between a stop reachable
-  // from origin and a stop that reaches destination, picking the shortest walk. This only covers
-  // one change, not a general multi-leg planner, and timing is typical (same nearest-after method
-  // as direct journeys above), not a specific trip matched end to end.
-  const transfer = useMemo(() => {
-    if (!origin || !dest || !data || journeys.length || origin.stopId === dest.stopId) return null
-    const reachFromOrigin = new Map()   // stopId -> [routeId, directionId]
-    for (const [rid, did] of data.stopRoutes[origin.stopId] || []) {
-      const shape = data.shapes[`${rid}:${did}`]; if (!shape) continue
-      const oi = shape.indexOf(origin.stopId); if (oi === -1) continue
-      for (let i = oi + 1; i < shape.length && reachFromOrigin.size < 400; i++) if (!reachFromOrigin.has(shape[i])) reachFromOrigin.set(shape[i], [rid, did])
+    return out.filter((j) => j.minutes <= 240).sort((x, y) => x.arrive - y.arrive || x.changes - y.changes).slice(0, 5)   // nothing over 4 hours: that is 'no service tonight', not a journey
+  }, [idx, origin, dest])
+  const [pick, setPick] = useState(0)
+  useEffect(() => { setPick(0) }, [origin?.stopId, dest?.stopId])
+  const journeyMap = useMemo(() => {   // memoised so the map is not re-fitted on every re-render
+    if (!data || !origin || !dest || !data.stops[origin.stopId] || !data.stops[dest.stopId]) return null
+    const j = plans?.[pick], o = data.stops[origin.stopId], d2 = data.stops[dest.stopId]
+    const mid = j ? [...new Set(j.legs.flatMap((l) => (l.type === 'ride' ? [l.from, l.to] : [])))].filter((id) => id !== origin.stopId && id !== dest.stopId) : []
+    const pt = (id, st) => ({ id, name: st[1], lat: st[2], lon: st[3] })
+    return {
+      stops: [pt(origin.stopId, o), pt(dest.stopId, d2), ...mid.map((id) => pt(id, data.stops[id]))],
+      legs: j ? j.legs.map((l) => ({ color: legColor(data, l), dashed: l.type === 'walk', coords: legCoords(data, l) })) : undefined
     }
-    const reachToDest = new Map()
-    for (const [rid, did] of data.stopRoutes[dest.stopId] || []) {
-      const shape = data.shapes[`${rid}:${did}`]; if (!shape) continue
-      const di = shape.indexOf(dest.stopId); if (di === -1) continue
-      for (let i = 0; i < di && reachToDest.size < 400; i++) if (!reachToDest.has(shape[i])) reachToDest.set(shape[i], [rid, did])
-    }
-    let best = null
-    for (const [aId, [r1, d1]] of reachFromOrigin) {
-      const a = data.stops[aId]; if (!a) continue
-      for (const [bId, [r2, d2]] of reachToDest) {
-        if (aId === bId && r1 === r2 && d1 === d2) continue
-        const b = data.stops[bId]; if (!b) continue
-        const metres = haversine({ lat: a[2], lon: a[3] }, { lat: b[2], lon: b[3] })
-        if (metres > 800) continue
-        if (!best || metres < best.metres) best = { aId, bId, r1, d1, r2, d2, metres }
-      }
-    }
-    if (!best) return null
-    const { aId, bId, r1, d1, r2, d2, metres } = best
-    const now = nowMins()
-    const leg1Dep = (data.departures[`${origin.stopId}:${r1}:${d1}`] || []).filter((m) => m >= now)[0]
-    if (leg1Dep == null) return null
-    const leg1Arr = (data.departures[`${aId}:${r1}:${d1}`] || []).find((t) => t > leg1Dep)
-    if (leg1Arr == null) return null
-    const walkAt = leg1Arr + walkMin(metres)
-    const leg2Dep = (data.departures[`${bId}:${r2}:${d2}`] || []).find((t) => t >= walkAt)
-    if (leg2Dep == null) return null
-    const leg2Arr = (data.departures[`${dest.stopId}:${r2}:${d2}`] || []).find((t) => t > leg2Dep)
-    if (leg2Arr == null) return null
-    return { leg1: { route: data.routes[r1], depart: leg1Dep, arrive: leg1Arr, at: data.stops[aId][1] },
-      walkMinutes: walkMin(metres), walkMetres: Math.round(metres),
-      leg2: { route: data.routes[r2], depart: leg2Dep, arrive: leg2Arr, from: data.stops[bId][1] },
-      totalMins: leg2Arr - leg1Dep }
-  }, [origin, dest, data, journeys])
+  }, [plans, pick, data, origin, dest])
 
   return (
     <>
@@ -291,31 +279,28 @@ export default function Stop() {
             <section className="fact" style={{ marginTop: 18 }}>
               <button type="button" className="link" style={{ marginBottom: 8 }} onClick={() => { setDest(null) }}><Icon name="back" size={15} />Change destination</button>
               <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name={MODE_ICON[origin.mode] || 'bus'} size={18} />{origin.name} <Icon name="arrow" size={15} /> <Icon name={MODE_ICON[dest.mode] || 'bus'} size={18} />{dest.name}</h2>
-              {journeys.length ? journeys.map((j) => (
-                <div key={j.routeId + j.directionId} style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
-                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Route {j.route[0]}{j.route[1] ? ` · ${j.route[1]}` : ''}</p>
-                  <ul className="rows">
-                    {j.legs.map((l, i) => <li key={i}>Leave {hhmm(l.depart)} → arrive ~{hhmm(l.arrive)} <span className="hint">(~{l.mins} min, typical)</span></li>)}
-                  </ul>
-                </div>
-              )) : transfer ? (
-                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
-                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>One change, ~{transfer.totalMins} min total (typical)</p>
-                  <ul className="rows">
-                    <li>Route {transfer.leg1.route[0]}{transfer.leg1.route[1] ? ` · ${transfer.leg1.route[1]}` : ''}: leave {hhmm(transfer.leg1.depart)} → arrive {transfer.leg1.at} ~{hhmm(transfer.leg1.arrive)}</li>
-                    <li>Walk to {transfer.leg2.from}, ~{transfer.walkMinutes} min ({transfer.walkMetres} m)</li>
-                    <li>Route {transfer.leg2.route[0]}{transfer.leg2.route[1] ? ` · ${transfer.leg2.route[1]}` : ''}: leave {hhmm(transfer.leg2.depart)} → arrive ~{hhmm(transfer.leg2.arrive)}</li>
-                  </ul>
-                  <p className="hint" style={{ marginTop: 8 }}>No route runs directly between these two stops, so this is the shortest walking link we found between a route from your stop and a route to your destination. Only one change is covered; journeys needing two or more aren't yet.</p>
-                </div>
-              ) : <p className="notice">No direct route, and no one-change connection within 800 m, found between these two stops in today's timetable.</p>}
-              <p className="hint" style={{ marginTop: 10 }}>Journey time is the gap to the nearest later scheduled departure at your destination on the same route, since the feed doesn't let us tie one specific bus's two stop times together exactly. Treat it as typical, not exact.</p>
-              {data.stops[origin.stopId] && data.stops[dest.stopId] && (() => {
-                const o = data.stops[origin.stopId], d2 = data.stops[dest.stopId]
-                return <RouteMap
-                  stops={[{ id: origin.stopId, name: o[1], lat: o[2], lon: o[3] }, { id: dest.stopId, name: d2[1], lat: d2[2], lon: d2[3] }]}
-                  youId={[origin.stopId, dest.stopId]} color="#1D4ED8" />
-              })()}
+              {DAYTYPE !== 'wk' && <p className="hint" style={{ margin: '8px 0 0' }}>Journey planning uses the weekday timetable. At weekends some services run less often or not at all, so check the times.</p>}
+              {!plans ? null : !plans.length ? <p className="notice">No journey of up to two changes and under 4 hours was found between these two places, even allowing short walks between stops. Services may have finished for tonight, or try a stop nearer your destination.</p> : (
+                <>
+                  <ol style={{ listStyle: "none", padding: 0, margin: "12px 0 0", display: "grid", gap: 8 }}>
+                    {plans.map((j, n) => (
+                      <li key={n}>
+                        <button type="button" onClick={() => setPick(n)} aria-pressed={pick === n} className="card" style={{ width: '100%', textAlign: 'left', font: 'inherit', cursor: 'pointer', padding: '10px 12px', borderColor: pick === n ? 'var(--teal)' : undefined, boxShadow: pick === n ? '0 0 0 2px var(--teal-50)' : undefined }}>
+                          <b>{hhmm(j.depart)} → {hhmm(j.arrive)}</b> <span className="hint">· {j.minutes} min · {j.changes === 0 ? 'direct' : `${j.changes} change${j.changes > 1 ? 's' : ''}`}</span>
+                          <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6, alignItems: 'center' }}>
+                            {j.legs.map((l, i) => l.type === 'walk'
+                              ? <span key={i} className="hint">walk {l.mins} min</span>
+                              : <span key={i} className="chip" style={{ background: legColor(data, l), color: '#fff' }}><Icon name={MODE_ICON[data.stops[l.from]?.[4]] || 'bus'} size={13} />{data.routes[l.pattern.split(':')[0]]?.[0]}</span>)}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                  {plans[pick] && <JourneyLegs data={data} journey={plans[pick]} />}
+                </>
+              )}
+              <p className="hint" style={{ marginTop: 10 }}>Times come from each route's scheduled timetable, with the time between stops taken from a typical trip. They are scheduled, not live: use the live times on a stop's own page for the bus that is actually coming.</p>
+              {journeyMap && <RouteMap stops={journeyMap.stops} youId={[origin.stopId, dest.stopId]} color="#1D4ED8" legs={journeyMap.legs} />}
             </section>
           )}
 
@@ -359,7 +344,7 @@ export default function Stop() {
                           )
                         })}
                       </ul>
-                    ) : <p className="hint" style={{ margin: '0 0 12px' }}>{trips === 'error' ? <>Could not load today's timetable. <button type="button" className="link" onClick={() => setTripsTry((n) => n + 1)}>Try again</button></> : !trips ? 'Loading today\'s timetable…' : tripList && !tripList.length ? 'This route does not run today.' : 'No more scheduled departures today.'}</p>}
+                    ) : <p className="hint" style={{ margin: '0 0 12px' }}>{trips === 'error' ? <>Could not load today's timetable. <button type="button" className="link" onClick={() => setTripsTry((n) => n + 1)}>Try again</button></> : !tripsHere ? 'Loading today\'s timetable…' : tripList && !tripList.length ? 'This route does not run today.' : 'No more scheduled departures today.'}</p>}
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>

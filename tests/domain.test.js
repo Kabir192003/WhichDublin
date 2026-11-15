@@ -275,3 +275,21 @@ test('live: vehicle positions are compacted and filtered to one route (underscor
   assert.equal(list.length, 2)
   assert.deepEqual(routeVehicles(list, '1 38A c a'), [{ tripId: '6055_1', lat: 53.39, lon: -6.38, ts: 1794760000 }])
 })
+
+import { buildIndex, plan, stationGroup } from '../src/domain/planner.js'
+test('planner: direct ride, one change, walking link, and platforms of one station grouped', () => {
+  const stops = { A: ['a', 'Alpha', 53.30, -6.30, 'bus'], B: ['b', 'Beta', 53.31, -6.30, 'bus'], C1: ['c', 'Gamma', 53.32, -6.30, 'bus'], C2: ['c', 'Gamma', 53.3203, -6.3001, 'bus'], D: ['d', 'Delta', 53.33, -6.30, 'tram'], X: ['x', 'Far', 53.5, -6.1, 'bus'] }
+  const data = { stops,
+    shapes: { 'L1:0': ['A', 'B', 'C1'], 'L2:0': ['C2', 'D'] },
+    offsets: { 'L1:0': [0, 5, 10], 'L2:0': [0, 4] },
+    departures: { 'A:L1:0': [100, 130], 'B:L1:0': [105, 135], 'C1:L1:0': [110, 140], 'C2:L2:0': [115, 145], 'D:L2:0': [119, 149] } }
+  const idx = buildIndex(data)
+  assert.deepEqual(stationGroup(idx, 'C1').sort(), ['C1', 'C2'])
+  const direct = plan(idx, ['A'], ['B'], 98)
+  assert.equal(direct.length, 1); assert.equal(direct[0].legs[0].type, 'ride'); assert.equal(direct[0].arrive, 105); assert.equal(direct[0].changes, 0)
+  const change = plan(idx, ['A'], ['D'], 98)
+  const best = change[change.length - 1]
+  assert.equal(best.changes, 1); assert.equal(best.arrive, 119)
+  assert.deepEqual(best.legs.map((l) => l.type), ['ride', 'walk', 'ride'])   // C1 to C2 is a short walk, then the second line
+  assert.equal(plan(idx, ['A'], ['X'], 98).length, 0)
+})

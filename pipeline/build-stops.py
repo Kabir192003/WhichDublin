@@ -16,7 +16,8 @@ Output:
       byCode: { code: [stopId, ...] },         # printed stop number -> internal id(s); bus only
       routes: { routeId: [shortName, longName, mode] },
       stopRoutes: { stopId: [[routeId, directionId], ...] },
-      shapes: { "routeId:directionId": [stopId, ...] },                # one representative pattern
+      shapes: { "routeId:directionId": [stopId, ...] },
+      offsets: { "routeId:directionId": [minutes from the first stop, ...] },   # parallel to shapes                # one representative pattern
       departures: { "stopId:routeId:directionId": [minutesAfterMidnight, ...] } }
   data/build/stop-paths.json
     { "routeId:directionId": [[lat, lon], ...] }   # road-following geometry (simplified), loaded
@@ -74,7 +75,7 @@ def rdp(pts, eps=0.00006):
 day = dt.date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else next_wednesday()
 print('service date', day, day.strftime('%A'))
 
-stops_out, by_code, routes_out, stop_routes, shapes, paths, best_len, shape_for, departures, trips_at = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+stops_out, by_code, routes_out, stop_routes, shapes, paths, best_len, shape_for, departures, trips_at, offsets = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
 
 for feed_name, mode, needs_bbox in FEEDS:
     z = zipfile.ZipFile(f'{GTFS_DIR}/GTFS_{feed_name}.zip')
@@ -111,6 +112,7 @@ for feed_name, mode, needs_bbox in FEEDS:
             seq = g.stop_id.tolist()
             if len(seq) > best_len.get(shape_key, 0):
                 shapes[shape_key] = seq; best_len[shape_key] = len(seq)
+                d0 = int(g.dep.iloc[0]); offsets[shape_key] = [round((int(x) - d0) / 60) for x in g.dep]   # minutes from the first stop: lets the journey planner time each leg
                 if has_shapes and meta.get('shape_id'): shape_for[shape_key] = (feed_name, meta['shape_id'])
             for stop_id, dep in zip(g.stop_id, g.dep):
                 stop_routes.setdefault(stop_id, set()).add((rid, did))
@@ -154,6 +156,7 @@ out = {
     'routes': routes_out,
     'stopRoutes': {k: sorted(v) for k, v in stop_routes.items()},
     'shapes': shapes,
+    'offsets': offsets,
     'departures': departures,
 }
 os.makedirs(OUT_DIR, exist_ok=True)
