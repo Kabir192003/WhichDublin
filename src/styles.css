@@ -174,7 +174,7 @@ button.chip.pub { border-color: var(--teal); background: var(--teal-50); color: 
 .pill select, .pill input { font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); border: 0; background: transparent; appearance: none; -webkit-appearance: none; outline: none; cursor: pointer; padding-right: 2px; min-width: 0 }
 .pill .chev { position: absolute; right: 9px; color: var(--muted); pointer-events: none }
 .filter-summary { display: none }
-.panel { overflow-y: auto; min-height: 0; padding: 18px 20px 40px }
+.panel { position: relative; overflow-y: auto; min-height: 0; padding: 18px 20px 40px }
 .res-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px }
 .res-head h1 { margin: 0; font-size: 20px; font-weight: 700 }
 .res-head input.select { min-height: 38px; max-width: 200px; font-weight: 500; font-size: 14px }
