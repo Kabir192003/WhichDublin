@@ -33,7 +33,8 @@ export function compact(feed) {
       if (delaySec == null && atMs == null) continue
       stops.push([s.stop_id, delaySec, atMs])
     }
-    if (stops.length) out.push([rid, stops])
+    const t = tu.trip || {}
+    if (stops.length) out.push([rid, stops, t.trip_id || null, t.start_time || null])
   }
   return out
 }
@@ -143,3 +144,5 @@ export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
   await live()
   return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds) }
 }
+
+export const liveTrips = () => cache.trips
