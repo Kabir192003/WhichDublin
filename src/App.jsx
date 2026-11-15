@@ -48,6 +48,7 @@ export default function App() {
   useEffect(() => { checkSession() }, [])
   useEffect(() => { history.replaceState(null, '', `?${stateToSearch(s)}${location.hash}`) }, [s])
   useEffect(() => { setMenu(false); const t = TITLES.find(([p]) => hash.startsWith(p)); document.title = t ? `${t[1]} · Settld` : 'Settld: decide where to live in Dublin' }, [hash])
+  useEffect(() => { if (!menu) return; const k = (e) => e.key === 'Escape' && setMenu(false); addEventListener('keydown', k); return () => removeEventListener('keydown', k) }, [menu])
   const set = (patch) => setS((p) => ({ ...p, ...patch }))
   const saved = useShortlist()
 
@@ -76,6 +77,7 @@ export default function App() {
             {NAV.map(([href, label, on]) => (
               <a key={href} href={href} aria-current={on(hash) ? 'page' : undefined}>{label}{href === '#/shortlist' && saved.length > 0 && <span className="count" aria-label={`${saved.length} shortlisted`}>{saved.length}</span>}</a>))}
             <a className="nav-extra" href="#/method" aria-current={hash.startsWith('#/method') ? 'page' : undefined}>Sources and methods</a>
+            <Feedback className="nav-extra nav-btn" />
           </nav>
           <div className="top-actions">
             <a className="top-btn hide-md" href="#/method">Sources</a>

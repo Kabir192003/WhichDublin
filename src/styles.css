@@ -322,6 +322,7 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
   .nav a { padding: 13px 10px; border: 0; border-bottom: 1px solid var(--teal-800); font-size: 16px }
   .nav a[aria-current=page] { border-bottom-color: var(--teal-800); box-shadow: inset 3px 0 0 var(--amber) }
   .nav .nav-extra { display: flex }
+  .nav button.nav-btn { font: inherit; font-size: 16px; font-weight: 500; text-align: left; color: #D4E7E1; background: none; border: 0; border-bottom: 1px solid var(--teal-800); padding: 13px 10px; cursor: pointer; width: 100% }
   .top-btn.hide-sm { display: none }
 }
 .nav .nav-extra { display: none }
@@ -356,6 +357,7 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
 
   .mapwrap { display: none; flex: 1; min-height: 0 }
   .finder[data-tab=map] .mapwrap { display: block } .finder[data-tab=map] .panel { display: none }
+  .legend { left: 8px; bottom: 34px; padding: 6px 8px; gap: 2px; font-size: 11px } .legend i { width: 9px; height: 9px }
   .stat b { font-size: 16px } .stat { padding: 0 8px }
   .card { padding: 18px 16px }
   .steps em { display: none }

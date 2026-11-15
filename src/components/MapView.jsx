@@ -35,7 +35,8 @@ export default function MapView({ points, campuses = [], selectedId, onSelect, p
       ready.current = true; draw(); fit()
     })
     map.current = m
-    const ro = new ResizeObserver(() => m.resize()); ro.observe(el.current)
+    let wasHidden = true   // the phone map tab is display:none until opened, so the first real size needs a re-fit
+    const ro = new ResizeObserver(() => { m.resize(); const shown = el.current.clientWidth > 0; if (shown && wasHidden) fit(); wasHidden = !shown }); ro.observe(el.current)
     return () => { ro.disconnect(); m.remove(); ready.current = false }
   }, [])
 
