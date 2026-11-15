@@ -151,6 +151,7 @@ export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
 // A second NTA feed (Vehicles) with each bus's latest GPS fix. Cached in the shared live_cache table (row 2)
 // the same way as the trip updates (row 1). Optional: any failure here just means no bus markers.
 const VLOCK = 847_202
+const VTTL = 15_000   // bus positions refresh faster than delays: the map polls every 15 s
 let vcache = { at: 0, data: null }
 
 export function compactVehicles(feed) {
@@ -177,7 +178,7 @@ async function vehiclesShared() {
   const save = async (list) => { await q`insert into live_cache (id, payload, feed_updated_at, fetched_at) values (2, ${JSON.stringify(list)}::jsonb, now(), now())
     on conflict (id) do update set payload = excluded.payload, feed_updated_at = excluded.feed_updated_at, fetched_at = excluded.fetched_at`; return list }
   const row = (await q`select payload, fetched_at from live_cache where id = 2`)[0]
-  if (row && Date.now() - new Date(row.fetched_at).getTime() < TTL) return row.payload
+  if (row && Date.now() - new Date(row.fetched_at).getTime() < VTTL) return row.payload
   const [{ locked }] = await q`select pg_try_advisory_lock(${VLOCK}) as locked`
   if (locked) { try { return await save(await fetchVehicles()) } finally { await q`select pg_advisory_unlock(${VLOCK})` } }
   await new Promise((r) => setTimeout(r, 400))
@@ -186,7 +187,7 @@ async function vehiclesShared() {
 }
 
 export async function vehicles() {
-  if (vcache.data && Date.now() - vcache.at < TTL) return vcache.data
+  if (vcache.data && Date.now() - vcache.at < VTTL) return vcache.data
   try {
     const list = hasDb() ? await vehiclesShared() : await fetchVehicles()
     vcache = { at: Date.now(), data: list }

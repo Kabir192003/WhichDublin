@@ -143,7 +143,7 @@ export default function Stop() {
     const shapeParam = shape ? `&shape=${shape.map(encodeURIComponent).join(',')}` : ''
     const load = () => getJson(`/api/stop-live?stop=${encodeURIComponent(origin.stopId)}&route=${encodeURIComponent(sel.routeId)}${shapeParam}`)
       .then((x) => alive && setLive(x)).catch(() => alive && setLive(null))
-    load(); const t = setInterval(load, 30_000)
+    load(); const t = setInterval(() => { if (!document.hidden) load() }, 15_000)   // 15 s: the map's bus dots move at that pace
     return () => { alive = false; clearInterval(t) }
   }, [origin?.stopId, sel?.routeId, shape])
 
@@ -169,14 +169,16 @@ export default function Stop() {
     const delayOf = new Map((live?.live || []).map((c) => [c.tripId, c.delaySec]))
     const routeName = sel && data?.routes[sel.routeId]?.[0] || ''
     const byTrip = new Map()
+    const thisWay = new Set((tripList || []).map((t) => t[1]))   // trips scheduled at this stop in this direction: the other way's buses are left out
     for (const v of live?.vehicles || []) {
+      if (!thisWay.has(v.tripId)) continue
       const d = delayOf.get(v.tripId)
       const metres = here ? Math.round(haversine({ lat: v.lat, lon: v.lon }, { lat: here[2], lon: here[3] })) : null
       const km = metres == null ? '' : metres < 1000 ? `, ${Math.max(50, Math.round(metres / 50) * 50)} m from this stop` : `, ${(metres / 1000).toFixed(1)} km from this stop`
       byTrip.set(v.tripId, { ...v, color: delayColor(d), name: routeName, label: `Route ${routeName}: ${d == null ? 'no delay reported' : delayLabel(d)}${km}`, metres })
     }
     return byTrip
-  }, [live, origin?.stopId, data, sel?.routeId])
+  }, [live, origin?.stopId, data, sel?.routeId, tripList])
   /** The nearest stop (within 300 m) where this same route runs the other way: the stop across the road. */
   const opposite = useMemo(() => {
     if (!sel || !origin || !data) return null
@@ -362,7 +364,7 @@ export default function Stop() {
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
-                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Labelled dots are this route's buses at their latest GPS position (tap one for details) ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Both directions are shown.</p>}
+                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Labelled dots are this route's buses at their latest GPS position (tap one for details) ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Only buses going this way are shown; the map refreshes every 15 seconds.</p>}
                       <details style={{ marginTop: 10 }}>
                         <summary>Full route ({shape.length} stops)</summary>
                         <ol className="rows" style={{ marginTop: 8 }}>

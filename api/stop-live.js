@@ -14,6 +14,6 @@ export default async function handler(req, res) {
   if (!stop || !route) return fail(res, 400, 'stop and route are required')
   try {
     const d = await stopRouteLive(stop, route, shape)
-    send(res, 200, d, 'public, s-maxage=30, stale-while-revalidate=30')
+    send(res, 200, d, 'public, s-maxage=10, stale-while-revalidate=10')
   } catch (e) { await crash(res, e, 'Live data unavailable') }
 }
