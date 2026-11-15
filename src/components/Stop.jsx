@@ -81,6 +81,15 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
   )
 }
 
+const CITY = { lat: 53.3498, lon: -6.2603 }   // O'Connell Street: "the city centre" for direction wording
+/** Which way a route runs from a stop: its last stop, and whether that is towards or away from the city centre. */
+function direction(data, rid, did, stopId) {
+  const sh = data.shapes[`${rid}:${did}`], last = sh?.length ? data.stops[sh[sh.length - 1]] : null, here = data.stops[stopId]
+  if (!last || !here) return null
+  const dLast = haversine({ lat: last[2], lon: last[3] }, CITY), dHere = haversine({ lat: here[2], lon: here[3] }, CITY)
+  return { to: last[1], way: dLast < dHere - 500 ? 'towards the city centre' : dLast > dHere + 500 ? 'away from the city centre' : null }
+}
+
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
 const DAYTYPE = (() => { const d = dublinNow().day; return d === 'Sat' ? 'sat' : d === 'Sun' ? 'sun' : 'wk' })()   // which timetable is running today (in Dublin)
@@ -303,8 +312,9 @@ export default function Stop() {
                 {routes.map(([rid, did]) => {
                   const r = data.routes[rid]; if (!r) return null
                   const on = sel && sel.routeId === rid && sel.directionId === did
-                  return <button key={rid + did} type="button" className={`chip ${on ? 'pub' : ''}`} style={{ cursor: 'pointer', border: on ? 'none' : '1px solid var(--line)' }}
-                    onClick={() => { setSel({ routeId: rid, directionId: did }); setLive(null) }}>{r[0]}</button>
+                  const dir = direction(data, rid, did, origin.stopId)
+                  return <button key={rid + did} type="button" className={`chip route-chip ${on ? 'pub' : ''}`} style={{ cursor: 'pointer', border: on ? 'none' : '1px solid var(--line)' }} aria-pressed={on}
+                    onClick={() => { setSel({ routeId: rid, directionId: did }); setLive(null) }}><b>{r[0]}</b>{dir && <small>to {dir.to}</small>}</button>
                 })}
               </div>
 
@@ -313,7 +323,7 @@ export default function Stop() {
                 return (
                   <div style={{ marginTop: 14, borderTop: '1px solid var(--line)', paddingTop: 14 }}>
                     <button type="button" className="link" style={{ marginBottom: 8 }} onClick={() => { setSel(null); setLive(null) }}><Icon name="back" size={15} />Back to all routes at this stop</button>
-                    <p style={{ margin: '0 0 10px', fontWeight: 700 }}>Route {route[0]}{route[1] ? ` · ${route[1]}` : ''}</p>
+                    {(() => { const dir = direction(data, sel.routeId, sel.directionId, origin.stopId); return <p style={{ margin: '0 0 10px', fontWeight: 700 }}>Route {route[0]}{dir ? ` towards ${dir.to}` : ''}{dir?.way && <span className="hint" style={{ fontWeight: 500 }}> ({dir.way})</span>}</p> })()}
                     <p style={{ margin: '0 0 6px', fontWeight: 600, fontSize: 14 }}>Next departures from here</p>
                     {departures.length ? (
                       <ul className="rows" style={{ margin: '0 0 10px' }}>
