@@ -18,7 +18,9 @@ export function ipHash(req) {
 
 /** Reads a JSON body with a size cap. Rejects anything that isn't a JSON object. */
 export async function readJson(req, max = 8 * 1024) {
-  if (req.body && typeof req.body === 'object') return req.body
+  // Vercel parses the body lazily and throws on malformed JSON when it is read
+  let parsed; try { parsed = req.body } catch { throw Object.assign(new Error('Send a JSON object'), { status: 400 }) }
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed
   let raw = ''
   for await (const chunk of req) { raw += chunk; if (raw.length > max) throw Object.assign(new Error('Too large'), { status: 413 }) }
   try { const v = JSON.parse(raw || '{}'); if (v && typeof v === 'object' && !Array.isArray(v)) return v } catch { /* fall through */ }
