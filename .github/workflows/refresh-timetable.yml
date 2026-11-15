@@ -42,7 +42,7 @@ jobs:
           d = json.load(open('public/data/stops.json'))
           assert len(d['stops']) > 9000 and len(d['routes']) > 300, 'stop lookup looks truncated'
           for dt in ('wk', 'sat', 'sun'):
-              n = sum(len(json.load(open(f'public/data/trips/{dt}/{i}.json'))) for i in range(64))
+              n = sum(len(json.load(open(f'public/data/trips/{dt}/{i}.json'))) for i in range(256))
               assert n > 10000, f'{dt} trips look truncated: {n}'
               print(dt, 'departure lists', n)
           PY

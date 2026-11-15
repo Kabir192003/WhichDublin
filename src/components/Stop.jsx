@@ -82,8 +82,8 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
 const DAYTYPE = (() => { const d = dublinNow().day; return d === 'Sat' ? 'sat' : d === 'Sun' ? 'sun' : 'wk' })()   // which timetable is running today (in Dublin)
-const SHARDS = 64   // same rule as pipeline/shard-trips.py
-const shardOf = (stopId) => [...stopId].reduce((a, c) => a + c.charCodeAt(0), 0) % SHARDS
+const SHARDS = 256   // same rule as pipeline/shard-trips.py (FNV-1a)
+const shardOf = (stopId) => { let h = 0x811c9dc5; for (const c of stopId) { h ^= c.charCodeAt(0); h = Math.imul(h, 0x01000193) } return (h >>> 0) % SHARDS }
 const AHEAD = 60   // minutes: a bus further out than this has no meaningful live delay yet
 
 export default function Stop() {
@@ -102,18 +102,21 @@ export default function Stop() {
     if (paths || (!sel && !dest)) return
     fetch(PATHS_URL).then((r) => r.ok ? r.json() : {}).then(setPaths).catch(() => setPaths({}))
   }, [sel, dest, paths])
+  const [tripsTry, setTripsTry] = useState(0)
   useEffect(() => {
     setTrips(null); if (!origin) return
     let alive = true
-    fetch(`${import.meta.env.BASE_URL}data/trips/${DAYTYPE}/${shardOf(origin.stopId)}.json`).then((r) => (r.ok ? r.json() : {})).then((x) => alive && setTrips(x)).catch(() => alive && setTrips({}))
+    const url = `${import.meta.env.BASE_URL}data/trips/${DAYTYPE}/${shardOf(origin.stopId)}.json`
+    const get = () => fetch(url).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() })
+    get().catch(() => new Promise((res) => setTimeout(res, 800)).then(get)).then((x) => alive && setTrips(x)).catch(() => alive && setTrips('error'))
     return () => { alive = false }
-  }, [origin?.stopId])
+  }, [origin?.stopId, tripsTry])
   useEffect(() => { setHistory(loadHistory()) }, [])
   useEffect(() => { if (origin) { pushHistory(origin); setHistory(loadHistory()) } }, [origin?.stopId])
 
   const routes = origin && data ? (data.stopRoutes[origin.stopId] || []) : []
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
-  const tripList = sel && origin && trips ? trips[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, tripId], ...] for today
+  const tripList = sel && origin && trips && trips !== 'error' ? trips[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, tripId], ...] for today
   const departures = useMemo(() => {
     if (!sel || !origin || !data) return []
     const key = `${origin.stopId}:${sel.routeId}:${sel.directionId}`
@@ -310,7 +313,7 @@ export default function Stop() {
                           )
                         })}
                       </ul>
-                    ) : <p className="hint" style={{ margin: '0 0 12px' }}>{tripList && !tripList.length ? 'This route does not run today.' : 'No more scheduled departures today.'}</p>}
+                    ) : <p className="hint" style={{ margin: '0 0 12px' }}>{trips === 'error' ? <>Could not load today's timetable. <button type="button" className="link" onClick={() => setTripsTry((n) => n + 1)}>Try again</button></> : !trips ? 'Loading today\'s timetable…' : tripList && !tripList.length ? 'This route does not run today.' : 'No more scheduled departures today.'}</p>}
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>

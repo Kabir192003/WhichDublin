@@ -3,12 +3,15 @@ only downloads the few kilobytes for the stop being looked at.
 
   public/data/trips/<daytype>/<shard>.json   { "stopId:routeId:directionId": [[minutesAfterMidnight, tripId], ...] }
 
-The shard of a stop is the sum of its characters modulo SHARDS; src/components/Stop.jsx uses the same rule.
+The shard of a stop is a hash of its id (see shard() below).
 Run after build-stops.py has been run for each day type (wk, sat, sun)."""
 import json, os, sys
 
-SHARDS = 64
-shard = lambda stop_id: sum(ord(c) for c in stop_id) % SHARDS
+SHARDS = 256
+def shard(stop_id):   # FNV-1a, 32 bit: spreads the near-identical stop ids evenly. src/components/Stop.jsx uses the same rule.
+    h = 0x811c9dc5
+    for c in stop_id: h = ((h ^ ord(c)) * 0x01000193) & 0xFFFFFFFF
+    return h % SHARDS
 
 for dt in ('wk', 'sat', 'sun'):
     src = f'data/build/{dt}/stop-trips.json'
