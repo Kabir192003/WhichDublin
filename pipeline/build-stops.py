@@ -25,6 +25,8 @@ Output:
 import sys, json, zipfile, datetime as dt
 import pandas as pd
 sys.setrecursionlimit(5000)
+import os
+GTFS_DIR = os.environ.get('GTFS_DIR', 'data/raw/gtfs')   # folder holding GTFS_<feed>.zip
 
 BBOX = (53.10, 53.55, -6.60, -5.90)   # lat min/max, lon min/max: Dublin commuter area
 FEEDS = [('Dublin_Bus', 'bus', True), ('GoAhead', 'bus', True), ('Bus_Eireann', 'bus', False), ('LUAS', 'tram', False), ('Irish_Rail', 'rail', False)]
@@ -71,10 +73,10 @@ def rdp(pts, eps=0.00006):
 day = dt.date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else next_wednesday()
 print('service date', day, day.strftime('%A'))
 
-stops_out, by_code, routes_out, stop_routes, shapes, paths, best_len, shape_for, departures = {}, {}, {}, {}, {}, {}, {}, {}, {}
+stops_out, by_code, routes_out, stop_routes, shapes, paths, best_len, shape_for, departures, trips_at = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
 
 for feed_name, mode, needs_bbox in FEEDS:
-    z = zipfile.ZipFile(f'data/raw/gtfs/GTFS_{feed_name}.zip')
+    z = zipfile.ZipFile(f'{GTFS_DIR}/GTFS_{feed_name}.zip')
     svc = active_services(z, day)
     stops = pd.read_csv(z.open('stops.txt'), dtype=str, usecols=['stop_id', 'stop_code', 'stop_name', 'stop_lat', 'stop_lon'])
     if needs_bbox:
@@ -112,6 +114,7 @@ for feed_name, mode, needs_bbox in FEEDS:
             for stop_id, dep in zip(g.stop_id, g.dep):
                 stop_routes.setdefault(stop_id, set()).add((rid, did))
                 departures.setdefault(f'{stop_id}:{rid}:{did}', []).append(int(dep) // 60)
+                trips_at.setdefault(f'{stop_id}:{rid}:{did}', []).append([int(dep) // 60, trip_id])   # exact trip id of each departure, matched to the live feed
             n_conn += len(g)
 
     if has_shapes:
@@ -137,6 +140,7 @@ for feed_name, mode, needs_bbox in FEEDS:
     print(feed_name, 'active services', len(svc), 'trips', len(want_trips), 'connections', n_conn, 'routes', len(feed_routes), flush=True)
 
 for k in departures: departures[k] = sorted(set(departures[k]))
+trips_at = {k: sorted(v) for k, v in trips_at.items() if k.split(':')[0] in stops_out}
 used_routes = {rid for pairs in stop_routes.values() for rid, _ in pairs}
 routes_out = {rid: v for rid, v in routes_out.items() if rid in used_routes}
 stop_routes = {k: v for k, v in stop_routes.items() if k in stops_out}
@@ -154,4 +158,5 @@ out = {
 import os; os.makedirs('data/build', exist_ok=True)
 json.dump(out, open(OUT, 'w'), separators=(',', ':'))
 json.dump(paths, open('data/build/stop-paths.json', 'w'), separators=(',', ':'))
+json.dump(trips_at, open('data/build/stop-trips.json', 'w'), separators=(',', ':'))
 print('stops', len(stops_out), 'with code', len(by_code), 'routes', len(routes_out), 'shapes', len(shapes), 'paths', len(paths), 'departure lists', len(departures))
