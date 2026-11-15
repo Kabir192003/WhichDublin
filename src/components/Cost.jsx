@@ -20,7 +20,7 @@ const num = (v) => (v === '' || v == null ? null : Number(v))
 export function CostCard({ rentShare, rentLow, mode, people = 1 }) {
   const [c, set] = useCostSettings()
   const days = Number(c.days) || 0
-  const travel = { low: travelCost(mode, { daysPerWeek: days, fare: 1 }), typical: travelCost(mode, { daysPerWeek: days, fare: fareFor(c.card) }), high: travelCost(mode, { daysPerWeek: days, fare: 2 }) }
+  const travel = { low: travelCost(mode, { daysPerWeek: Math.max(1, days - 1), fare: fareFor(c.card) }), typical: travelCost(mode, { daysPerWeek: days, fare: fareFor(c.card) }), high: travelCost(mode, { daysPerWeek: Math.min(7, days + 1), fare: 2 }) }   // shortcut: low/high bracket the trip count by one day, not a measured spread
   const rent = { low: Math.min(rentLow ?? rentShare, rentShare), typical: rentShare, high: Math.round(rentShare * (1 + ASKING_PREMIUM)) }
   const r = costRange({ rentShare: rent, travel, people, berFactor: BER_FACTOR[c.ber]?.f ?? null, bills: BILLS, groceries: GROCERIES, phone: PHONE, own: { bills: num(c.bills), food: num(c.food), phone: num(c.phone) } })
   const row = (k, label) => <tr key={k}><th scope="row">{label}</th><td className="num">{eur(r.low.parts[k])}</td><td className="num"><b>{eur(r.typical.parts[k])}</b></td><td className="num">{eur(r.high.parts[k])}</td></tr>
@@ -44,6 +44,7 @@ export function CostCard({ rentShare, rentLow, mode, people = 1 }) {
           <tbody>{row('rent', 'Rent, your share')}{row('travel', 'Travel')}{row('bills', `Bills, your share${people > 1 ? ` (÷${people})` : ''}`)}{row('food', 'Groceries')}{row('phone', 'Phone')}</tbody>
         </table>
       </div>
+      <p className="hint" style={{ margin: '8px 0 0' }}>Rent: low is what existing tenancies pay, high adds a typical 10% asking premium.{mode === 'transit' ? ' Travel: low is one fewer day on campus a week, high is one more day at the adult fare.' : ''}</p>
       <h3 style={{ fontSize: 14, margin: '14px 0 6px' }}>Make it yours</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 10 }}>
         <label className="field" style={{ gap: 4 }}><span className="hint" style={{ fontWeight: 600, color: 'var(--ink2)' }}>Energy rating (BER)</span>
