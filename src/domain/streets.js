@@ -13,7 +13,7 @@ export async function streetTable(profile, origin, dests) {
         if (d.code === 'Ok') return dests.map((_, i) => d.distances[0][i + 1] == null ? null : { metres: Math.round(d.distances[0][i + 1]), secs: Math.round(d.durations[0][i + 1]) })
       }
     } catch { /* busy or offline: retry */ }
-    await new Promise((res) => setTimeout(res, 1500 * (attempt + 1)))
+    await new Promise((res) => setTimeout(res, 600 * (attempt + 1)))
   }
   return null
 }
