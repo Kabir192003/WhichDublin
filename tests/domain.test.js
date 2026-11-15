@@ -258,3 +258,8 @@ test('live: stop match, exact beats propagated, and a trip already past the stop
   const noShape = matchStopRoute([['R1', [['a', 10, null]]]], 'd', 'R1', [])
   assert.deepEqual(noShape, [])
 })
+
+test('live: feed route ids (underscores) match the timetable ids (spaces)', () => {
+  const hit = matchStopRoute([['1_38A_c_a', [['s', 120, null]]]], 's', '1 38A c a', ['s'])
+  assert.deepEqual(hit, [{ atMs: null, delaySec: 120, exact: true }])
+})

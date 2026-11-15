@@ -44,7 +44,7 @@ export function summarise(trips, feedUpdatedAt) {
   for (const [rid, stops] of trips) {
     const last = stops[stops.length - 1]
     const d = last[1]; if (d == null) continue
-    const [name, op, mode] = routes[rid] || [rid, '', 'other']
+    const [name, op, mode] = routes[rid] || routes[rkey(rid)] || [rid, '', 'other']
     const key = `${mode}:${name}`
     const r = per.get(key) || { name, operator: op, mode, delays: [] }
     r.delays.push(d); per.set(key, r); all.push(d)
@@ -116,11 +116,15 @@ export async function live() {
  * recent known delay forward to the stop in question, the same way any GTFS-RT consumer has to.
  * A trip whose latest known position is already past our stop is dropped, not shown as upcoming.
  * Each result is one bus, tagged `exact: true` only when the feed named our stop directly. */
+/** The live feed writes route ids with underscores ("1_38A_c_a"), the static timetable with spaces. */
+const rkey = (id) => String(id).replace(/_/g, ' ')
+
 export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
+  const want = rkey(routeId)
   const targetIdx = shapeStopIds.indexOf(stopId)
   const out = []
   for (const [rid, stops] of trips || []) {
-    if (rid !== routeId) continue
+    if (rkey(rid) !== want) continue
     const exactHit = stops.find(([sid]) => sid === stopId)
     if (exactHit) { out.push({ atMs: exactHit[2], delaySec: exactHit[1], exact: true }); continue }
     if (targetIdx === -1) continue   // no shape given, or stop not on it: can't place this trip
@@ -139,5 +143,3 @@ export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
   await live()
   return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds) }
 }
-
-export const liveTrips = () => cache.trips
