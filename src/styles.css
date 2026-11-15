@@ -335,7 +335,15 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
   .finder { display: flex; flex-direction: column }
   .filters { padding: 8px 12px; gap: 8px }
   .finder > .filters { flex-wrap: nowrap }
-  .card .filters .pill { flex: 1 1 150px } .card .filters .pill select { width: 100% } .card .filters .grow { margin-left: 0; width: 100% }
+  .card .filters { display: grid; grid-template-columns: 1fr; gap: 8px }
+  .card .filters .pill { width: 100%; min-height: 46px; justify-content: space-between; padding-right: 32px }
+  .card .filters .pill .k { white-space: nowrap; flex: none }
+  .card .filters .pill select, .card .filters .pill input { flex: 1; width: 100%; min-width: 0; text-align: right; text-align-last: right; font-size: 16px }
+  .card .filters .grow { margin-left: 0; width: 100% }
+  .seg button, .seg label { min-height: 40px }
+  .foot nav a, .rows li a { display: inline-block; padding: 6px 0 }
+  .rtable th, .rtable td { font-size: 12px }
+  input, select, textarea { font-size: 16px }   /* iOS zooms the page on focus below 16px */
   .seg .wide { display: none }
   .filters .pill.collapsible, .filters .sep { display: none }
   .filter-summary { display: flex; flex: 1; min-width: 0; align-items: center; gap: 8px; font: inherit; font-size: 13px; text-align: left; background: var(--surface); border: 1px solid var(--line2); border-radius: 8px; padding: 0 10px; min-height: 38px; color: var(--ink); cursor: pointer }
@@ -351,7 +359,7 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
   .stat b { font-size: 16px } .stat { padding: 0 8px }
   .card { padding: 18px 16px }
   .steps em { display: none }
-  .work-controls { grid-template-columns: 1fr } .work-table td:nth-child(2) { width: auto } .work-table .track { display: none } .work-table th, .work-table td { padding: 10px 4px } .work-table thead th { font-size: 11px } .work-table .chip { display: none }
+  .work-controls { grid-template-columns: 1fr } .work-table td:nth-child(2) { width: auto } .work-table .track { display: none } .work-table th, .work-table td { padding: 10px 4px } .work-table thead th { font-size: 12px } .work-table .chip { display: none }
   .modal { place-items: end center; padding: 0 } .modal-card { border-radius: var(--r-lg) var(--r-lg) 0 0; max-height: 88vh; padding: 18px 16px 24px }
   .cmp th, .cmp td { min-width: 132px; padding: 9px 10px } .cmp tbody th { min-width: 118px }
 }
