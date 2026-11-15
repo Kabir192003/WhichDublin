@@ -76,6 +76,7 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
 
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
+const NEAR = 3   // live matching only for the next few departures: a bus further out is not on the road yet
 const WEEKEND = [0, 6].includes(new Date().getDay())
 
 export default function Stop() {
@@ -122,10 +123,10 @@ export default function Stop() {
     const midnight = new Date(); midnight.setHours(0, 0, 0, 0)
     const candidates = live.live.map((x) => ({ ...x, expMin: x.atMs != null ? Math.round((x.atMs - midnight.getTime()) / 60000) : null })).filter((x) => x.expMin != null || x.delaySec != null)
     const pairs = []
-    departures.forEach((d, i) => candidates.forEach((c, j) => { const exp = c.expMin != null ? c.expMin : d.mins + c.delaySec / 60; pairs.push({ i, j, diff: Math.abs(exp - d.mins), exp, delaySec: c.delaySec, exact: c.exact }) }))
+    departures.slice(0, NEAR).forEach((d, i) => candidates.forEach((c, j) => { const exp = c.expMin != null ? c.expMin : d.mins + c.delaySec / 60; pairs.push({ i, j, diff: Math.abs(exp - d.mins), exp, delaySec: c.delaySec, exact: c.exact }) }))
     pairs.sort((a, b) => a.diff - b.diff)
     const usedDep = new Set(), usedCand = new Set()
-    for (const p of pairs) { if (p.diff > 25 || usedDep.has(p.i) || usedCand.has(p.j)) continue; out.set(p.i, { expMin: Math.round(p.exp), delaySec: p.delaySec, exact: p.exact }); usedDep.add(p.i); usedCand.add(p.j) }
+    for (const p of pairs) { if (p.diff > 15 || (!p.exact && WEEKEND) || usedDep.has(p.i) || usedCand.has(p.j)) continue; out.set(p.i, { expMin: Math.round(p.exp), delaySec: p.delaySec, exact: p.exact }); usedDep.add(p.i); usedCand.add(p.j) }
     return out
   }, [live, departures])
 
@@ -282,7 +283,7 @@ export default function Stop() {
                           const sec = m?.delaySec ?? (m ? (m.expMin - d.mins) * 60 : null)
                           return (
                             <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                              <span style={{ fontVariantNumeric: 'tabular-nums', textDecoration: expected && expected !== hhmm(d.mins) ? 'line-through' : 'none', color: expected ? 'var(--muted)' : 'inherit' }}>{hhmm(d.mins)}</span>
+                              <span style={{ fontVariantNumeric: 'tabular-nums', color: expected ? 'var(--muted)' : 'inherit' }}>{hhmm(d.mins)}</span>
                               {expected
                                 ? <span className={`chip ${delayTone(sec)}`} title={m.exact ? 'Reported directly at this stop' : "Estimated: this bus's delay carried forward from its last reported stop, since the feed hasn't updated this exact stop yet"}><span className="dot" aria-hidden="true" /> {m.exact ? 'Expected' : '~Expected'} {expected}{sec != null ? ` (${delayLabel(sec)})` : ''}</span>
                                 : null}
@@ -292,7 +293,7 @@ export default function Stop() {
                       </ul>
                     ) : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live buses on this route right now, so these are scheduled times only.</p>}
-                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are a typical weekday timetable (as of {data.date}){WEEKEND ? ', and it is the weekend, so real departures will differ' : ''}. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported this bus at this exact stop yet, so the delay is carried forward from where it was last seen on this route. Live tracking only covers buses already on the road, so it usually only shows for the next departure or two, not ones further out.</p>
+                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are a typical weekday timetable (as of {data.date}){WEEKEND ? ', and it is the weekend, so real departures will differ' : ''}. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported this bus at this exact stop yet, so the delay is carried forward from where it was last seen on this route. Live tracking only covers buses already on the road, so it only shows for the next three departures, not ones further out.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} />
                       <details style={{ marginTop: 10 }}>
