@@ -248,12 +248,19 @@ export default function Stop() {
     const routeName = sel && data?.routes[sel.routeId]?.[0] || ''
     const byTrip = new Map()
     const thisWay = new Set((tripList || []).map((t) => t[1]))   // trips scheduled at this stop in this direction: the other way's buses are left out
+    const key = sel && `${sel.routeId}:${sel.directionId}`, shapeStops = key ? data?.shapes[key] : null, off = key ? data?.offsets?.[key] : null
+    const ti = shapeStops && origin ? shapeStops.indexOf(origin.stopId) : -1
     for (const v of live?.vehicles || []) {
       if (!thisWay.has(v.tripId)) continue
       const d = delayOf.get(v.tripId)
       const metres = here ? Math.round(haversine({ lat: v.lat, lon: v.lon }, { lat: here[2], lon: here[3] })) : null
+      // where the bus is along the route: the nearest stop of the pattern to its GPS fix
+      let vi = -1, bestM = 1e9
+      if (shapeStops) shapeStops.forEach((sid, i) => { const st = data.stops[sid]; if (!st) return; const m = haversine({ lat: v.lat, lon: v.lon }, { lat: st[2], lon: st[3] }); if (m < bestM) { bestM = m; vi = i } })
+      const stopsAway = ti >= 0 && vi >= 0 && vi < ti ? ti - vi : null
+      const etaMin = stopsAway != null && off ? nowMins() + Math.max(0, off[ti] - off[vi]) : null   // typical ride time still to go
       const km = metres == null ? '' : metres < 1000 ? `, ${Math.max(50, Math.round(metres / 50) * 50)} m from this stop` : `, ${(metres / 1000).toFixed(1)} km from this stop`
-      byTrip.set(v.tripId, { ...v, color: delayColor(d), name: routeName, label: `Route ${routeName}: ${d == null ? 'no delay reported' : delayLabel(d)}${km}`, metres })
+      byTrip.set(v.tripId, { ...v, color: delayColor(d), name: routeName, label: `Route ${routeName}: ${d == null ? 'no delay reported' : delayLabel(d)}${km}${stopsAway ? `, ${stopsAway} stop${stopsAway === 1 ? '' : 's'} away` : ''}`, metres, stopsAway, etaMin })
     }
     return byTrip
   }, [live, origin?.stopId, data, sel?.routeId, tripList])
@@ -271,6 +278,20 @@ export default function Stop() {
     }
     return best
   }, [sel?.routeId, sel?.directionId, origin?.stopId, data])
+  /** A scheduled departure whose bus is on the road (GPS) but has no delay update yet: estimate from where the bus is. */
+  const gpsMatch = useMemo(() => {
+    const out = new Map()
+    if (!tripList?.length || !departures.length) return out
+    const slotOf = new Map(tripList.map(([m, id]) => [id, m]))
+    for (const v of busPos.values()) {
+      const slot = slotOf.get(v.tripId); if (slot == null || v.etaMin == null) continue
+      const i = departures.findIndex((d) => d.mins === slot)
+      if (i < 0 || matched.has(i) || slot - nowMins() > 90) continue
+      const expMin = Math.max(v.etaMin, slot)   // a bus waiting at the start of its route leaves on schedule, not early
+      out.set(i, { expMin, delaySec: (expMin - slot) * 60, exact: false, gps: true, tripId: v.tripId })
+    }
+    return out
+  }, [busPos, tripList, departures, matched])
   const away = (m) => (m == null ? null : m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)} m away` : `${(m / 1000).toFixed(1)} km away`)
 
   /** Journeys from the origin station to the destination station: direct or with changes, any mix of bus, Luas, DART and rail. */
@@ -375,16 +396,16 @@ export default function Stop() {
                     {departures.length ? (
                       <ul className="rows" style={{ margin: '0 0 10px' }}>
                         {departures.map((d, i) => {
-                          const m = matched.get(i)
+                          const m = matched.get(i) || gpsMatch.get(i)
                           const expected = m ? hhmm(m.expMin) : null
                           const sec = m?.delaySec ?? (m ? (m.expMin - d.mins) * 60 : null)
                           return (
                             <li key={i} style={{ display: 'flex', gap: '2px 10px', alignItems: 'center', flexWrap: 'wrap' }}>
                               <span style={{ fontVariantNumeric: 'tabular-nums', color: expected ? 'var(--muted)' : 'inherit' }}>{hhmm(d.mins)}</span>
                               {expected
-                                ? <span className={`chip ${delayTone(sec)}`} title={m.exact ? 'Reported directly at this stop' : "Estimated: this bus's delay carried forward from its last reported stop, since the feed hasn't updated this exact stop yet"}><span className="dot" aria-hidden="true" /> {m.exact ? 'Expected' : '~Expected'} {expected}{sec != null ? ` (${delayLabel(sec)})` : ''}</span>
+                                ? <span className={`chip ${delayTone(sec)}`} title={m.gps ? "Estimated from the bus's GPS position and the typical time between stops: the delay feed has no update for this bus yet" : m.exact ? 'Reported directly at this stop' : "Estimated: this bus's delay carried forward from its last reported stop, since the feed hasn't updated this exact stop yet"}><span className="dot" aria-hidden="true" /> {m.exact ? 'Expected' : '~Expected'} {expected}{m.gps ? ' (GPS)' : ''}{sec != null ? ` (${delayLabel(sec)})` : ''}</span>
                                 : null}
-                              {m && busPos.get(m.tripId)?.metres != null && <span className="hint" style={{ whiteSpace: 'nowrap', marginLeft: 'auto' }} title="Straight-line distance from the bus's latest GPS fix to this stop">{away(busPos.get(m.tripId).metres)}</span>}
+                              {m && busPos.get(m.tripId)?.metres != null && <span className="hint" style={{ whiteSpace: 'nowrap', marginLeft: 'auto' }} title="Straight-line distance from the bus's latest GPS fix to this stop">{away(busPos.get(m.tripId).metres)}{busPos.get(m.tripId).stopsAway ? `, ${busPos.get(m.tripId).stopsAway} stop${busPos.get(m.tripId).stopsAway === 1 ? '' : 's'} away` : ''}</span>}
                             </li>
                           )
                         })}
