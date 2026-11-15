@@ -123,6 +123,50 @@ function JourneyLegs({ data, journey }) {
   )
 }
 
+/** Live Luas or Irish Rail board for a tram or rail stop: next vehicles per direction, straight from the operators' own feeds. */
+function LiveBoard({ origin, data }) {
+  const [st, setSt] = useState({ board: undefined })
+  const here = data.stops[origin.stopId]
+  useEffect(() => {
+    if (!here) return
+    let alive = true; setSt({ board: undefined })
+    const load = () => getJson(`/api/transit-live?mode=${origin.mode}&lat=${here[2]}&lon=${here[3]}`).then((x) => alive && setSt({ board: x.board, updated: x.updated })).catch(() => alive && setSt({ board: null, error: true }))
+    load(); const t = setInterval(() => { if (!document.hidden) load() }, 15_000)
+    return () => { alive = false; clearInterval(t) }
+  }, [origin.stopId, origin.mode])
+  const b = st.board
+  const box = { margin: '0 0 14px', padding: '12px 14px', border: '1px solid var(--line)', borderRadius: 'var(--r)', background: 'var(--tint)' }
+  if (b === undefined) return <p className="hint" style={{ margin: '0 0 12px' }}>Loading live {origin.mode === 'tram' ? 'Luas' : 'train'} times…</p>
+  if (!b) return <p className="hint" style={{ margin: '0 0 12px' }}>{st.error ? 'Live times are unavailable right now.' : 'No live board found for this stop.'}</p>
+  const due = (m) => (m <= 0 ? 'Due' : `${m} min`)
+  return (
+    <div style={box} aria-live="polite">
+      <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Live {b.kind === 'tram' ? 'Luas' : 'trains'} at {b.station}{st.updated ? <span className="hint" style={{ fontWeight: 400 }}> · updated {ago(st.updated)}</span> : null}</p>
+      {b.kind === 'tram' ? (
+        <>
+          {b.message && <p className="hint" style={{ margin: '0 0 8px' }}>{b.message}</p>}
+          {b.directions.length === 0 && <p className="hint" style={{ margin: 0 }}>No trams are due at the moment.</p>}
+          {b.directions.map((d) => (
+            <div key={d.name} style={{ marginBottom: 8 }}>
+              <p style={{ margin: '0 0 2px', fontWeight: 600, fontSize: 14 }}>{d.name === 'Inbound' ? 'Inbound' : 'Outbound'}: towards {[...new Set(d.trams.slice(0, 3).map((t) => t.destination))].join(' / ')}</p>
+              <ul className="rows" style={{ margin: 0 }}>{d.trams.slice(0, 4).map((t, i) => <li key={i} style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t.destination}</span><b>{due(t.due)}</b></li>)}</ul>
+            </div>
+          ))}
+        </>
+      ) : (
+        <>
+          {b.trains.length === 0 && <p className="hint" style={{ margin: 0 }}>No trains are due at the moment.</p>}
+          <ul className="rows" style={{ margin: 0 }}>{b.trains.slice(0, 6).map((t, i) => (
+            <li key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+              <span>{t.departs && t.departs !== '00:00' ? t.departs : ''} to {t.destination}{t.late > 0 ? <span className="hint"> · {t.late} min late</span> : null}</span><b>{due(t.due)}</b>
+            </li>))}</ul>
+        </>
+      )}
+      <p className="hint" style={{ margin: '8px 0 0' }}>From {b.kind === 'tram' ? "Transport Infrastructure Ireland's Luas forecasts" : "Irish Rail's real-time service"}.</p>
+    </div>
+  )
+}
+
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
 const DAYTYPE = (() => { const d = dublinNow().day; return d === 'Sat' ? 'sat' : d === 'Sun' ? 'sun' : 'wk' })()   // which timetable is running today (in Dublin)
@@ -308,6 +352,7 @@ export default function Stop() {
             <section className="fact" style={{ marginTop: 18 }}>
               <button type="button" className="link" style={{ marginBottom: 8 }} onClick={() => { setOrigin(null); setSel(null); setLive(null) }}><Icon name="back" size={15} />Search a different stop</button>
               <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name={MODE_ICON[origin.mode] || 'bus'} size={18} />{origin.name}{origin.code && origin.mode === 'bus' ? <span className="hint">· stop {origin.code}</span> : null}</h2>
+              {(origin.mode === 'tram' || origin.mode === 'rail') && <LiveBoard origin={origin} data={data} />}
               <p className="hint" style={{ margin: '4px 0 10px' }}>{routes.length} route{routes.length === 1 ? '' : 's'} serve this stop.</p>
               <div className="tags">
                 {routes.map(([rid, did]) => {

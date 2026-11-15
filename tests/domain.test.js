@@ -293,3 +293,15 @@ test('planner: direct ride, one change, walking link, and platforms of one stati
   assert.deepEqual(best.legs.map((l) => l.type), ['ride', 'walk', 'ride'])   // C1 to C2 is a short walk, then the second line
   assert.equal(plan(idx, ['A'], ['X'], 98).length, 0)
 })
+
+import { parseLuasStops, parseLuasForecast, parseRailBoard, parseRailStations } from '../server/transit.js'
+test('transit: Luas stops, Luas forecast and Irish Rail board parse', () => {
+  const stops = parseLuasStops('<stops><line name="Luas Red Line"><stop abrev="MUS" isParkRide="0" isCycleRide="0" lat="53.3478" long="-6.2869" pronunciation="Museum">Museum</stop></line></stops>')
+  assert.deepEqual(stops[0], { abv: 'MUS', lat: 53.3478, lon: -6.2869, name: 'Museum' })
+  const f = parseLuasForecast('<stopInfo><message>Red Line services operating normally</message><direction name="Inbound"><tram dueMins="2" destination="The Point" /><tram dueMins="DUE" destination="Connolly" /></direction><direction name="Outbound"><tram dueMins="" destination="No Northbound Service" /></direction></stopInfo>')
+  assert.equal(f.directions.length, 1); assert.deepEqual(f.directions[0].trams.map((t) => t.due), [2, 0]); assert.match(f.message, /normally/)
+  const st = parseRailStations('<ArrayOfObjStation><objStation><StationDesc>Dublin Connolly</StationDesc><StationLatitude>53.3531</StationLatitude><StationLongitude>-6.24591</StationLongitude><StationCode>CNLLY </StationCode></objStation></ArrayOfObjStation>')
+  assert.equal(st[0].code, 'CNLLY')
+  const b = parseRailBoard('<x><objStationData><Destination>Maynooth</Destination><Origin>Dublin Connolly</Origin><Duein>4</Duein><Late>2</Late><Expdepart>18:47</Expdepart><Schdepart>18:45</Schdepart><Exparrival>00:00</Exparrival><Scharrival>00:00</Scharrival><Direction>Northbound</Direction></objStationData><objStationData><Destination>Belfast</Destination><Duein>2</Duein><Late>0</Late><Expdepart>00:00</Expdepart><Schdepart>18:50</Schdepart></objStationData></x>')
+  assert.deepEqual(b.map((t) => [t.destination, t.due, t.departs]), [['Belfast', 2, '18:50'], ['Maynooth', 4, '18:47']])
+})
