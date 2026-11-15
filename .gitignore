@@ -13,3 +13,7 @@ data/build/network.json
 .DS_Store
 data/raw/essentials_cache.json
 data/build/network-*.json
+data/build/wk/
+data/build/sat/
+data/build/sun/
+data/build/stop-trips.json

@@ -1,0 +1,57 @@
+name: Refresh bus timetable
+# Live bus matching uses the exact trip ids of the NTA timetable, and those ids change every week
+# (the week runs Sunday to Saturday). This rebuilds the stop lookup and trip files from the NTA's
+# latest static GTFS so live badges keep working. Runs early every Sunday; can also be run by hand.
+on:
+  schedule: [{ cron: '30 2 * * 0' }]
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: refresh-timetable, cancel-in-progress: false }
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install pandas
+      - name: Download the NTA timetables
+        run: |
+          mkdir -p "$RUNNER_TEMP/gtfs"
+          for n in Dublin_Bus GoAhead Bus_Eireann LUAS Irish_Rail; do
+            curl -fsS --retry 4 --retry-delay 10 -A "Mozilla/5.0" -o "$RUNNER_TEMP/gtfs/GTFS_$n.zip" "https://www.transportforireland.ie/transitData/Data/GTFS_$n.zip"
+          done
+      - name: Build the weekday, Saturday and Sunday timetables for the current Sunday-to-Saturday week
+        env: { GTFS_DIR: '${{ runner.temp }}/gtfs' }
+        run: |
+          # most recent Sunday (today if it is one): Sunday = that day, weekday = the Monday after, Saturday = 6 days on
+          read SUN MON SAT < <(python3 -c "import datetime as d; t=d.date.today(); s=t-d.timedelta(days=(t.weekday()+1)%7); print(s, s+d.timedelta(1), s+d.timedelta(6))")
+          echo "sun $SUN  weekday $MON  sat $SAT"
+          OUT_DIR=data/build/sun python3 pipeline/build-stops.py "$SUN"
+          OUT_DIR=data/build/wk  python3 pipeline/build-stops.py "$MON"
+          OUT_DIR=data/build/sat python3 pipeline/build-stops.py "$SAT"
+          python3 pipeline/shard-trips.py
+          cp data/build/wk/stops.json public/data/stops.json
+          cp data/build/wk/stop-paths.json public/data/stop-paths.json
+          python3 pipeline/build-routes.py
+      - name: Sanity check before publishing
+        run: |
+          python3 - <<'PY'
+          import json
+          d = json.load(open('public/data/stops.json'))
+          assert len(d['stops']) > 9000 and len(d['routes']) > 300, 'stop lookup looks truncated'
+          for dt in ('wk', 'sat', 'sun'):
+              n = sum(len(json.load(open(f'public/data/trips/{dt}/{i}.json'))) for i in range(64))
+              assert n > 10000, f'{dt} trips look truncated: {n}'
+              print(dt, 'departure lists', n)
+          PY
+      - name: Commit if changed
+        run: |
+          git add public/data/stops.json public/data/stop-paths.json public/data/trips server/routes.js
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh bus timetable and trip ids"
+          git pull --rebase origin main
+          git push
