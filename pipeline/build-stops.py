@@ -31,7 +31,8 @@ GTFS_DIR = os.environ.get('GTFS_DIR', 'data/raw/gtfs')   # folder holding GTFS_<
 BBOX = (53.10, 53.55, -6.60, -5.90)   # lat min/max, lon min/max: Dublin commuter area
 FEEDS = [('Dublin_Bus', 'bus', True), ('GoAhead', 'bus', True), ('Bus_Eireann', 'bus', False), ('LUAS', 'tram', False), ('Irish_Rail', 'rail', False)]
 # (feed file, mode, national feed needing a bbox filter)
-OUT = 'data/build/stops.json'
+OUT_DIR = os.environ.get('OUT_DIR', 'data/build')   # one folder per day type when building weekday, Saturday and Sunday
+OUT = f'{OUT_DIR}/stops.json'
 
 def next_wednesday(today=None):
     d = (today or dt.date.today()) + dt.timedelta(days=1)
@@ -155,8 +156,8 @@ out = {
     'shapes': shapes,
     'departures': departures,
 }
-import os; os.makedirs('data/build', exist_ok=True)
+os.makedirs(OUT_DIR, exist_ok=True)
 json.dump(out, open(OUT, 'w'), separators=(',', ':'))
-json.dump(paths, open('data/build/stop-paths.json', 'w'), separators=(',', ':'))
-json.dump(trips_at, open('data/build/stop-trips.json', 'w'), separators=(',', ':'))
+json.dump(paths, open(f'{OUT_DIR}/stop-paths.json', 'w'), separators=(',', ':'))
+json.dump(trips_at, open(f'{OUT_DIR}/stop-trips.json', 'w'), separators=(',', ':'))
 print('stops', len(stops_out), 'with code', len(by_code), 'routes', len(routes_out), 'shapes', len(shapes), 'paths', len(paths), 'departure lists', len(departures))

@@ -40,6 +40,11 @@ python3 pipeline/fetch-supermarkets.py
 python3 pipeline/build-rent.py
 python3 pipeline/build-network.py        # needs the GTFS zip in data/raw/gtfs/
 python3 pipeline/build-stops.py          # bus stop lookup: writes data/build/stops.json, copy to public/data/
+# Live bus matching uses the exact trip ids in the NTA timetable. They change every week, so refresh weekly:
+#   download the five GTFS_*.zip from transportforireland.ie/transitData/Data/ into one folder, then for each day type
+#   GTFS_DIR=<folder> OUT_DIR=data/build/wk  python3 pipeline/build-stops.py <a weekday this week>   (also sat, sun)
+#   python3 pipeline/shard-trips.py          # writes public/data/trips/<wk|sat|sun>/*.json
+#   GTFS_DIR=<folder> python3 pipeline/build-routes.py   # server/routes.js
 python3 pipeline/geocode-areas.py
 python3 pipeline/fetch-enrich.py         # supermarket gap-fill, employer counts, bike docks (resumable, ~40 min)
 python3 pipeline/fetch-bikes-central.py  # finer pass for central Dublin docks, then re-run fetch-enrich.py

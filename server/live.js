@@ -45,7 +45,7 @@ export function summarise(trips, feedUpdatedAt) {
   for (const [rid, stops] of trips) {
     const last = stops[stops.length - 1]
     const d = last[1]; if (d == null) continue
-    const [name, op, mode] = routes[rid] || routes[rkey(rid)] || [rid, '', 'other']
+    const [name, op, mode] = routes[rid] || routes[String(rid).replace(/ /g, '_')] || routes[rkey(rid)] || [rid, '', 'other']
     const key = `${mode}:${name}`
     const r = per.get(key) || { name, operator: op, mode, delays: [] }
     r.delays.push(d); per.set(key, r); all.push(d)
@@ -124,10 +124,11 @@ export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
   const want = rkey(routeId)
   const targetIdx = shapeStopIds.indexOf(stopId)
   const out = []
-  for (const [rid, stops] of trips || []) {
+  for (const [rid, stops, tripId] of trips || []) {
     if (rkey(rid) !== want) continue
+    const id = tripId ? { tripId } : {}   // the feed's trip id: matches the timetable's exactly
     const exactHit = stops.find(([sid]) => sid === stopId)
-    if (exactHit) { out.push({ atMs: exactHit[2], delaySec: exactHit[1], exact: true }); continue }
+    if (exactHit) { out.push({ atMs: exactHit[2], delaySec: exactHit[1], exact: true, ...id }); continue }
     if (targetIdx === -1) continue   // no shape given, or stop not on it: can't place this trip
     let best = null, passedUs = false
     for (const [sid, delaySec] of stops) {
@@ -135,7 +136,7 @@ export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
       if (idx > targetIdx) { passedUs = true; break }
       if (delaySec != null && (!best || idx > best.idx)) best = { idx, delaySec }
     }
-    if (!passedUs && best) out.push({ atMs: null, delaySec: best.delaySec, exact: false })
+    if (!passedUs && best) out.push({ atMs: null, delaySec: best.delaySec, exact: false, ...id })
   }
   return out
 }
@@ -144,5 +145,3 @@ export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
   await live()
   return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds) }
 }
-
-export const liveTrips = () => cache.trips

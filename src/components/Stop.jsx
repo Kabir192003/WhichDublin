@@ -76,8 +76,10 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
 
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
-const NEAR = 3   // live matching only for the next few departures: a bus further out is not on the road yet
-const WEEKEND = [0, 6].includes(new Date().getDay())
+const DAYTYPE = [6, 0].includes(new Date().getDay()) ? (new Date().getDay() === 6 ? 'sat' : 'sun') : 'wk'   // which timetable is running today
+const SHARDS = 64   // same rule as pipeline/shard-trips.py
+const shardOf = (stopId) => [...stopId].reduce((a, c) => a + c.charCodeAt(0), 0) % SHARDS
+const AHEAD = 60   // minutes: a bus further out than this has no meaningful live delay yet
 
 export default function Stop() {
   const [data, setData] = useState(null)
@@ -87,6 +89,7 @@ export default function Stop() {
   const [sel, setSel] = useState(null)         // { routeId, directionId } chosen route (no-destination mode)
   const [live, setLive] = useState(null)
   const [history, setHistory] = useState([])
+  const [trips, setTrips] = useState(null)   // today's departures at this stop with exact trip ids, or null while loading
   const [paths, setPaths] = useState(null)   // road-following route geometry, fetched only once a map is actually needed
 
   useEffect(() => { fetch(STOPS_URL).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() }).then(setData).catch((e) => setErr(String(e))) }, [])
@@ -94,18 +97,26 @@ export default function Stop() {
     if (paths || (!sel && !dest)) return
     fetch(PATHS_URL).then((r) => r.ok ? r.json() : {}).then(setPaths).catch(() => setPaths({}))
   }, [sel, dest, paths])
+  useEffect(() => {
+    setTrips(null); if (!origin) return
+    let alive = true
+    fetch(`${import.meta.env.BASE_URL}data/trips/${DAYTYPE}/${shardOf(origin.stopId)}.json`).then((r) => (r.ok ? r.json() : {})).then((x) => alive && setTrips(x)).catch(() => alive && setTrips({}))
+    return () => { alive = false }
+  }, [origin?.stopId])
   useEffect(() => { setHistory(loadHistory()) }, [])
   useEffect(() => { if (origin) { pushHistory(origin); setHistory(loadHistory()) } }, [origin?.stopId])
 
   const routes = origin && data ? (data.stopRoutes[origin.stopId] || []) : []
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
+  const tripList = sel && origin && trips ? trips[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, tripId], ...] for today
   const departures = useMemo(() => {
     if (!sel || !origin || !data) return []
-    const list = data.departures[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || []
+    const key = `${origin.stopId}:${sel.routeId}:${sel.directionId}`
+    const list = tripList ? [...new Set(tripList.map((t) => t[0]))].sort((a, b) => a - b) : (DAYTYPE === 'wk' ? data.departures[key] || [] : [])
     const now = nowMins()
     const upcoming = list.filter((m) => m % 1440 >= now)
     return (upcoming.length ? upcoming : list).slice(0, 6).map((mins) => ({ mins }))
-  }, [sel, origin, data])
+  }, [sel, origin, data, tripList])
 
   useEffect(() => {
     if (!sel || !origin) { setLive(null); return }
@@ -117,18 +128,22 @@ export default function Stop() {
     return () => { alive = false; clearInterval(t) }
   }, [origin?.stopId, sel?.routeId, shape])
 
+  /** Each live bus is tied to its scheduled slot by the feed's trip id, which is the same id the timetable uses. */
   const matched = useMemo(() => {
     const out = new Map()
-    if (!live?.live?.length || !departures.length) return out
+    if (!live?.live?.length || !tripList?.length || !departures.length) return out
     const midnight = new Date(); midnight.setHours(0, 0, 0, 0)
-    const candidates = live.live.map((x) => ({ ...x, expMin: x.atMs != null ? Math.round((x.atMs - midnight.getTime()) / 60000) : null })).filter((x) => x.expMin != null || x.delaySec != null)
-    const pairs = []
-    departures.slice(0, NEAR).forEach((d, i) => candidates.forEach((c, j) => { const exp = c.expMin != null ? c.expMin : d.mins + c.delaySec / 60; pairs.push({ i, j, diff: Math.abs(exp - d.mins), exp, delaySec: c.delaySec, exact: c.exact }) }))
-    pairs.sort((a, b) => a.diff - b.diff)
-    const usedDep = new Set(), usedCand = new Set()
-    for (const p of pairs) { if (p.diff > 15 || (!p.exact && WEEKEND) || usedDep.has(p.i) || usedCand.has(p.j)) continue; out.set(p.i, { expMin: Math.round(p.exp), delaySec: p.delaySec, exact: p.exact }); usedDep.add(p.i); usedCand.add(p.j) }
+    const slotOf = new Map(tripList.map(([m, id]) => [id, m]))
+    for (const c of live.live) {
+      const slot = c.tripId != null ? slotOf.get(c.tripId) : undefined
+      if (slot == null) continue
+      const i = departures.findIndex((d) => d.mins === slot); if (i < 0) continue
+      if (slot - nowMins() > AHEAD) continue
+      const expMin = c.atMs != null ? Math.round((c.atMs - midnight.getTime()) / 60000) : Math.round(slot + (c.delaySec || 0) / 60)
+      out.set(i, { expMin, delaySec: c.delaySec, exact: c.exact })
+    }
     return out
-  }, [live, departures])
+  }, [live, departures, tripList])
 
   // Direct routes serving both origin and destination, in the right order, with a typical journey time
   // estimated from the nearest later departure at the destination on the same route — not a specific
@@ -213,7 +228,7 @@ export default function Stop() {
             <StopSearch label="To (optional)" data={data} value={dest} placeholder="Where you're going" onPick={setDest} />
             {(origin || dest) && <button type="button" className="btn ghost sm" onClick={() => { setOrigin(null); setDest(null); setSel(null); setLive(null) }}>Clear</button>}
           </div>
-          <p className="hint" style={{ marginTop: 8 }}>Covers Dublin Bus, Go-Ahead, Bus Éireann, Luas and Irish Rail stops in the Dublin area, from a typical weekday timetable (as of {data.date}).{WEEKEND ? ' It is the weekend, so real times will differ: check the operator for today.' : ''}</p>
+          <p className="hint" style={{ marginTop: 8 }}>Covers Dublin Bus, Go-Ahead, Bus Éireann, Luas and Irish Rail stops in the Dublin area, from the National Transport Authority's current timetables.</p>
 
           {!origin && history.length > 0 && (
             <div style={{ marginTop: 10 }}>
@@ -292,8 +307,8 @@ export default function Stop() {
                         })}
                       </ul>
                     ) : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
-                    {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live buses on this route right now, so these are scheduled times only.</p>}
-                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are a typical weekday timetable (as of {data.date}){WEEKEND ? ', and it is the weekend, so real departures will differ' : ''}. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported this bus at this exact stop yet, so the delay is carried forward from where it was last seen on this route. Live tracking only covers buses already on the road, so it only shows for the next three departures, not ones further out.</p>
+                    {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
+                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} />
                       <details style={{ marginTop: 10 }}>
