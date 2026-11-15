@@ -19,7 +19,7 @@ export const STUDENT_WORK = {
   rule: 'The limit is per week, not an average over the term.',
   sources: [
     { name: 'UCD Global: working in Ireland', url: 'https://www.ucd.ie/global/studentexperience/workinginireland/' },
-    { name: 'Workplace Relations Commission notice', url: 'https://workplacerelations.ie/en/news-media/workplace_relations_notices/changes_to_employment_entitlements_of_non-eea_students_holding_immigration_stamp_2.html' }
+    { name: 'Workplace Relations Commission', url: 'https://www.workplacerelations.ie/en/what_you_should_know/' }
   ],
   official: 'https://www.irishimmigration.ie',
   check: 'secondary'
@@ -65,7 +65,7 @@ export const LEAP = {
   ],
   fareNote: 'The Dublin 90-minute fare: one fare covers unlimited bus, Luas and DART/Commuter rail rides within 90 minutes in the Dublin area.',
   notConfirmed: 'We could not confirm the card issue fee or the daily and weekly caps, so we do not show them. Check on leapcard.ie.',
-  sources: [{ name: 'Transport for Ireland: fare reductions', url: 'https://www.transportforireland.ie/fares-reductions' }, { name: 'Leap Card', url: 'https://www.leapcard.ie' }],
+  sources: [{ name: 'Transport for Ireland: fare reductions', url: 'https://www.transportforireland.ie/fares/' }, { name: 'Leap Card', url: 'https://www.leapcard.ie' }],
   check: 'secondary'
 }
 
@@ -132,7 +132,7 @@ export const RENT_COMPARISON = {
 export const RENTING = {
   deposit: 'A deposit can be at most one month’s rent, and advance rent to secure a place at most one month. So you can’t be asked for more than two months’ rent in total to secure a tenancy.',
   depositNote: 'From the Residential Tenancies (No. 2) Act 2021. Purpose-built student accommodation can have different payment rules, so check its contract.',
-  depositSources: [{ name: 'RTB: Residential Tenancies (No.2) Act 2021 FAQ', url: 'https://www.rtb.ie/images/uploads/general/RTA22021_FAQs_July_2021_Update_(2).pdf' }],
+  depositSources: [{ name: 'RTB: Residential Tenancies (No. 2) Act 2021 and deposits', url: 'https://www.rtb.ie/' }],
   scamSigns: [
     ['viewing', 'They want a deposit or holding fee before you have viewed the place (in person or by a live video call they run in the property).'],
     ['abroad', 'The “landlord” is abroad or busy and can’t show you the place, so sends photos or documents instead.'],
