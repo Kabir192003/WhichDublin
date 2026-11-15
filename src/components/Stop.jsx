@@ -8,7 +8,12 @@ const STOPS_URL = `${import.meta.env.BASE_URL}data/stops.json`
 const PATHS_URL = `${import.meta.env.BASE_URL}data/stop-paths.json`
 const HIST_KEY = 'settld-stop-history'
 const hhmm = (mins) => { const h = Math.floor((mins % 1440) / 60), m = mins % 60; return `${h}:${String(m).padStart(2, '0')}` }
-const nowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() }
+/** The time and weekday in Dublin, whatever time zone the device is in: every timetable here is in Dublin time. */
+const dublinNow = () => {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Dublin', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map((x) => [x.type, x.value]))
+  return { mins: Number(p.hour) * 60 + Number(p.minute), day: p.weekday }
+}
+const nowMins = () => dublinNow().mins
 const delayTone = (sec) => sec == null ? '' : sec <= 60 ? 'pub' : sec <= 300 ? 'carried' : 'estimated'
 const delayLabel = (sec) => sec == null ? null : Math.abs(sec) < 60 ? 'on time' : sec < 0 ? `${Math.round(-sec / 60)} min early` : `${Math.round(sec / 60)} min late`
 const MODE_ICON = { bus: 'bus', tram: 'tram', rail: 'train' }
@@ -76,7 +81,7 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
 
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
-const DAYTYPE = [6, 0].includes(new Date().getDay()) ? (new Date().getDay() === 6 ? 'sat' : 'sun') : 'wk'   // which timetable is running today
+const DAYTYPE = (() => { const d = dublinNow().day; return d === 'Sat' ? 'sat' : d === 'Sun' ? 'sun' : 'wk' })()   // which timetable is running today (in Dublin)
 const SHARDS = 64   // same rule as pipeline/shard-trips.py
 const shardOf = (stopId) => [...stopId].reduce((a, c) => a + c.charCodeAt(0), 0) % SHARDS
 const AHEAD = 60   // minutes: a bus further out than this has no meaningful live delay yet
@@ -132,14 +137,13 @@ export default function Stop() {
   const matched = useMemo(() => {
     const out = new Map()
     if (!live?.live?.length || !tripList?.length || !departures.length) return out
-    const midnight = new Date(); midnight.setHours(0, 0, 0, 0)
     const slotOf = new Map(tripList.map(([m, id]) => [id, m]))
     for (const c of live.live) {
       const slot = c.tripId != null ? slotOf.get(c.tripId) : undefined
       if (slot == null) continue
       const i = departures.findIndex((d) => d.mins === slot); if (i < 0) continue
       if (slot - nowMins() > AHEAD) continue
-      const expMin = c.atMs != null ? Math.round((c.atMs - midnight.getTime()) / 60000) : Math.round(slot + (c.delaySec || 0) / 60)
+      const expMin = c.atMs != null ? Math.round(nowMins() + (c.atMs - Date.now()) / 60000) : Math.round(slot + (c.delaySec || 0) / 60)
       out.set(i, { expMin, delaySec: c.delaySec, exact: c.exact })
     }
     return out
@@ -306,7 +310,7 @@ export default function Stop() {
                           )
                         })}
                       </ul>
-                    ) : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
+                    ) : <p className="hint" style={{ margin: '0 0 12px' }}>{tripList && !tripList.length ? 'This route does not run today.' : 'No more scheduled departures today.'}</p>}
                     {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
