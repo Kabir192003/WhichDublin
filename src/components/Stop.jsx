@@ -76,6 +76,8 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
 
 /** Enter a stop (by number or name): routes serving it, live-adjusted departures and the route on
  * a map. Add a destination to see direct routes between the two, with a typical journey time. */
+const WEEKEND = [0, 6].includes(new Date().getDay())
+
 export default function Stop() {
   const [data, setData] = useState(null)
   const [err, setErr] = useState(null)
@@ -210,7 +212,7 @@ export default function Stop() {
             <StopSearch label="To (optional)" data={data} value={dest} placeholder="Where you're going" onPick={setDest} />
             {(origin || dest) && <button type="button" className="btn ghost sm" onClick={() => { setOrigin(null); setDest(null); setSel(null); setLive(null) }}>Clear</button>}
           </div>
-          <p className="hint" style={{ marginTop: 8 }}>Covers Dublin Bus, Go-Ahead, Bus Éireann, Luas and Irish Rail stops in the Dublin area, from {data.date}'s scheduled timetables.</p>
+          <p className="hint" style={{ marginTop: 8 }}>Covers Dublin Bus, Go-Ahead, Bus Éireann, Luas and Irish Rail stops in the Dublin area, from a typical weekday timetable (as of {data.date}).{WEEKEND ? ' It is the weekend, so real times will differ: check the operator for today.' : ''}</p>
 
           {!origin && history.length > 0 && (
             <div style={{ marginTop: 10 }}>
@@ -283,14 +285,14 @@ export default function Stop() {
                               <span style={{ fontVariantNumeric: 'tabular-nums', textDecoration: expected && expected !== hhmm(d.mins) ? 'line-through' : 'none', color: expected ? 'var(--muted)' : 'inherit' }}>{hhmm(d.mins)}</span>
                               {expected
                                 ? <span className={`chip ${delayTone(sec)}`} title={m.exact ? 'Reported directly at this stop' : "Estimated: this bus's delay carried forward from its last reported stop, since the feed hasn't updated this exact stop yet"}><span className="dot" aria-hidden="true" /> {m.exact ? 'Expected' : '~Expected'} {expected}{sec != null ? ` (${delayLabel(sec)})` : ''}</span>
-                                : live ? <span className="hint">no live bus matched to this one yet</span> : null}
+                                : null}
                             </li>
                           )
                         })}
                       </ul>
                     ) : <p className="hint" style={{ margin: '0 0 12px' }}>No more scheduled departures today.</p>}
-                    {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No buses on this route are reporting live near this stop right now.</p>}
-                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are {data.date}'s timetable. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported this bus at this exact stop yet, so the delay is carried forward from where it was last seen on this route. Live tracking only covers buses already on the road, so it usually only shows for the next departure or two, not ones further out.</p>
+                    {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live buses on this route right now, so these are scheduled times only.</p>}
+                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are a typical weekday timetable (as of {data.date}){WEEKEND ? ', and it is the weekend, so real departures will differ' : ''}. "Expected" matches a live vehicle on this route to the nearest scheduled time at this stop, not a city-wide average{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported this bus at this exact stop yet, so the delay is carried forward from where it was last seen on this route. Live tracking only covers buses already on the road, so it usually only shows for the next departure or two, not ones further out.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} />
                       <details style={{ marginTop: 10 }}>

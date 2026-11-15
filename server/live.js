@@ -139,3 +139,5 @@ export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
   await live()
   return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds) }
 }
+
+export const liveTrips = () => cache.trips
