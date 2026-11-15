@@ -331,7 +331,7 @@ export default function Stop() {
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
-                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Dots are this route's buses at their latest GPS position ({busPos.size} right now): green on time, blue a few minutes late, orange more than five.</p>}
+                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Dots are this route's buses at their latest GPS position ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Both directions are shown.</p>}
                       <details style={{ marginTop: 10 }}>
                         <summary>Full route ({shape.length} stops)</summary>
                         <ol className="rows" style={{ marginTop: 8 }}>
