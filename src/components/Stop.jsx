@@ -177,6 +177,20 @@ export default function Stop() {
     }
     return byTrip
   }, [live, origin?.stopId, data, sel?.routeId])
+  /** The nearest stop (within 300 m) where this same route runs the other way: the stop across the road. */
+  const opposite = useMemo(() => {
+    if (!sel || !origin || !data) return null
+    const here = data.stops[origin.stopId]; if (!here) return null
+    let best = null
+    for (const [sid, st] of Object.entries(data.stops)) {
+      if (sid === origin.stopId) continue
+      const hit = (data.stopRoutes[sid] || []).find(([r, d]) => r === sel.routeId && d !== sel.directionId)
+      if (!hit) continue
+      const m = haversine({ lat: here[2], lon: here[3] }, { lat: st[2], lon: st[3] })
+      if (m <= 300 && (!best || m < best.m)) best = { stopId: sid, name: st[1], code: st[0], mode: st[4], directionId: hit[1], m: Math.round(m) }
+    }
+    return best
+  }, [sel?.routeId, sel?.directionId, origin?.stopId, data])
   const away = (m) => (m == null ? null : m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)} m away` : `${(m / 1000).toFixed(1)} km away`)
 
   // Direct routes serving both origin and destination, in the right order, with a typical journey time
@@ -324,6 +338,7 @@ export default function Stop() {
                   <div style={{ marginTop: 14, borderTop: '1px solid var(--line)', paddingTop: 14 }}>
                     <button type="button" className="link" style={{ marginBottom: 8 }} onClick={() => { setSel(null); setLive(null) }}><Icon name="back" size={15} />Back to all routes at this stop</button>
                     {(() => { const dir = direction(data, sel.routeId, sel.directionId, origin.stopId); return <p style={{ margin: '0 0 10px', fontWeight: 700 }}>Route {route[0]}{dir ? ` towards ${dir.to}` : ''}{dir?.way && <span className="hint" style={{ fontWeight: 500 }}> ({dir.way})</span>}</p> })()}
+                    {opposite && (() => { const od = direction(data, sel.routeId, opposite.directionId, opposite.stopId); return <p style={{ margin: '0 0 10px', fontSize: 14 }}>Want the other direction? <button type="button" className="link" onClick={() => { setOrigin({ stopId: opposite.stopId, name: opposite.name, code: opposite.code, mode: opposite.mode }); setSel({ routeId: sel.routeId, directionId: opposite.directionId }); setLive(null) }}>{route[0]} {od ? `to ${od.to}` : 'the other way'}, from {opposite.name}{opposite.code ? ` (stop ${opposite.code})` : ''}, {opposite.m} m away</button></p> })()}
                     <p style={{ margin: '0 0 6px', fontWeight: 600, fontSize: 14 }}>Next departures from here</p>
                     {departures.length ? (
                       <ul className="rows" style={{ margin: '0 0 10px' }}>
