@@ -83,7 +83,7 @@ export default function Explore({ data }) {
         )}
       </aside>
 
-      <section className="mapwrap" aria-label="Map">
+      <section className="mapwrap" aria-label="Areas on a map">
         <MapView points={points} campuses={campuses} selectedId={sel} onSelect={pick} fitKey="explore" />
         <div className="legend" aria-hidden="true">
           <b style={{ fontSize: 12 }}>Typical rent, all homes</b>

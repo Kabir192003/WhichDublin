@@ -11,7 +11,7 @@ const BEDS = [['1', '1 bedroom'], ['2', '2 bedrooms'], ['3', '3 bedrooms'], ['4'
 /** How a given number of people fills a home: whole rooms each, then pairs sharing. */
 function layout(beds, people) {
   const b = Number(beds)
-  if (people <= b) return people === 1 ? 'one person' : `${people} people, own rooms`
+  if (people <= b) return people === 1 ? 'your own room' : 'each in their own room'
   const shared = people - b            // people who must double up
   const pairs = Math.min(shared, b)    // rooms shared by two (more than two per room is not assumed)
   return `${b - pairs} own ${b - pairs === 1 ? 'room' : 'rooms'}, ${pairs} shared`

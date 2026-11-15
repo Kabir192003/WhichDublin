@@ -280,7 +280,7 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
 .doc h2 { font-size: 18px; margin: 28px 0 6px } .doc h2:first-of-type { margin-top: 8px } .doc li { margin: 4px 0 } .doc { max-width: 860px }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 12px 0 }
-.mini { border: 1px solid var(--line); border-radius: var(--r); padding: 14px } .mini h4 { margin: 0 0 4px; font-size: 15px } .mini p { margin: 4px 0; font-size: 14px }
+.mini { border: 1px solid var(--line); border-radius: var(--r); padding: 14px } .mini h3 { margin: 0 0 4px; font-size: 15px } .mini p { margin: 4px 0; font-size: 14px }
 .checklist { padding-left: 0; list-style: none; display: grid; gap: 6px } .checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px }
 .checklist li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 9px; border-radius: 50%; background: var(--teal) }
 .badge { width: 40px; height: 40px; border-radius: var(--r); display: grid; place-items: center; background: var(--teal-50); color: var(--teal) }
@@ -357,6 +357,7 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
 
   .mapwrap { display: none; flex: 1; min-height: 0 }
   .finder[data-tab=map] .mapwrap { display: block } .finder[data-tab=map] .panel { display: none }
+  .precision { display: flex; width: fit-content; margin-bottom: 8px }
   .legend { left: 8px; bottom: 34px; padding: 6px 8px; gap: 2px; font-size: 11px } .legend i { width: 9px; height: 9px }
   .stat b { font-size: 16px } .stat { padding: 0 8px }
   .card { padding: 18px 16px }

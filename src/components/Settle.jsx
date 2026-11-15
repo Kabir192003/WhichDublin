@@ -3,7 +3,9 @@ import { IRP, LEAP, BANKS, BANK_DOCS, BANK_SOURCES, BANK_CHECK, MOBILE, BER } fr
 import Source from './Source.jsx'
 import { MovingTabs } from './ui.jsx'
 
-const BER_COLORS = ['#00A651','#19B459','#4CB848','#8CC63F','#B9D532','#E3E01B','#FFF200','#FCD20F','#F8B80F','#F59E1B','#F18A21','#EE6B23','#EA4E25','#E33A26','#D52027']
+/** Dark or white text, whichever reads better on the colour (WCAG relative luminance). */
+const inkOn = (hex) => { const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); const L = 0.2126 * r + 0.7152 * g + 0.0722 * b; return (L + 0.05) / 0.0645 > 1.05 / (L + 0.05) ? '#10212B' : '#fff' }
+const BER_COLORS = ['#00A651','#19B459','#4CB848','#8CC63F','#B9D532','#E3E01B','#FFF200','#FCD20F','#F8B80F','#F59E1B','#F18A21','#EE6B23','#EE5A2C','#DC3225','#D52027']
 const go = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 // [id, title, why, when, essential]: essential ones have a legal or practical deadline.
 const STEPS = [
@@ -78,14 +80,14 @@ export default function Settle() {
         <h3>What you usually need</h3>
         <ul>{BANK_DOCS.map((d) => <li key={d}>{d}</li>)}</ul>
         <div className="cards">{BANKS.map((b) => (
-          <div className="mini" key={b.name}><h4>{b.name}</h4><p><b>{b.product}</b></p><p>{b.note}</p><a href={b.url} target="_blank" rel="noreferrer">{b.name} site</a></div>))}</div>
+          <div className="mini" key={b.name}><h3>{b.name}</h3><p><b>{b.product}</b></p><p>{b.note}</p><a href={b.url} target="_blank" rel="noreferrer">{b.name} site</a></div>))}</div>
         <p className="muted">We do not show account fees: we could not confirm current figures from the banks' own pages.</p>
         <Source sources={BANK_SOURCES} check={BANK_CHECK} />
       </section>
 
       <section className="card" id="mobile" aria-labelledby="h-mobile">
         <h2 id="h-mobile">4. Get a mobile plan</h2>
-        <div className="cards">{MOBILE.networks.map((n) => <div className="mini" key={n.name}><h4>{n.name}</h4><p>{n.network}</p><a href={n.url} target="_blank" rel="noreferrer">See current plans</a></div>)}</div>
+        <div className="cards">{MOBILE.networks.map((n) => <div className="mini" key={n.name}><h3>{n.name}</h3><p>{n.network}</p><a href={n.url} target="_blank" rel="noreferrer">See current plans</a></div>)}</div>
         <ul>{MOBILE.tips.map((t) => <li key={t}>{t}</li>)}</ul>
         <p className="muted">{MOBILE.notConfirmed}</p>
         <Source sources={MOBILE.sources} check={MOBILE.check} />
@@ -94,7 +96,7 @@ export default function Settle() {
         <h2 id="h-ber">5. Check the energy rating (BER)</h2>
         <p>{BER.intro}</p>
         <div className="ber-scale" role="img" aria-label="BER scale from A1, the most efficient, to G, the least efficient">
-          {BER.scale.map((b, i) => <span key={b} style={{ background: BER_COLORS[i], color: i > 5 && i < 9 ? '#10212B' : '#fff', width: `${48 + i * 3.4}%` }}>{b}</span>)}
+          {BER.scale.map((b, i) => <span key={b} style={{ background: BER_COLORS[i], color: inkOn(BER_COLORS[i]), width: `${48 + i * 3.4}%` }}>{b}</span>)}
         </div>
         <p className="hint" style={{ display: 'flex', justifyContent: 'space-between' }}><span>Lower energy use, lower bills</span><span>Higher energy use, higher bills</span></p>
         <h3>What it means for you</h3>
