@@ -158,10 +158,16 @@ export default function Stop() {
   const busPos = useMemo(() => {
     const here = origin && data?.stops[origin.stopId]
     const delayOf = new Map((live?.live || []).map((c) => [c.tripId, c.delaySec]))
+    const routeName = sel && data?.routes[sel.routeId]?.[0] || ''
     const byTrip = new Map()
-    for (const v of live?.vehicles || []) byTrip.set(v.tripId, { ...v, color: delayColor(delayOf.get(v.tripId)), metres: here ? Math.round(haversine({ lat: v.lat, lon: v.lon }, { lat: here[2], lon: here[3] })) : null })
+    for (const v of live?.vehicles || []) {
+      const d = delayOf.get(v.tripId)
+      const metres = here ? Math.round(haversine({ lat: v.lat, lon: v.lon }, { lat: here[2], lon: here[3] })) : null
+      const km = metres == null ? '' : metres < 1000 ? `, ${Math.max(50, Math.round(metres / 50) * 50)} m from this stop` : `, ${(metres / 1000).toFixed(1)} km from this stop`
+      byTrip.set(v.tripId, { ...v, color: delayColor(d), name: routeName, label: `Route ${routeName}: ${d == null ? 'no delay reported' : delayLabel(d)}${km}`, metres })
+    }
     return byTrip
-  }, [live, origin?.stopId, data])
+  }, [live, origin?.stopId, data, sel?.routeId])
   const away = (m) => (m == null ? null : m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)} m away` : `${(m / 1000).toFixed(1)} km away`)
 
   // Direct routes serving both origin and destination, in the right order, with a typical journey time
@@ -331,7 +337,7 @@ export default function Stop() {
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
-                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Dots are this route's buses at their latest GPS position ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Both directions are shown.</p>}
+                      {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Labelled dots are this route's buses at their latest GPS position (tap one for details) ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Both directions are shown.</p>}
                       <details style={{ marginTop: 10 }}>
                         <summary>Full route ({shape.length} stops)</summary>
                         <ol className="rows" style={{ marginTop: 8 }}>

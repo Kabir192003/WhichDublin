@@ -32,6 +32,9 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
       m.addLayer({ id: 'you-label', type: 'symbol', source: 'stops', filter: ['get', 'you'], layout: { 'text-field': ['get', 'name'], 'text-size': 12, 'text-offset': [0, -1.4], 'text-anchor': 'bottom', 'text-font': ['Noto Sans Bold'] }, paint: { 'text-color': '#10212B', 'text-halo-color': '#fff', 'text-halo-width': 1.8 } })
       m.addLayer({ id: 'buses-halo', type: 'circle', source: 'buses', paint: { 'circle-radius': 11, 'circle-color': '#fff', 'circle-opacity': 0.95 } })
       m.addLayer({ id: 'buses', type: 'circle', source: 'buses', paint: { 'circle-radius': 7.5, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#10212B', 'circle-stroke-width': 1.5 } })
+      m.addLayer({ id: 'bus-label', type: 'symbol', source: 'buses', layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-offset': [0, -1.5], 'text-anchor': 'bottom', 'text-font': ['Noto Sans Bold'], 'text-allow-overlap': true }, paint: { 'text-color': '#10212B', 'text-halo-color': '#fff', 'text-halo-width': 2 } })
+      m.on('click', 'buses', (e) => { const f = e.features?.[0]; if (f) new maplibregl.Popup({ closeButton: false, offset: 12 }).setLngLat(f.geometry.coordinates).setText(f.properties.label || 'Bus').addTo(m) })
+      m.on('mouseenter', 'buses', () => { m.getCanvas().style.cursor = 'pointer' }); m.on('mouseleave', 'buses', () => { m.getCanvas().style.cursor = '' })
       ready.current = true; draw(); fit()
     })
     map.current = m
@@ -42,7 +45,7 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
   function draw() {
     const m = map.current; if (!m || !ready.current) return
     const { stops, youId, path, buses } = latest.current
-    m.getSource('buses').setData(fc((buses || []).map((b) => pt(b.lon, b.lat, { color: b.color || '#C9441F' }))))
+    m.getSource('buses').setData(fc((buses || []).map((b) => pt(b.lon, b.lat, { color: b.color || '#C9441F', name: b.name || '', label: b.label || '' }))))
     const pts = stops.filter((s) => s.lat != null)
     const lineCoords = path && path.length > 1 ? path.map(([lat, lon]) => [lon, lat]) : pts.map((s) => [s.lon, s.lat])
     m.setPaintProperty('line', 'line-color', color)
