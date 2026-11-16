@@ -14,7 +14,8 @@ function layout(beds, people) {
   if (people <= b) return people === 1 ? 'your own room' : 'each in their own room'
   const shared = people - b            // people who must double up
   const pairs = Math.min(shared, b)    // rooms shared by two (more than two per room is not assumed)
-  return `${b - pairs} own ${b - pairs === 1 ? 'room' : 'rooms'}, ${pairs} shared`
+  if (b - pairs === 0) return b === 1 ? 'two people sharing the room' : 'two people in each room'
+  return `${b - pairs} own ${b - pairs === 1 ? 'room' : 'rooms'}, ${pairs} shared by two`
 }
 const loadHome = () => { try { return { beds: '2', people: 2, ...JSON.parse(localStorage.getItem(HOME_KEY) || '{}') } } catch { return { beds: '2', people: 2 } } }
 const num = (v) => (v === '' || v == null ? null : Number(v))
