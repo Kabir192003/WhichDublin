@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MapPin, GraduationCap, House, Clock, ShoppingCart, Briefcase, CircleCheck, Bus, Bike, Footprints, ArrowRight, ArrowLeft, ChevronDown, Search, Map as MapIcon, Info, Star, Check, ArrowUpRight, Plus, Copy, Menu, X, Scale, User, ListChecks, Share2, TrainFront, TramFront, Wallet, ShieldAlert, ShieldCheck, Pill as PillIcon, Stethoscope, WashingMachine, Receipt, MessageSquare } from 'lucide-react'
+import { RefreshCw, MapPin, GraduationCap, House, Clock, ShoppingCart, Briefcase, CircleCheck, Bus, Bike, Footprints, ArrowRight, ArrowLeft, ChevronDown, Search, Map as MapIcon, Info, Star, Check, ArrowUpRight, Plus, Copy, Menu, X, Scale, User, ListChecks, Share2, TrainFront, TramFront, Wallet, ShieldAlert, ShieldCheck, Pill as PillIcon, Stethoscope, WashingMachine, Receipt, MessageSquare } from 'lucide-react'
 import { parseEircode } from '../domain/geo.js'
 
 export const eur = (n) => `€${Math.round(n).toLocaleString('en-IE')}`
@@ -10,7 +10,7 @@ export const HOW_CHIP = { published: 'Rent published', carried: 'Rent carried fo
 
 // Lucide icons (lucide.dev): one consistent, hand-tuned set instead of ad-hoc paths.
 const ICONS = {
-  pin: MapPin, cap: GraduationCap, home: House, clock: Clock, cart: ShoppingCart, work: Briefcase, check: CircleCheck,
+  refresh: RefreshCw, pin: MapPin, cap: GraduationCap, home: House, clock: Clock, cart: ShoppingCart, work: Briefcase, check: CircleCheck,
   bus: Bus, bike: Bike, walk: Footprints, arrow: ArrowRight, back: ArrowLeft, chev: ChevronDown, search: Search, map: MapIcon,
   info: Info, star: Star, tick: Check, external: ArrowUpRight, plus: Plus, copy: Copy, menu: Menu, close: X, scale: Scale, user: User, list: ListChecks, share: Share2, train: TrainFront, tram: TramFront,
   wallet: Wallet, alert: ShieldAlert, safe: ShieldCheck, pill: PillIcon, gp: Stethoscope, laundry: WashingMachine, receipt: Receipt, message: MessageSquare

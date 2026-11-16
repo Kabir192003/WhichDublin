@@ -27,13 +27,14 @@ function pushHistory(entry) {
   try {
     const h = loadHistory().filter((x) => x.stopId !== entry.stopId)
     h.unshift(entry)
-    localStorage.setItem(HIST_KEY, JSON.stringify(h.slice(0, 8)))
+    localStorage.setItem(HIST_KEY, JSON.stringify(h.slice(0, 10)))
   } catch { /* storage unavailable */ }
 }
+function clearHistory() { try { localStorage.removeItem(HIST_KEY) } catch { /* storage unavailable */ } }
 
 /** Search box that resolves a stop by the number on the pole (bus) or by name (any mode,
  * including Luas and DART, which don't have a printed stop number). */
-function StopSearch({ label, data, value, onPick, placeholder }) {
+function StopSearch({ label, data, value, onPick, placeholder, recent = [], onClearRecent }) {
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const results = useMemo(() => {
@@ -62,8 +63,23 @@ function StopSearch({ label, data, value, onPick, placeholder }) {
         <span className="k">{label}</span>
         <input className="select" placeholder={placeholder} value={value ? value.name : q}
           onChange={(e) => { setQ(e.target.value); setOpen(true); if (value) onPick(null) }}
-          onFocus={() => setOpen(true)} style={{ border: 'none', minHeight: 34, width: '100%' }} />
+          onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)} style={{ border: 'none', minHeight: 34, width: '100%' }} />
       </label>
+      {open && !value && q.trim().length < 2 && recent.length > 0 && (
+        <ul className="rows" style={{ position: 'absolute', zIndex: 5, top: '100%', left: 0, right: 0, background: 'var(--surface, #fff)', border: '1px solid var(--line)', borderRadius: 10, marginTop: 4, padding: 4, maxHeight: 320, overflowY: 'auto', boxShadow: 'var(--shadow)' }} role="listbox" aria-label="Recent stops">
+          <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 10px' }}><span className="hint" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="clock" size={13} />Recent stops</span><button type="button" className="link" style={{ fontSize: 13 }} onMouseDown={(e) => e.preventDefault()} onClick={() => { onClearRecent?.(); setOpen(false) }}>Clear</button></li>
+          {recent.map((r) => (
+            <li key={r.stopId}>
+              <button type="button" className="link" style={{ width: '100%', textAlign: 'left', padding: '8px 10px', display: 'flex', gap: 8, alignItems: 'center' }} onMouseDown={(e) => e.preventDefault()}
+                onClick={() => { onPick(r); setQ(''); setOpen(false) }}>
+                <Icon name={MODE_ICON[r.mode] || 'bus'} size={15} />
+                <span style={{ flex: 1 }}>{r.name}</span>
+                <span className="hint">{MODE_NAME[r.mode] || r.mode}{r.code && r.mode === 'bus' ? ` · ${r.code}` : ''}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {open && results.length > 0 && (
         <ul className="rows" style={{ position: 'absolute', zIndex: 5, top: '100%', left: 0, right: 0, background: 'var(--surface, #fff)', border: '1px solid var(--line)', borderRadius: 10, marginTop: 4, maxHeight: 280, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,.12)' }}>
           {results.map((r) => (
@@ -126,14 +142,15 @@ function JourneyLegs({ data, journey }) {
 /** Live Luas or Irish Rail board for a tram or rail stop: next vehicles per direction, straight from the operators' own feeds. */
 function LiveBoard({ origin, data }) {
   const [st, setSt] = useState({ board: undefined })
+  const [tick, setTick] = useState(0), [busy, setBusy] = useState(false)
   const here = data.stops[origin.stopId]
   useEffect(() => {
     if (!here) return
-    let alive = true; setSt({ board: undefined })
-    const load = () => getJson(`/api/transit-live?mode=${origin.mode}&lat=${here[2]}&lon=${here[3]}`).then((x) => alive && setSt({ board: x.board, updated: x.updated })).catch(() => alive && setSt({ board: null, error: true }))
+    let alive = true; if (!tick) setSt({ board: undefined })
+    const load = () => { setBusy(true); return getJson(`/api/transit-live?mode=${origin.mode}&lat=${here[2]}&lon=${here[3]}`).then((x) => alive && setSt({ board: x.board, updated: x.updated })).catch(() => alive && setSt({ board: null, error: true })).finally(() => alive && setBusy(false)) }
     load(); const t = setInterval(() => { if (!document.hidden) load() }, 15_000)
     return () => { alive = false; clearInterval(t) }
-  }, [origin.stopId, origin.mode])
+  }, [origin.stopId, origin.mode, tick])
   const b = st.board
   const box = { margin: '0 0 14px', padding: '12px 14px', border: '1px solid var(--line)', borderRadius: 'var(--r)', background: 'var(--tint)' }
   if (b === undefined) return <p className="hint" style={{ margin: '0 0 12px' }}>Loading live {origin.mode === 'tram' ? 'Luas' : 'train'} times…</p>
@@ -141,7 +158,10 @@ function LiveBoard({ origin, data }) {
   const due = (m) => (m <= 0 ? 'Due' : `${m} min`)
   return (
     <div style={box} aria-live="polite">
-      <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Live {b.kind === 'tram' ? 'Luas' : 'trains'} at {b.station}{st.updated ? <span className="hint" style={{ fontWeight: 400 }}> · updated {ago(st.updated)}</span> : null}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, margin: '0 0 6px' }}>
+        <p style={{ margin: 0, fontWeight: 700 }}>Live {b.kind === 'tram' ? 'Luas' : 'trains'} at {b.station}{st.updated ? <span className="hint" style={{ fontWeight: 400 }}> · updated {ago(st.updated)}</span> : null}</p>
+        <button type="button" className="btn ghost sm" disabled={busy} onClick={() => setTick((n) => n + 1)} aria-label="Refresh live times now"><Icon name="refresh" size={14} /> {busy ? 'Refreshing…' : 'Refresh'}</button>
+      </div>
       {b.kind === 'tram' ? (
         <>
           {b.message && <p className="hint" style={{ margin: '0 0 8px' }}>{b.message}</p>}
@@ -181,6 +201,8 @@ export default function Stop() {
   const [dest, setDest] = useState(null)
   const [sel, setSel] = useState(null)         // { routeId, directionId } chosen route (no-destination mode)
   const [live, setLive] = useState(null)
+  const [refreshTick, setRefreshTick] = useState(0)   // bumped by the Refresh button to reload live data now
+  const [liveBusy, setLiveBusy] = useState(false)
   const [history, setHistory] = useState([])
   const [trips, setTrips] = useState(null)   // today's departures at this stop with exact trip ids, or null while loading
   const [paths, setPaths] = useState(null)   // road-following route geometry, fetched only once a map is actually needed
@@ -201,6 +223,7 @@ export default function Stop() {
   }, [origin?.stopId, tripsTry])
   useEffect(() => { setHistory(loadHistory()) }, [])
   useEffect(() => { if (origin) { pushHistory(origin); setHistory(loadHistory()) } }, [origin?.stopId])
+  useEffect(() => { if (dest) { pushHistory(dest); setHistory(loadHistory()) } }, [dest?.stopId])
 
   const routes = origin && data ? (data.stopRoutes[origin.stopId] || []) : []
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
@@ -219,11 +242,11 @@ export default function Stop() {
     if (!sel || !origin) { setLive(null); return }
     let alive = true
     const shapeParam = shape ? `&shape=${shape.map(encodeURIComponent).join(',')}` : ''
-    const load = () => getJson(`/api/stop-live?stop=${encodeURIComponent(origin.stopId)}&route=${encodeURIComponent(sel.routeId)}${shapeParam}`)
-      .then((x) => alive && setLive(x)).catch(() => alive && setLive(null))
+    const load = () => { setLiveBusy(true); return getJson(`/api/stop-live?stop=${encodeURIComponent(origin.stopId)}&route=${encodeURIComponent(sel.routeId)}${shapeParam}`)
+      .then((x) => alive && setLive(x)).catch(() => alive && setLive(null)).finally(() => alive && setLiveBusy(false)) }
     load(); const t = setInterval(() => { if (!document.hidden) load() }, 15_000)   // 15 s: the map's bus dots move at that pace
     return () => { alive = false; clearInterval(t) }
-  }, [origin?.stopId, sel?.routeId, shape])
+  }, [origin?.stopId, sel?.routeId, shape, refreshTick])
 
   /** Each live bus is tied to its scheduled slot by the feed's trip id, which is the same id the timetable uses. */
   const matched = useMemo(() => {
@@ -325,8 +348,8 @@ export default function Stop() {
         {!data && !err && <p className="notice">Loading Dublin's stops…</p>}
         {data && <>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end', position: 'relative' }}>
-            <StopSearch label="From" data={data} value={origin} placeholder="Stop number or name" onPick={(r) => { setOrigin(r); setSel(null); setLive(null) }} />
-            <StopSearch label="To (optional)" data={data} value={dest} placeholder="Where you're going" onPick={setDest} />
+            <StopSearch label="From" data={data} value={origin} placeholder="Stop number or name" recent={history} onClearRecent={() => { clearHistory(); setHistory([]) }} onPick={(r) => { setOrigin(r); setSel(null); setLive(null) }} />
+            <StopSearch label="To (optional)" data={data} value={dest} placeholder="Where you're going" recent={history} onClearRecent={() => { clearHistory(); setHistory([]) }} onPick={setDest} />
             {(origin || dest) && <button type="button" className="btn ghost sm" onClick={() => { setOrigin(null); setDest(null); setSel(null); setLive(null) }}>Clear</button>}
           </div>
           <p className="hint" style={{ marginTop: 8 }}>Covers Dublin Bus, Go-Ahead, Bus Éireann, Luas and Irish Rail stops in the Dublin area, from the National Transport Authority's current timetables.</p>
@@ -390,7 +413,10 @@ export default function Stop() {
                     <button type="button" className="link" style={{ marginBottom: 8 }} onClick={() => { setSel(null); setLive(null) }}><Icon name="back" size={15} />Back to all routes at this stop</button>
                     {(() => { const dir = direction(data, sel.routeId, sel.directionId, origin.stopId); return <p style={{ margin: '0 0 10px', fontWeight: 700 }}>Route {route[0]}{dir ? ` towards ${dir.to}` : ''}{dir?.way && <span className="hint" style={{ fontWeight: 500 }}> ({dir.way})</span>}</p> })()}
                     {opposite && (() => { const od = direction(data, sel.routeId, opposite.directionId, opposite.stopId); return <p style={{ margin: '0 0 10px', fontSize: 14 }}>Want the other direction? <button type="button" className="link" onClick={() => { setOrigin({ stopId: opposite.stopId, name: opposite.name, code: opposite.code, mode: opposite.mode }); setSel({ routeId: sel.routeId, directionId: opposite.directionId }); setLive(null) }}>{route[0]} {od ? `to ${od.to}` : 'the other way'}, from {opposite.name}{opposite.code ? ` (stop ${opposite.code})` : ''}, {opposite.m} m away</button></p> })()}
-                    <p style={{ margin: '0 0 6px', fontWeight: 600, fontSize: 14 }}>Next departures from here</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, margin: '0 0 6px' }}>
+                      <p style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>Next departures from here</p>
+                      <button type="button" className="btn ghost sm" disabled={liveBusy} onClick={() => setRefreshTick((n) => n + 1)} aria-label="Refresh live times now"><Icon name="refresh" size={14} /> {liveBusy ? 'Refreshing…' : 'Refresh'}</button>
+                    </div>
                     {departures.length ? (
                       <ul className="rows" style={{ margin: '0 0 10px' }}>
                         {departures.map((d, i) => {
