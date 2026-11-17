@@ -124,9 +124,9 @@ export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
   const want = rkey(routeId)
   const targetIdx = shapeStopIds.indexOf(stopId)
   const out = []
-  for (const [rid, stops, tripId] of trips || []) {
+  for (const [rid, stops, tripId, startTime] of trips || []) {
     if (rkey(rid) !== want) continue
-    const id = tripId ? { tripId } : {}   // the feed's trip id: matches the timetable's exactly
+    const id = { ...(tripId ? { tripId } : {}), ...(startTime ? { startTime } : {}) }   // trip id matches the timetable exactly; startTime is the fallback when it doesn't   // the feed's trip id: matches the timetable's exactly
     const exactHit = stops.find(([sid]) => sid === stopId)
     if (exactHit) { out.push({ atMs: exactHit[2], delaySec: exactHit[1], exact: true, ...id }); continue }
     if (targetIdx === -1) continue   // no shape given, or stop not on it: can't place this trip

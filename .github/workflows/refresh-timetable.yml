@@ -1,9 +1,9 @@
 name: Refresh bus timetable
 # Live bus matching uses the exact trip ids of the NTA timetable, and those ids change every week
 # (the week runs Sunday to Saturday). This rebuilds the stop lookup and trip files from the NTA's
-# latest static GTFS so live badges keep working. Runs early every Sunday; can also be run by hand.
+# latest static GTFS so live badges keep working. Runs early every day (the NTA re-issues ids mid-week; it only commits when something changed); can also be run by hand.
 on:
-  schedule: [{ cron: '30 2 * * 0' }]
+  schedule: [{ cron: '30 2 * * *' }]
   workflow_dispatch:
 permissions: { contents: write }
 concurrency: { group: refresh-timetable, cancel-in-progress: false }
