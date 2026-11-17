@@ -25,8 +25,8 @@ jobs:
       - name: Build the weekday, Saturday and Sunday timetables for the current Sunday-to-Saturday week
         env: { GTFS_DIR: '${{ runner.temp }}/gtfs' }
         run: |
-          # most recent Sunday (today if it is one): Sunday = that day, weekday = the Monday after, Saturday = 6 days on
-          read SUN MON SAT < <(python3 -c "import datetime as d; t=d.date.today(); s=t-d.timedelta(days=(t.weekday()+1)%7); print(s, s+d.timedelta(1), s+d.timedelta(6))")
+          # most recent Sunday (today if it is one): Sunday = that day, weekday = the Tuesday after (Mondays can be empty in the NTA feed), Saturday = 6 days on
+          read SUN MON SAT < <(python3 -c "import datetime as d; t=d.date.today(); s=t-d.timedelta(days=(t.weekday()+1)%7); print(s, s+d.timedelta(2), s+d.timedelta(6))")
           echo "sun $SUN  weekday $MON  sat $SAT"
           OUT_DIR=data/build/sun python3 pipeline/build-stops.py "$SUN"
           OUT_DIR=data/build/wk  python3 pipeline/build-stops.py "$MON"
