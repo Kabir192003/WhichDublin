@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import maplibregl, { MAP_STYLE as STYLE } from '../domain/maplibre.js'
+import maplibregl, { MAP_STYLE as STYLE, enable3D } from '../domain/maplibre.js'
 
 const fc = (features) => ({ type: 'FeatureCollection', features })
 const pt = (lon, lat, properties) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties })
@@ -19,7 +19,7 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
 
   useEffect(() => {
     const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, attributionControl: { compact: true } })
-    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    m.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right'); enable3D(m)
     m.on('load', () => {
       m.addSource('line', { type: 'geojson', data: fc([]) })
       m.addSource('stops', { type: 'geojson', data: fc([]) })

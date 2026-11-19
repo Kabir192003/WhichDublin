@@ -368,3 +368,5 @@ thead th { font-size: 12px; color: var(--muted); font-weight: 600 }
   .cmp th, .cmp td { min-width: 132px; padding: 9px 10px } .cmp tbody th { min-width: 118px }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important } }
+.map-mode-btn { font: 700 12px/1 system-ui, sans-serif !important; color: #10212B; width: 29px }
+.photo3d-toggle { position: absolute; z-index: 2; top: 10px; left: 10px; height: 30px; width: 36px !important; background: #fff; border: 0; border-radius: 6px; box-shadow: 0 0 0 2px rgba(0,0,0,.1); cursor: pointer }
