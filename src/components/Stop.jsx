@@ -192,6 +192,8 @@ function LiveBoard({ origin, data }) {
 const DAYTYPE = (() => { const d = dublinNow().day; return d === 'Sat' ? 'sat' : d === 'Sun' ? 'sun' : 'wk' })()   // which timetable is running today (in Dublin)
 const SHARDS = 256   // same rule as pipeline/shard-trips.py (FNV-1a)
 const shardOf = (stopId) => { let h = 0x811c9dc5; for (const c of stopId) { h ^= c.charCodeAt(0); h = Math.imul(h, 0x01000193) } return (h >>> 0) % SHARDS }
+const hmToMins = (s) => { const [h, m] = s.split(':').map(Number); return h * 60 + m }   // "24:15:00" -> 1455, like the timetable
+const LATE = 45   // minutes: how late a bus can be and still be shown against its scheduled slot
 const AHEAD = 60   // minutes: a bus further out than this has no meaningful live delay yet
 
 export default function Stop() {
@@ -228,47 +230,44 @@ export default function Stop() {
   const routes = origin && data ? (data.stopRoutes[origin.stopId] || []) : []
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
   const tripsHere = trips && trips !== 'error' && trips.stopId === origin?.stopId ? trips.data : null   // never use another stop's file while the new one loads
-  const tripList = sel && origin && tripsHere ? tripsHere[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, tripId], ...] for today
+  const tripList = sel && origin && tripsHere ? tripsHere[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, trip start minutes], ...] for today
   const departures = useMemo(() => {
     if (!sel || !origin || !data) return []
     const key = `${origin.stopId}:${sel.routeId}:${sel.directionId}`
     const list = tripList ? [...new Set(tripList.map((t) => t[0]))].sort((a, b) => a - b) : (DAYTYPE === 'wk' ? data.departures[key] || [] : [])
     const now = nowMins()
     const upcoming = list.filter((m) => m % 1440 >= now)
-    return (upcoming.length ? upcoming : list).slice(0, 6).map((mins) => ({ mins }))
+    if (!upcoming.length) return list.slice(0, 6).map((mins) => ({ mins }))
+    // slots of the last LATE minutes stay in the list: a late bus is still coming, and is shown if live data says so
+    const recent = list.filter((m) => m % 1440 < now && m % 1440 >= now - LATE)
+    return [...recent.map((mins) => ({ mins, past: true })), ...upcoming.slice(0, 6).map((mins) => ({ mins }))]
   }, [sel, origin, data, tripList])
 
   useEffect(() => {
     if (!sel || !origin) { setLive(null); return }
     let alive = true
     const shapeParam = shape ? `&shape=${shape.map(encodeURIComponent).join(',')}` : ''
-    const load = () => { setLiveBusy(true); return getJson(`/api/stop-live?stop=${encodeURIComponent(origin.stopId)}&route=${encodeURIComponent(sel.routeId)}${shapeParam}`)
+    const load = () => { setLiveBusy(true); return getJson(`/api/stop-live?stop=${encodeURIComponent(origin.stopId)}&route=${encodeURIComponent(sel.routeId)}&dir=${encodeURIComponent(sel.directionId)}${shapeParam}`)
       .then((x) => alive && setLive(x)).catch(() => alive && setLive(null)).finally(() => alive && setLiveBusy(false)) }
     load(); const t = setInterval(() => { if (!document.hidden) load() }, 15_000)   // 15 s: the map's bus dots move at that pace
     return () => { alive = false; clearInterval(t) }
   }, [origin?.stopId, sel?.routeId, shape, refreshTick])
 
-  /** Each live bus is tied to its scheduled slot by the feed's trip id. When that id is not in the timetable (the NTA
-   *  re-issues ids mid-week), the bus is placed by its scheduled start time plus the route's typical offset to this stop. */
+  /** Each live bus is tied to its scheduled slot by route, direction and the trip's scheduled start time. The NTA
+   *  re-issues trip ids for every calendar block while the times stay the same, so ids are never used to match. */
   const matched = useMemo(() => {
     const out = new Map()
     if (!live?.live?.length || !tripList?.length || !departures.length) return out
-    const slotOf = new Map(tripList.map(([m, id]) => [id, m]))
-    const key = sel && `${sel.routeId}:${sel.directionId}`, ti = key && origin ? data?.shapes[key]?.indexOf(origin.stopId) : -1
-    const off = ti >= 0 ? data.offsets?.[key]?.[ti] : undefined
-    for (const c of [...live.live.filter((x) => slotOf.has(x.tripId)), ...live.live.filter((x) => !slotOf.has(x.tripId))]) {
-      let slot = slotOf.get(c.tripId), i = slot == null ? -1 : departures.findIndex((d) => d.mins === slot)
-      if (i < 0 && c.startTime && off != null) {   // shortcut: typical offset can be a few minutes off, so only snap within 4 min; upgrade by shipping per-stop offsets per trip
-        const [h, m] = c.startTime.split(':').map(Number), est = h * 60 + m + off
-        departures.forEach((d, j) => { if (!out.has(j) && Math.abs(d.mins - est) <= 4 && (i < 0 || Math.abs(d.mins - est) < Math.abs(departures[i].mins - est))) i = j })
-        if (i >= 0) slot = departures[i].mins
-      }
-      if (i < 0 || slot - nowMins() > AHEAD) continue
+    const slotOf = new Map(tripList.map(([m, start]) => [start, m]))
+    for (const c of live.live) {
+      const slot = c.startTime ? slotOf.get(hmToMins(c.startTime)) : undefined
+      if (slot == null || slot - nowMins() > AHEAD) continue
+      const i = departures.findIndex((d) => d.mins === slot); if (i < 0) continue
       const expMin = c.atMs != null ? Math.round(nowMins() + (c.atMs - Date.now()) / 60000) : Math.round(slot + (c.delaySec || 0) / 60)
       out.set(i, { expMin, delaySec: c.delaySec, exact: c.exact, tripId: c.tripId })
     }
     return out
-  }, [live, departures, tripList, data, origin?.stopId, sel?.routeId, sel?.directionId])
+  }, [live, departures, tripList])
 
   /** GPS fixes of this route's buses, coloured by how late each is, and each bus's straight-line distance to this stop. */
   const busPos = useMemo(() => {
@@ -276,12 +275,11 @@ export default function Stop() {
     const delayOf = new Map((live?.live || []).map((c) => [c.tripId, c.delaySec]))
     const routeName = sel && data?.routes[sel.routeId]?.[0] || ''
     const byTrip = new Map()
-    const thisWay = new Set((tripList || []).map((t) => t[1]))
-    for (const m of matched.values()) thisWay.add(m.tripId)   // buses placed by start time have ids the timetable lacks   // trips scheduled at this stop in this direction: the other way's buses are left out
+    const thisWay = new Set((tripList || []).map((t) => t[1]))   // start times of trips scheduled at this stop in this direction: the other way's buses are left out
     const key = sel && `${sel.routeId}:${sel.directionId}`, shapeStops = key ? data?.shapes[key] : null
     const ti = shapeStops && origin ? shapeStops.indexOf(origin.stopId) : -1
     for (const v of live?.vehicles || []) {
-      if (!thisWay.has(v.tripId)) continue
+      if (!v.startTime || !thisWay.has(hmToMins(v.startTime))) continue
       const d = delayOf.get(v.tripId)
       const metres = here ? Math.round(haversine({ lat: v.lat, lon: v.lon }, { lat: here[2], lon: here[3] })) : null
       // where the bus is along the route: the nearest stop of the pattern to its GPS fix
@@ -292,7 +290,7 @@ export default function Stop() {
       byTrip.set(v.tripId, { ...v, color: delayColor(d), name: routeName, label: `Route ${routeName}: ${d == null ? 'no delay reported' : delayLabel(d)}${km}${stopsAway ? `, ${stopsAway} stop${stopsAway === 1 ? '' : 's'} away` : ''}`, metres, stopsAway })
     }
     return byTrip
-  }, [live, origin?.stopId, data, sel?.routeId, tripList, matched])
+  }, [live, origin?.stopId, data, sel?.routeId, tripList])
   /** The nearest stop (within 300 m) where this same route runs the other way: the stop across the road. */
   const opposite = useMemo(() => {
     if (!sel || !origin || !data) return null
@@ -311,9 +309,9 @@ export default function Stop() {
   const gpsMatch = useMemo(() => {
     const out = new Map()
     if (!tripList?.length || !departures.length) return out
-    const slotOf = new Map(tripList.map(([m, id]) => [id, m]))
+    const slotOf = new Map(tripList.map(([m, start]) => [start, m]))
     for (const v of busPos.values()) {
-      const slot = slotOf.get(v.tripId); if (slot == null || v.stopsAway == null) continue
+      const slot = v.startTime ? slotOf.get(hmToMins(v.startTime)) : undefined; if (slot == null || v.stopsAway == null) continue
       const i = departures.findIndex((d) => d.mins === slot)
       if (i < 0 || matched.has(i) || slot - nowMins() > 90) continue
       out.set(i, { expMin: slot, delaySec: null, exact: false, gps: true, tripId: v.tripId })   // position only: no delay is invented
@@ -428,6 +426,7 @@ export default function Stop() {
                       <ul className="rows" style={{ margin: '0 0 10px' }}>
                         {departures.map((d, i) => {
                           const m = matched.get(i) || gpsMatch.get(i)
+                          if (d.past && !(m && (m.gps || m.expMin >= nowMins()))) return null   // scheduled time gone and no late bus still due
                           const expected = m ? hhmm(m.expMin) : null
                           const sec = m?.delaySec ?? (m ? (m.expMin - d.mins) * 60 : null)
                           return (
@@ -442,8 +441,8 @@ export default function Stop() {
                         })}
                       </ul>
                     ) : <p className="hint" style={{ margin: '0 0 12px' }}>{trips === 'error' ? <>Could not load today's timetable. <button type="button" className="link" onClick={() => setTripsTry((n) => n + 1)}>Try again</button></> : !tripsHere ? 'Loading today\'s timetable…' : tripList && !tripList.length ? 'This route does not run today.' : 'No more scheduled departures today.'}</p>}
-                    {live && !matched.size && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
-                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip by the National Transport Authority's trip id{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
+                    {live && ![...matched].some(([i, m]) => !departures[i]?.past || m.expMin >= nowMins()) && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
+                    <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip (route, direction and start time) from the National Transport Authority's feed{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
                       <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
                       {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Labelled dots are this route's buses at their latest GPS position (tap one for details) ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Only buses going this way are shown; the map refreshes every 15 seconds.</p>}

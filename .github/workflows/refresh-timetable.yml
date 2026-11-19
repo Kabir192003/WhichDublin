@@ -1,9 +1,10 @@
 name: Refresh bus timetable
-# Live bus matching uses the exact trip ids of the NTA timetable, and those ids change every week
-# (the week runs Sunday to Saturday). This rebuilds the stop lookup and trip files from the NTA's
-# latest static GTFS so live badges keep working. Runs early every day (the NTA re-issues ids mid-week; it only commits when something changed); can also be run by hand.
+# Rebuilds the stop lookup and departure files from the NTA's latest static GTFS. Live buses are matched
+# on route, direction and scheduled start time (not trip ids, which the NTA re-issues for every calendar
+# block while the times stay the same), so this only commits when the published times really change.
+# Runs early every Sunday; can also be run by hand.
 on:
-  schedule: [{ cron: '30 2 * * *' }]
+  schedule: [{ cron: '30 2 * * 0' }]
   workflow_dispatch:
 permissions: { contents: write }
 concurrency: { group: refresh-timetable, cancel-in-progress: false }
@@ -22,11 +23,11 @@ jobs:
           for n in Dublin_Bus GoAhead Bus_Eireann LUAS Irish_Rail; do
             curl -fsS --retry 4 --retry-delay 10 -A "Mozilla/5.0" -o "$RUNNER_TEMP/gtfs/GTFS_$n.zip" "https://www.transportforireland.ie/transitData/Data/GTFS_$n.zip"
           done
-      - name: Build the weekday, Saturday and Sunday timetables for the current Sunday-to-Saturday week
+      - name: Build the weekday, Saturday and Sunday timetables
         env: { GTFS_DIR: '${{ runner.temp }}/gtfs' }
         run: |
-          # most recent Sunday (today if it is one): Sunday = that day, weekday = the Tuesday after (Mondays can be empty in the NTA feed), Saturday = 6 days on
-          read SUN MON SAT < <(python3 -c "import datetime as d; t=d.date.today(); s=t-d.timedelta(days=(t.weekday()+1)%7); print(s, s+d.timedelta(2), s+d.timedelta(6))")
+          # the next Sunday, Tue-Thu and Saturday from today: a new NTA file only covers dates from the day it was published
+          read SUN MON SAT < <(python3 -c "import datetime as d; t=d.date.today(); nxt=lambda days: next(t+d.timedelta(i) for i in range(8) if (t+d.timedelta(i)).weekday() in days); print(nxt({6}), nxt({1,2,3}), nxt({5}))")
           echo "sun $SUN  weekday $MON  sat $SAT"
           OUT_DIR=data/build/sun python3 pipeline/build-stops.py "$SUN"
           OUT_DIR=data/build/wk  python3 pipeline/build-stops.py "$MON"
@@ -52,6 +53,6 @@ jobs:
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Refresh bus timetable and trip ids"
+          git commit -m "Refresh bus timetable"
           git pull --rebase origin main
           git push
