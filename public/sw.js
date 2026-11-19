@@ -6,6 +6,7 @@ self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) =
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url)
   if (e.request.method !== 'GET' || url.origin !== location.origin) return
+  if (e.request.headers.has('range')) return   // map tiles read byte ranges of one file: partial responses can't be cached
   const hashed = url.pathname.includes('/assets/')
   if (hashed) {
     e.respondWith(caches.match(e.request).then((hit) => hit || fetch(e.request).then((r) => { if (r.ok) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(e.request, c)) } return r })))
