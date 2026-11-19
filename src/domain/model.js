@@ -141,6 +141,13 @@ export function monthlyCost({ rentShare, travel = 0, bills = 0, food = 0, phone 
  * gas) is scaled by the home's energy rating when known. Every input can be overridden by the user's own figure.
  * bills: { electricity, gas, broadband } each { low, typical, high }; groceries/phone: { low?, typical, high? }.
  */
+/** Cash needed to move in: a deposit (at most one month's rent, RTB rule), the first month's costs (rent paid in
+ *  advance plus everything else), and the immigration registration fee for non-EU/EEA students. */
+export function firstMonth({ rentShare, month, irpFee = 0 }) {
+  const parts = { deposit: rentShare, month, irp: irpFee }
+  return { parts, total: parts.deposit + parts.month + parts.irp }
+}
+
 export function costRange({ rentShare, travel = 0, people = 1, berFactor = null, bills, groceries, phone, own = {} }) {
   const n = Math.max(1, people)
   const energy = (k, lvl) => {

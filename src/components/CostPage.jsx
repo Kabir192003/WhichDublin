@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useShortlist } from '../domain/shortlist.js'
-import { HOME_TYPES, MODES, rentForHome, hourLimit, grossPay, costRange, travelCost } from '../domain/model.js'
-import { WAGE, STUDENT_WORK, BILLS, GROCERIES, PHONE, BER_FACTOR } from '../content/facts.js'
+import { HOME_TYPES, MODES, rentForHome, hourLimit, grossPay, costRange, travelCost, firstMonth } from '../domain/model.js'
+import { WAGE, STUDENT_WORK, BILLS, GROCERIES, PHONE, BER_FACTOR, IRP } from '../content/facts.js'
 import { CostCard, useCostSettings, fareFor } from './Cost.jsx'
 import { Pill, eur, HOW_CHIP, Icon } from './ui.jsx'
 
@@ -43,6 +43,8 @@ export default function CostPage({ data, s, set }) {
   const pay = grossPay(h, WAGE.adult)
   const typical = rent ? costRange({ rentShare: rent.perPerson, travel: travelCost(s.mode, { daysPerWeek: Number(c.days) || 0, fare: fareFor(c.card) }), people: rent.people, berFactor: BER_FACTOR[c.ber]?.f ?? null, bills: BILLS, groceries: GROCERIES, phone: PHONE, own: { bills: num(c.bills), food: num(c.food), phone: num(c.phone) } }).typical.total : null
   const left = typical != null ? Math.round(typical - pay.month) : null
+  const [nonEU, setNonEU] = useState(true)
+  const first = typical != null ? firstMonth({ rentShare: rent.perPerson, month: typical, irpFee: nonEU ? IRP.fee : 0 }) : null
 
   return (
     <>
@@ -69,6 +71,21 @@ export default function CostPage({ data, s, set }) {
 
         {area && rent && <>
           <CostCard rentShare={rent.perPerson} rentLow={Math.round(rent.rtbTotal / people)} mode={s.mode} people={people} />
+
+          <section className="fact" aria-labelledby="cost-first">
+            <div className="fact-head"><h2 id="cost-first">Your first month: money to have ready</h2></div>
+            <div className="kpi" style={{ margin: '4px 0 12px' }}><b className="num">{eur(first.total)}</b><p>to move in and get through the first month in {area.name}.</p></div>
+            <table className="rtable" style={{ maxWidth: 560 }}>
+              <tbody>
+                <tr><th scope="row">Deposit (at most one month’s rent, your share)</th><td className="num">{eur(first.parts.deposit)}</td></tr>
+                <tr><th scope="row">First month: rent in advance, travel, bills, food, phone</th><td className="num">{eur(first.parts.month)}</td></tr>
+                {nonEU && <tr><th scope="row">Immigration registration (IRP), within {IRP.deadline}</th><td className="num">{eur(first.parts.irp)}</td></tr>}
+                <tr><th scope="row"><b>Total</b></th><td className="num"><b>{eur(first.total)}</b></td></tr>
+              </tbody>
+            </table>
+            <label className="check"><input type="checkbox" checked={nonEU} onChange={(e) => setNonEU(e.target.checked)} /> I’m from outside the EU/EEA (I need to register for an IRP)</label>
+            <p className="hint">Your deposit comes back when you leave. A landlord can’t ask for more than one month’s deposit plus one month’s rent in advance. Not included: the Leap card itself, bedding and kitchen basics, and any college fees. <a href="#/renting">Your renting rights</a></p>
+          </section>
 
           <section className="fact" aria-labelledby="cost-work">
             <div className="fact-head"><h2 id="cost-work">What part-time work would cover</h2></div>

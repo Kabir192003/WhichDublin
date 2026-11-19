@@ -315,3 +315,9 @@ test('transit: Luas stops, Luas forecast and Irish Rail board parse', () => {
   const b = parseRailBoard('<x><objStationData><Destination>Maynooth</Destination><Origin>Dublin Connolly</Origin><Duein>4</Duein><Late>2</Late><Expdepart>18:47</Expdepart><Schdepart>18:45</Schdepart><Exparrival>00:00</Exparrival><Scharrival>00:00</Scharrival><Direction>Northbound</Direction></objStationData><objStationData><Destination>Belfast</Destination><Duein>2</Duein><Late>0</Late><Expdepart>00:00</Expdepart><Schdepart>18:50</Schdepart></objStationData></x>')
   assert.deepEqual(b.map((t) => [t.destination, t.due, t.departs]), [['Belfast', 2, '18:50'], ['Maynooth', 4, '18:47']])
 })
+
+import { firstMonth } from '../src/domain/model.js'
+test('cost: first month is the deposit (one month of rent) + the first month + the IRP fee when it applies', () => {
+  assert.deepEqual(firstMonth({ rentShare: 900, month: 1300, irpFee: 300 }), { parts: { deposit: 900, month: 1300, irp: 300 }, total: 2500 })
+  assert.equal(firstMonth({ rentShare: 900, month: 1300 }).total, 2200)
+})

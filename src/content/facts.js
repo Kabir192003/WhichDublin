@@ -160,6 +160,39 @@ export const RENTING = {
   check: 'secondary'
 }
 
+/** A tenant's main rights, in the RTB's own words where possible. Read on rtb.ie on 19 Nov 2026. */
+export const RIGHTS = {
+  read: 'Read on rtb.ie on 19 Nov 2026.',
+  types: [
+    ['Private tenancy (house, flat, room in a shared house)', 'Covered by the RTB: must be registered, rent rules apply, disputes service applies.'],
+    ['Student specific accommodation (college or private student blocks)', 'Covered by the RTB: each licence must be registered, rent rules apply, disputes service applies.'],
+    ['Digs (a room in the owner’s own home)', 'A licence, not a tenancy: not covered by the RTB. Agree notice and house rules in writing.']
+  ],
+  notice: [['Less than 6 months', '28 days'], ['6 months to 1 year', '35 days'], ['1 to 2 years', '42 days'], ['2 to 4 years', '56 days'], ['4 to 8 years', '84 days'], ['8 years or longer', '112 days']],
+  noticeNotes: [
+    'Notice must be in writing (letter or email), signed, dated, with the date the tenancy ends. You don’t need to give a reason.',
+    'Student specific accommodation: 28 days’ notice is enough.',
+    'Ending a fixed-term lease early can cost you (your deposit or the rent for the time left) unless there is a break clause, you both agree, or the landlord has not fixed a problem after being told in writing (then 28 days’ notice).'
+  ],
+  rent: 'Rent can be reviewed once every 12 months, by no more than 2% or inflation (CPI), whichever is lower. The landlord must give you a rent review notice at least 90 days before the new rent starts, and send a copy to the RTB. Newly built apartments (construction from 10 June 2025) can rise in line with inflation, without the 2% cap.',
+  deposit: 'Your deposit must come back as soon as possible after you leave. The landlord can keep part of it only for rent you owe, unpaid bills you were responsible for, damage beyond normal wear and tear, or not giving proper notice. They cannot hold your belongings against money you owe.',
+  disputes: [
+    ['Talk to your landlord first', 'Most problems are sorted this way. Keep it in writing.'],
+    ['Mediation', 'Free, by phone. A mediator helps you both reach a legally binding agreement.'],
+    ['Adjudication', '€30. An independent adjudicator decides, based on the evidence. Binding.'],
+    ['Tribunal', 'An appeal if either side thinks the decision is wrong.']
+  ],
+  sources: [
+    { name: 'RTB: Student renting 101', url: 'https://rtb.ie/renting/beginning-a-tenancy/students/' },
+    { name: 'RTB: How a tenant can end a tenancy', url: 'https://rtb.ie/renting/ending-a-tenancy/how-a-tenant-can-end-a-tenancy/' },
+    { name: 'RTB: Guide to rent review notices', url: 'https://rtb.ie/renting/guide-to-rent-review-notices/' },
+    { name: 'RTB: Security deposits', url: 'https://rtb.ie/renting/rights-responsibilities/security-deposits/' },
+    { name: 'RTB: Disputes process', url: 'https://rtb.ie/disputes/disputes-process/' }
+  ],
+  register: 'https://rtb.ie/check-the-register/',
+  check: 'official'
+}
+
 /** Household running costs, monthly, for a whole home. Ranges, with where each number comes from. */
 export const BILLS = {
   electricity: { low: 90, typical: 150, high: 180, note: 'Average household €1,794 a year (CRU estimated annual bill, August 2025). Small flats use less.', source: { name: 'Oireachtas written answer quoting CRU (Nov 2025)', url: 'https://www.oireachtas.ie/en/debates/question/2025-11-04/211/' } },
