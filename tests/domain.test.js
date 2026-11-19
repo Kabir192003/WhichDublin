@@ -267,13 +267,23 @@ test('live: feed route ids (underscores) match the timetable ids (spaces)', () =
 import { compactVehicles, routeVehicles } from '../server/live.js'
 test('live: vehicle positions are compacted and filtered to one route (underscore or space ids)', () => {
   const list = compactVehicles({ entity: [
-    { vehicle: { trip: { trip_id: '6055_1', route_id: '1_38A_c_a' }, position: { latitude: 53.39, longitude: -6.38 }, timestamp: '1794760000' } },
+    { vehicle: { trip: { trip_id: '6055_1', route_id: '1_38A_c_a', start_time: '08:15:00', direction_id: 0 }, position: { latitude: 53.39, longitude: -6.38 }, timestamp: '1794760000' } },
     { vehicle: { trip: { trip_id: '6055_2', route_id: '1_11_c_a' }, position: { latitude: 53.3, longitude: -6.2 } } },
     { vehicle: { trip: { route_id: '1_38A_c_a' }, position: { latitude: 1, longitude: 2 } } },
     { trip_update: {} }
   ] })
   assert.equal(list.length, 2)
-  assert.deepEqual(routeVehicles(list, '1 38A c a'), [{ tripId: '6055_1', lat: 53.39, lon: -6.38, ts: 1794760000 }])
+  assert.deepEqual(routeVehicles(list, '1 38A c a'), [{ tripId: '6055_1', startTime: '08:15:00', lat: 53.39, lon: -6.38, ts: 1794760000 }])
+  assert.equal(routeVehicles(list, '1 38A c a', new Map(), '1').length, 0)   // the other direction is left out
+})
+
+test('live: buses carry their scheduled start time, and the other direction is filtered out', () => {
+  const trips = liveCompact({ entity: [
+    { trip_update: { trip: { trip_id: 'a', route_id: 'R1', start_time: '23:15:00', direction_id: 0 }, stop_time_update: [{ stop_id: 's', arrival: { delay: 60 } }] } },
+    { trip_update: { trip: { trip_id: 'b', route_id: 'R1', start_time: '23:15:00', direction_id: 1 }, stop_time_update: [{ stop_id: 's', arrival: { delay: 300 } }] } }
+  ] })
+  assert.deepEqual(matchStopRoute(trips, 's', 'R1', ['s'], '0'), [{ atMs: null, delaySec: 60, exact: true, tripId: 'a', startTime: '23:15:00' }])
+  assert.equal(matchStopRoute(trips, 's', 'R1', ['s']).length, 2)   // no direction given: both kept
 })
 
 import { buildIndex, plan, stationGroup } from '../src/domain/planner.js'

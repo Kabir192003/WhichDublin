@@ -1,7 +1,7 @@
-"""Split the per-departure trip ids (data/build/<daytype>/stop-trips.json) into small files so the Commute page
+"""Split the per-departure trip start times (data/build/<daytype>/stop-trips.json) into small files so the Commute page
 only downloads the few kilobytes for the stop being looked at.
 
-  public/data/trips/<daytype>/<shard>.json   { "stopId:routeId:directionId": [[minutesAfterMidnight, tripId], ...] }
+  public/data/trips/<daytype>/<shard>.json   { "stopId:routeId:directionId": [[minutesAfterMidnight, tripStartMinutes], ...] }
 
 The shard of a stop is a hash of its id (see shard() below).
 Run after build-stops.py has been run for each day type (wk, sat, sun)."""

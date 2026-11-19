@@ -76,6 +76,7 @@ day = dt.date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else next_wednesda
 print('service date', day, day.strftime('%A'))
 
 stops_out, by_code, routes_out, stop_routes, shapes, paths, best_len, shape_for, departures, trips_at, offsets = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+trip_start = {}   # trip_id -> (first stop_sequence, start minute)
 
 for feed_name, mode, needs_bbox in FEEDS:
     z = zipfile.ZipFile(f'{GTFS_DIR}/GTFS_{feed_name}.zip')
@@ -99,6 +100,11 @@ for feed_name, mode, needs_bbox in FEEDS:
 
     n_conn, feed_routes = 0, set()
     for chunk in pd.read_csv(z.open('stop_times.txt'), dtype={'trip_id': str, 'stop_id': str}, usecols=['trip_id', 'departure_time', 'stop_id', 'stop_sequence'], chunksize=1_500_000):
+        a = chunk[chunk.trip_id.isin(want_trips)]
+        if not a.empty:   # each trip's scheduled start (first stop, even outside Dublin): the live feed's start_time
+            first = a.loc[a.groupby('trip_id').stop_sequence.idxmin()]
+            for t, sq, d in zip(first.trip_id, first.stop_sequence, secs(first.departure_time)):
+                if t not in trip_start or sq < trip_start[t][0]: trip_start[t] = (int(sq), int(d) // 60)
         chunk = chunk[chunk.trip_id.isin(want_trips) & chunk.stop_id.isin(in_box)]
         if chunk.empty: continue
         chunk = chunk.sort_values(['trip_id', 'stop_sequence'])
@@ -117,7 +123,7 @@ for feed_name, mode, needs_bbox in FEEDS:
             for stop_id, dep in zip(g.stop_id, g.dep):
                 stop_routes.setdefault(stop_id, set()).add((rid, did))
                 departures.setdefault(f'{stop_id}:{rid}:{did}', []).append(int(dep) // 60)
-                trips_at.setdefault(f'{stop_id}:{rid}:{did}', []).append([int(dep) // 60, trip_id])   # exact trip id of each departure, matched to the live feed
+                trips_at.setdefault(f'{stop_id}:{rid}:{did}', []).append([int(dep) // 60, trip_id])   # trip id swapped for its start time below
             n_conn += len(g)
 
     if has_shapes:
@@ -143,7 +149,9 @@ for feed_name, mode, needs_bbox in FEEDS:
     print(feed_name, 'active services', len(svc), 'trips', len(want_trips), 'connections', n_conn, 'routes', len(feed_routes), flush=True)
 
 for k in departures: departures[k] = sorted(set(departures[k]))
-trips_at = {k: sorted(v) for k, v in trips_at.items() if k.split(':')[0] in stops_out}
+# [minutes, trip start in minutes]: the NTA gives the same bus a new trip id in each calendar block, but its start time
+# stays put, so live buses are matched on route + direction + start time and this file only changes when times do
+trips_at = {k: sorted({(m, trip_start[t][1]) for m, t in v}) for k, v in trips_at.items() if k.split(':')[0] in stops_out}
 used_routes = {rid for pairs in stop_routes.values() for rid, _ in pairs}
 routes_out = {rid: v for rid, v in routes_out.items() if rid in used_routes}
 stop_routes = {k: v for k, v in stop_routes.items() if k in stops_out}

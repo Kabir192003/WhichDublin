@@ -34,7 +34,7 @@ export function compact(feed) {
       stops.push([s.stop_id, delaySec, atMs])
     }
     const t = tu.trip || {}
-    if (stops.length) out.push([rid, stops, t.trip_id || null, t.start_time || null])
+    if (stops.length) out.push([rid, stops, t.trip_id || null, t.start_time || null, t.direction_id ?? null])
   }
   return out
 }
@@ -120,13 +120,14 @@ export async function live() {
 /** The live feed writes route ids with underscores ("1_38A_c_a"), the static timetable with spaces. */
 const rkey = (id) => String(id).replace(/_/g, ' ')
 
-export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
+export function matchStopRoute(trips, stopId, routeId, shapeStopIds = [], dir = null) {
   const want = rkey(routeId)
   const targetIdx = shapeStopIds.indexOf(stopId)
   const out = []
-  for (const [rid, stops, tripId, startTime] of trips || []) {
+  for (const [rid, stops, tripId, startTime, d] of trips || []) {
     if (rkey(rid) !== want) continue
-    const id = { ...(tripId ? { tripId } : {}), ...(startTime ? { startTime } : {}) }   // trip id matches the timetable exactly; startTime is the fallback when it doesn't   // the feed's trip id: matches the timetable's exactly
+    if (dir != null && d != null && String(d) !== String(dir)) continue   // the other way: can share a start time
+    const id = { ...(tripId ? { tripId } : {}), ...(startTime ? { startTime } : {}) }   // startTime (with route + direction) matches the timetable; tripId ties a delay to its GPS fix   // the feed's trip id: matches the timetable's exactly
     const exactHit = stops.find(([sid]) => sid === stopId)
     if (exactHit) { out.push({ atMs: exactHit[2], delaySec: exactHit[1], exact: true, ...id }); continue }
     if (targetIdx === -1) continue   // no shape given, or stop not on it: can't place this trip
@@ -141,10 +142,10 @@ export function matchStopRoute(trips, stopId, routeId, shapeStopIds = []) {
   return out
 }
 
-export async function stopRouteLive(stopId, routeId, shapeStopIds = []) {
+export async function stopRouteLive(stopId, routeId, shapeStopIds = [], dir = null) {
   await live()
   const vs = await vehicles()
-  return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds), vehicles: routeVehicles(vs, routeId) }
+  return { updated: cache.data?.updated, live: matchStopRoute(cache.trips, stopId, routeId, shapeStopIds, dir), vehicles: routeVehicles(vs, routeId, new Map((cache.trips || []).map((t) => [t[2], t[3]])), dir) }
 }
 
 // ---- vehicle positions (GPS), shown on the route map and as "x km away" ----------------------------
@@ -160,7 +161,7 @@ export function compactVehicles(feed) {
     const v = e.vehicle; if (!v) continue
     const t = v.trip || {}, p = v.position || {}
     if (!t.trip_id || p.latitude == null || p.longitude == null) continue
-    out.push([t.trip_id, t.route_id || null, p.latitude, p.longitude, v.timestamp ? Number(v.timestamp) : null])
+    out.push([t.trip_id, t.route_id || null, p.latitude, p.longitude, v.timestamp ? Number(v.timestamp) : null, t.start_time || null, t.direction_id ?? null])
   }
   return out
 }
@@ -195,8 +196,8 @@ export async function vehicles() {
   } catch { return vcache.data || [] }   // optional extra: never break the departures if this feed is down
 }
 
-/** Buses of one route with their latest GPS fix: [{ tripId, lat, lon, ts }]. */
-export function routeVehicles(list, routeId) {
+/** Buses of one route with their latest GPS fix: [{ tripId, startTime, lat, lon, ts }]. startOf: trip id -> start time from the trip updates. */
+export function routeVehicles(list, routeId, startOf = new Map(), dir = null) {
   const want = rkey(routeId)
-  return (list || []).filter((v) => v[1] && rkey(v[1]) === want).map(([tripId, , lat, lon, ts]) => ({ tripId, lat, lon, ts }))
+  return (list || []).filter((v) => v[1] && rkey(v[1]) === want && (dir == null || v[6] == null || String(v[6]) === String(dir))).map(([tripId, , lat, lon, ts, st]) => ({ tripId, startTime: st || startOf.get(tripId) || null, lat, lon, ts }))
 }
