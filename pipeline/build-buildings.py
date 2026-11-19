@@ -9,7 +9,7 @@ Every building and building:part keeps its full outline (holes included). Height
 height / min_height tags, then levels (building:levels, roof:levels, building:min_level), then a default by
 building type (a house is two storeys, apartments and offices taller, the city centre taller than the
 suburbs). An outline whose parts are mapped separately is left out, as in every OSM 3D renderer, so a tower
-or stepped roof is not buried in a box. Tiles: one layer "buildings", properties h (top, m) and b (base, m),
+or stepped roof is not buried in a box; when parts only cover a detail (a portico, a dome) the building stays. Tiles: one layer "buildings", properties h (top, m) and b (base, m),
 zoom 12 to 16 (small buildings left out below 14); the map over-zooms beyond that."""
 import gzip, math, re, sys
 import mercantile, osmium, shapely
@@ -77,13 +77,16 @@ print('reading', SRC)
 r = Buildings(); r.apply_file(SRC, locations=True)
 print('outlines', len(r.outlines), 'parts', len(r.parts))
 
-# leave out outlines that have parts mapped inside them
+# leave out an outline only when its parts cover most of it (a tower block mapped floor by floor). When the
+# parts are just details (the GPO's portico, Arnotts' glass atrium, the Pro-Cathedral's dome) the building stays.
+COVER = 0.75
 tree = STRtree([g for g, _, _ in r.outlines])
-hidden = set()
+inside = {}
 for g, _, _ in r.parts:
-    for i in tree.query(g.representative_point(), predicate='within'): hidden.add(int(i))
+    for i in tree.query(g.representative_point(), predicate='within'): inside.setdefault(int(i), []).append(g)
+hidden = {i for i, ps in inside.items() if shapely.union_all(ps).intersection(r.outlines[i][0]).area >= COVER * r.outlines[i][0].area}
 feats = [f for i, f in enumerate(r.outlines) if i not in hidden] + r.parts
-print('outlines replaced by their parts', len(hidden), '-> features', len(feats))
+print('outlines with parts', len(inside), 'replaced by their parts', len(hidden), '-> features', len(feats))
 
 # to web mercator metres, then cut into tiles
 R = 6378137.0
