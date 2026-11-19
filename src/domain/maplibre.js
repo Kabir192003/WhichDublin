@@ -27,12 +27,12 @@ function setup3D(m) {
     attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/">Mapzen, AWS Open Data</a>' })
   m.addLayer({ id: 'hills-3d', type: 'hillshade', source: 'dem', layout: { visibility: 'none' }, paint: { 'hillshade-exaggeration': 0.35, 'hillshade-shadow-color': '#5B6B76', 'hillshade-highlight-color': '#FFFFFF' } }, before)
   m.addSource('dublin-buildings', { type: 'vector', url: `pmtiles://${location.origin}/data/buildings.pmtiles`, attribution: '© OpenStreetMap contributors' })
-  m.addLayer({ id: 'buildings-3d', type: 'fill-extrusion', source: 'dublin-buildings', 'source-layer': 'buildings', minzoom: 14,
+  m.addLayer({ id: 'buildings-3d', type: 'fill-extrusion', source: 'dublin-buildings', 'source-layer': 'buildings', minzoom: 12,
     layout: { visibility: 'none' }, paint: {
     // stone to slate by height
     'fill-extrusion-color': ['interpolate', ['linear'], H, 0, '#E9E4DA', 15, '#D9D3C7', 40, '#BCC3CA', 100, '#8E9BA8'],
-    'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 14, 0, 14.6, H],
-    'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 14, 0, 14.6, ['get', 'b']],
+    'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 12, 0, 13.5, H],
+    'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 12, 0, 13.5, ['get', 'b']],
     'fill-extrusion-opacity': 0.95, 'fill-extrusion-vertical-gradient': true } }, before)
   m.setLight({ anchor: 'map', position: [1.4, 215, 35], color: '#FFFFFF', intensity: 0.35 })
 }
@@ -41,6 +41,7 @@ function apply(m, mode, animate) {
   setup3D(m)
   const on = mode === '3d'
   for (const id of ['hills-3d', 'buildings-3d']) m.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none')
+  for (const l of m.getStyle().layers) if (l.id.includes('shield')) m.setLayoutProperty(l.id, 'visibility', on ? 'none' : 'visible')   // road-number badges clutter the 3D view
   m.setTerrain(on ? { source: 'dem', exaggeration: 1.5 } : null)
   m.setSky(on ? { 'sky-color': '#9CC3E4', 'horizon-color': '#E7EEF3', 'fog-color': '#E7EEF3', 'sky-horizon-blend': 0.5, 'horizon-fog-blend': 0.3, 'fog-ground-blend': 0.08, 'atmosphere-blend': 0.6 } : {})
   m.setMaxPitch(on ? 75 : 60)

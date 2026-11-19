@@ -10,7 +10,7 @@ height / min_height tags, then levels (building:levels, roof:levels, building:mi
 building type (a house is two storeys, apartments and offices taller, the city centre taller than the
 suburbs). An outline whose parts are mapped separately is left out, as in every OSM 3D renderer, so a tower
 or stepped roof is not buried in a box. Tiles: one layer "buildings", properties h (top, m) and b (base, m),
-zoom 14 to 16; the map over-zooms beyond that."""
+zoom 12 to 16 (small buildings left out below 14); the map over-zooms beyond that."""
 import gzip, math, re, sys
 import mercantile, osmium, shapely
 from mapbox_vector_tile import encode
@@ -95,11 +95,11 @@ mtree = STRtree([g for g, _, _ in mfeats])
 lons = [g.bounds[0] for g, _, _ in feats] + [g.bounds[2] for g, _, _ in feats]
 lats = [g.bounds[1] for g, _, _ in feats] + [g.bounds[3] for g, _, _ in feats]
 W, S, E, N = min(lons), min(lats), max(lons), max(lats)
-MINZ, MAXZ = 14, 16
+MINZ, MAXZ = 12, 16
 tiles = {}
 for z in range(MINZ, MAXZ + 1):
-    tol = {14: 1.0, 15: 0.4, 16: 0}[z]          # metres: lower zooms drop detail nobody can see
-    min_area = {14: 30, 15: 8, 16: 0}[z]
+    tol = {12: 4.0, 13: 2.0, 14: 1.0, 15: 0.4, 16: 0}[z]          # metres: lower zooms drop detail nobody can see
+    min_area = {12: 400, 13: 120, 14: 30, 15: 8, 16: 0}[z]
     n = 0
     for t in mercantile.tiles(W, S, E, N, z):
         bx = mercantile.xy_bounds(t)
