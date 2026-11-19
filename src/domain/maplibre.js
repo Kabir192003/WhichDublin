@@ -24,7 +24,9 @@ function setup3D(m) {
     tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
     attribution: 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/">Mapzen, AWS Open Data</a>' })
   m.addLayer({ id: 'hills-3d', type: 'hillshade', source: 'dem', layout: { visibility: 'none' }, paint: { 'hillshade-exaggeration': 0.35, 'hillshade-shadow-color': '#5B6B76', 'hillshade-highlight-color': '#FFFFFF' } }, before)
-  m.addLayer({ id: 'buildings-3d', type: 'fill-extrusion', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, layout: { visibility: 'none' }, paint: {
+  m.addLayer({ id: 'buildings-3d', type: 'fill-extrusion', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12,
+    filter: ['!=', ['get', 'hide_3d'], true],   // an outline whose parts (towers, stepped roofs) are drawn separately: raising it would bury them
+    layout: { visibility: 'none' }, paint: {
     // stone to slate by height (OSM's own colour tags are too patchy and loud to use)
     'fill-extrusion-color': ['interpolate', ['linear'], H, 0, '#E9E4DA', 15, '#D9D3C7', 40, '#BCC3CA', 100, '#8E9BA8'],
     'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 12, 0, 13.5, H],
