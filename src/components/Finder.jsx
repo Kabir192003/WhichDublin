@@ -111,7 +111,7 @@ export default function Finder({ data, s, set, initial }) {
       </aside>
 
       <section className="mapwrap" aria-label="Areas on a map">
-        <MapView points={points} campuses={[{ ...campus, short: SHORT[campus.id] }]} selectedId={selected} onSelect={pick} fitKey={campus.id} />
+        <MapView points={points} campuses={[{ ...campus, short: SHORT[campus.id] }]} selectedId={selected} onSelect={pick} fitKey={campus.id} with3D />
         <div className="legend" aria-hidden="true">
           <span><i style={{ background: '#E8613C' }} />Top 3</span><span><i style={{ background: '#0B7A65' }} />Good match</span><span><i style={{ background: '#7FB5A8' }} />Fits budget</span><span><i style={{ background: '#C3CCC8' }} />Over budget</span><span><i style={{ background: '#10212B', boxShadow: '0 0 0 2px #F4B740' }} />{SHORT[s.campus]}</span>
         </div>

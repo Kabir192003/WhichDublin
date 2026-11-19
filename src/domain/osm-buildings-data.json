@@ -1,0 +1,22 @@
+{
+  "bounds": [
+    -6.65,
+    53.1,
+    -5.95,
+    53.66
+  ],
+  "date": "2026-11-18T21:21:02Z",
+  "stats": {
+    "osm_levels": 211106,
+    "outline": 675962,
+    "estimated": 465747,
+    "remainder": 304,
+    "osm_height": 2339,
+    "part": 3489,
+    "parent_height": 259,
+    "source_geometries": 679451,
+    "invalid_or_unresolved": 0
+  },
+  "source": "https://download.geofabrik.de/europe/ireland-and-northern-ireland.html",
+  "bytes": 69302656
+}

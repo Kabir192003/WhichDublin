@@ -209,6 +209,17 @@ button.acard { width: 100%; text-align: left; font: inherit; cursor: pointer; fl
 /* .maplibregl-map sets position: relative and loads later, so this needs the extra weight */
 .map.map { position: absolute; inset: 0 }
 .routemap { position: relative; height: 320px; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); margin-top: 12px }
+.settld-map-mode { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font: 600 12px/1.4 var(--font); color: var(--ink); max-width: 225px }
+.settld-map-switch { display: flex; overflow: hidden; background: var(--surface) }
+.settld-map-switch button { width: 43px; height: 35px; font: 700 13px var(--font); color: var(--ink); border: 0 }
+.settld-map-switch button + button { border-top: 0; border-left: 1px solid var(--line2) }
+.settld-map-mode .settld-map-switch button[aria-pressed=true] { background-color: #204b43; color: #fff }
+.maplibregl-ctrl.settld-map-mode .settld-map-switch button[aria-pressed=true]:not(:disabled):hover { background-color: #204b43; color: #fff }
+.settld-map-mode .map-scan-button { border: 1px solid var(--line2); border-radius: 5px; background-color: #fff; color: #204b43; font: 600 12px var(--font); padding: 7px 10px; width: auto; height: auto; cursor: pointer; box-shadow: var(--shadow) }
+.maplibregl-ctrl.settld-map-mode .map-scan-button:not(:disabled):hover, .maplibregl-ctrl.settld-map-mode .map-scan-button:focus-visible { background-color: #eef4f1; color: #204b43 }
+.settld-map-mode p.map-3d-note { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; font: 500 11px/1.4 var(--font); box-shadow: var(--shadow) }
+.routemap:has(.settld-map-switch button[aria-label="3D map"][aria-pressed=true]) { height: 440px }
+.settld-map-mode [hidden] { display: none }
 .legend { position: absolute; left: 12px; bottom: 28px; z-index: 1; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 9px 11px; display: grid; gap: 4px; font-size: 12px; box-shadow: var(--shadow) }
 .legend span { display: flex; align-items: center; gap: 8px } .legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block }
 .tabs { display: none }

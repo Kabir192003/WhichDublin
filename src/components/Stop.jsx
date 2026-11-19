@@ -229,6 +229,7 @@ export default function Stop() {
 
   const routes = origin && data ? (data.stopRoutes[origin.stopId] || []) : []
   const shape = sel && data ? data.shapes[`${sel.routeId}:${sel.directionId}`] : null
+  const routeStops = useMemo(() => shape?.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } }) || [], [shape, data])
   const tripsHere = trips && trips !== 'error' && trips.stopId === origin?.stopId ? trips.data : null   // never use another stop's file while the new one loads
   const tripList = sel && origin && tripsHere ? tripsHere[`${origin.stopId}:${sel.routeId}:${sel.directionId}`] || [] : null   // [[minutes, trip start minutes], ...] for today
   const departures = useMemo(() => {
@@ -341,6 +342,7 @@ export default function Stop() {
     const pt = (id, st) => ({ id, name: st[1], lat: st[2], lon: st[3] })
     return {
       stops: [pt(origin.stopId, o), pt(dest.stopId, d2), ...mid.map((id) => pt(id, data.stops[id]))],
+      youId: [origin.stopId, dest.stopId],
       legs: j ? j.legs.map((l) => ({ color: legColor(data, l), dashed: l.type === 'walk', coords: legCoords(data, l) })) : undefined
     }
   }, [plans, pick, data, origin, dest])
@@ -391,7 +393,7 @@ export default function Stop() {
                 </>
               )}
               <p className="hint" style={{ marginTop: 10 }}>Times come from each route's scheduled timetable, with the time between stops taken from a typical trip. They are scheduled, not live: use the live times on a stop's own page for the bus that is actually coming.</p>
-              {journeyMap && <RouteMap stops={journeyMap.stops} youId={[origin.stopId, dest.stopId]} color="#1D4ED8" legs={journeyMap.legs} />}
+              {journeyMap && <RouteMap stops={journeyMap.stops} youId={journeyMap.youId} color="#1D4ED8" legs={journeyMap.legs} />}
             </section>
           )}
 
@@ -444,7 +446,7 @@ export default function Stop() {
                     {live && ![...matched].some(([i, m]) => !departures[i]?.past || m.expMin >= nowMins()) && <p className="hint" style={{ margin: '0 0 10px' }}>No live bus on this route is due within the hour, so these are scheduled times only.</p>}
                     <p className="hint" style={{ margin: '0 0 6px' }}>Scheduled times are today's timetable. Each live bus is matched to its own scheduled trip (route, direction and start time) from the National Transport Authority's feed{live?.updated ? `, updated ${ago(live.updated)}` : ''}. "~Expected" means the feed hasn't reported that bus at this exact stop yet, so its delay is carried forward from the last stop it reported. Live times show for buses due within the next hour.</p>
                     {shape && <>
-                      <RouteMap stops={shape.map((sid) => { const s = data.stops[sid]; return { id: sid, name: s?.[1] || sid, lat: s?.[2], lon: s?.[3] } })} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
+                      <RouteMap stops={routeStops} youId={origin.stopId} path={paths?.[`${sel.routeId}:${sel.directionId}`]} buses={[...busPos.values()]} />
                       {busPos.size > 0 && <p className="hint" style={{ margin: '6px 0 0' }}>Labelled dots are this route's buses at their latest GPS position (tap one for details) ({busPos.size} right now): green on time, blue a few minutes late, orange more than five, grey no delay reported. Only buses going this way are shown; the map refreshes every 15 seconds.</p>}
                       <details style={{ marginTop: 10 }}>
                         <summary>Full route ({shape.length} stops)</summary>

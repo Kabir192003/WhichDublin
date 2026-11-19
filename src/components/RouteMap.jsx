@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import maplibregl, { MAP_STYLE as STYLE } from '../domain/maplibre.js'
+import { add3DControl } from '../domain/map3d.js'
 
 const fc = (features) => ({ type: 'FeatureCollection', features })
 const pt = (lon, lat, properties) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties })
@@ -18,7 +19,7 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
   const latest = useRef({}); latest.current = { stops, youId, path, buses, legs }
 
   useEffect(() => {
-    const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, attributionControl: { compact: true } })
+    const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, canvasContextAttributes: { antialias: true }, attributionControl: { compact: true } })
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
     m.on('load', () => {
       m.addSource('line', { type: 'geojson', data: fc([]) })
@@ -38,6 +39,7 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
       m.addLayer({ id: 'bus-label', type: 'symbol', source: 'buses', layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-offset': [0, -1.5], 'text-anchor': 'bottom', 'text-font': ['Noto Sans Bold'], 'text-allow-overlap': false, 'text-optional': true }, paint: { 'text-color': '#10212B', 'text-halo-color': '#fff', 'text-halo-width': 2 } })
       m.on('click', 'buses', (e) => { const f = e.features?.[0]; if (f) new maplibregl.Popup({ closeButton: false, offset: 12 }).setLngLat(f.geometry.coordinates).setText(f.properties.label || 'Bus').addTo(m) })
       m.on('mouseenter', 'buses', () => { m.getCanvas().style.cursor = 'pointer' }); m.on('mouseleave', 'buses', () => { m.getCanvas().style.cursor = '' })
+      add3DControl(m)
       ready.current = true; draw(); fit()
     })
     map.current = m
@@ -65,7 +67,7 @@ export default function RouteMap({ stops, youId, path, color = '#0B6B57', buses 
     if (!pts.length) return
     const b = new maplibregl.LngLatBounds([pts[0].lon, pts[0].lat], [pts[0].lon, pts[0].lat])
     pts.forEach((p) => b.extend([p.lon, p.lat]))
-    m.fitBounds(b, { padding: 40, maxZoom: 15, duration: 400 })
+    m.fitBounds(b, { padding: 40, maxZoom: 15, pitch: m.getPitch(), bearing: m.getBearing(), duration: 400 })
   }
   useEffect(() => { draw(); fit() }, [stops, youId, path, color, legs])
   useEffect(() => { draw() }, [buses])   // bus markers move every 30 s without re-fitting the map

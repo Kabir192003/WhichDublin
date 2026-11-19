@@ -84,7 +84,7 @@ export default function Explore({ data }) {
       </aside>
 
       <section className="mapwrap" aria-label="Areas on a map">
-        <MapView points={points} campuses={campuses} selectedId={sel} onSelect={pick} fitKey="explore" />
+        <MapView points={points} campuses={campuses} selectedId={sel} onSelect={pick} fitKey="explore" with3D />
         <div className="legend" aria-hidden="true">
           <b style={{ fontSize: 12 }}>Typical rent, all homes</b>
           {SCALE.map((c, i) => <span key={c}><i style={{ background: c }} />{i === 0 ? `under ${eur(breaks[0])}` : i === 4 ? `${eur(breaks[3])} and up` : `${eur(breaks[i - 1])} to ${eur(breaks[i])}`}</span>)}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import maplibregl, { MAP_STYLE as STYLE } from '../domain/maplibre.js'
+import { add3DControl } from '../domain/map3d.js'
 
 const fc = (features) => ({ type: 'FeatureCollection', features })
 const pt = (lon, lat, properties) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties })
@@ -9,7 +10,7 @@ const pt = (lon, lat, properties) => ({ type: 'Feature', geometry: { type: 'Poin
  * campuses: [{ id, short, lat, lon }]               drawn as dark squares with labels
  * pin:      optional { lat, lon, label }             an Eircode location
  */
-export default function MapView({ points, campuses = [], selectedId, onSelect, pin, fitKey, onPick, picking }) {
+export default function MapView({ points, campuses = [], selectedId, onSelect, pin, fitKey, onPick, picking, with3D = false }) {
   const el = useRef(null), map = useRef(null), ready = useRef(false)
   const cb = useRef(onSelect); cb.current = onSelect
   const pk = useRef(onPick); pk.current = onPick
@@ -17,7 +18,7 @@ export default function MapView({ points, campuses = [], selectedId, onSelect, p
   const latest = useRef({}); latest.current = { points, campuses, selectedId, pin }
 
   useEffect(() => {
-    const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, attributionControl: { compact: true } })
+    const m = new maplibregl.Map({ container: el.current, style: STYLE, center: [-6.2603, 53.3498], zoom: 11, canvasContextAttributes: { antialias: true }, attributionControl: { compact: true } })
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
     m.on('load', () => {
       for (const id of ['areas', 'campus', 'pin']) m.addSource(id, { type: 'geojson', data: fc([]) })
@@ -32,11 +33,12 @@ export default function MapView({ points, campuses = [], selectedId, onSelect, p
       m.on('click', (e) => { if (pkOn.current && pk.current) pk.current({ lat: +e.lngLat.lat.toFixed(5), lon: +e.lngLat.lng.toFixed(5) }) })
       m.on('mouseenter', 'areas', () => { m.getCanvas().style.cursor = 'pointer' })
       m.on('mouseleave', 'areas', () => { m.getCanvas().style.cursor = '' })
+      if (with3D) add3DControl(m, { cityOverview: true })
       ready.current = true; draw(); fit()
     })
     map.current = m
     let wasHidden = true   // the phone map tab is display:none until opened, so the first real size needs a re-fit
-    const ro = new ResizeObserver(() => { m.resize(); const shown = el.current.clientWidth > 0; if (shown && wasHidden) fit(); wasHidden = !shown }); ro.observe(el.current)
+    const ro = new ResizeObserver(() => { if (!el.current) return; m.resize(); const shown = el.current.clientWidth > 0; if (shown && wasHidden) fit(); wasHidden = !shown }); ro.observe(el.current)
     return () => { ro.disconnect(); m.remove(); ready.current = false }
   }, [])
 
@@ -54,7 +56,7 @@ export default function MapView({ points, campuses = [], selectedId, onSelect, p
     if (!all.length) return
     const b = new maplibregl.LngLatBounds([all[0].lon, all[0].lat], [all[0].lon, all[0].lat])
     all.forEach((p) => b.extend([p.lon, p.lat]))
-    m.fitBounds(b, { padding: 50, maxZoom: pin ? 13.5 : 13, duration: 500 })
+    m.fitBounds(b, { padding: 50, maxZoom: pin ? 13.5 : 13, pitch: m.getPitch(), bearing: m.getBearing(), duration: 500 })
   }
   useEffect(draw, [points, campuses, selectedId, pin])
   useEffect(fit, [fitKey])

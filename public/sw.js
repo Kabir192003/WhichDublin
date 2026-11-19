@@ -6,6 +6,9 @@ self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) =
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url)
   if (e.request.method !== 'GET' || url.origin !== location.origin) return
+  // PMTiles reads byte ranges from a single archive. Cache Storage cannot
+  // store partial (206) responses or safely serve a cached full archive here.
+  if (e.request.headers.has('range') || url.pathname.endsWith('.pmtiles')) return
   const hashed = url.pathname.includes('/assets/')
   if (hashed) {
     e.respondWith(caches.match(e.request).then((hit) => hit || fetch(e.request).then((r) => { if (r.ok) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(e.request, c)) } return r })))
