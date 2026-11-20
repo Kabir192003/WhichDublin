@@ -15,7 +15,7 @@ let knowledge = { at: 0, text: null }
 const originOf = (req) => { const host = req.headers['x-forwarded-host'] || req.headers.host; return `${req.headers['x-forwarded-proto'] || (String(host).startsWith('localhost') ? 'http' : 'https')}://${host}` }
 async function getKnowledge(req) {
   if (knowledge.text && Date.now() - knowledge.at < 3_600_000) return knowledge.text
-  const r = await fetch(`${originOf(req)}/data/areas.json`)
+  const r = await fetch(`${originOf(req)}/data/areas.json`, { signal: AbortSignal.timeout(8000) })
   if (!r.ok) throw new Error(`areas.json ${r.status}`)
   knowledge = { at: Date.now(), text: buildKnowledge(await r.json()) }
   return knowledge.text
@@ -52,23 +52,28 @@ export default async function handler(req, res) {
   try {
     const contents = cleanMessages(await readJson(req, 32 * 1024))
     if (!contents) return fail(res, 400, 'Send messages: a short conversation ending with your question')
-    const ai = new GoogleGenAI({ apiKey: key })
+    const t0 = Date.now(), log = (step) => console.log(`chat ${step} ${Date.now() - t0}ms`)
+    const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 20000 } })
     const config = { systemInstruction: `${RULES}\n\n${await getKnowledge(req)}`, maxOutputTokens: 1500, tools: TOOLS }
+    log('knowledge')
     // tool rounds (live transport) first; the model's own turn is passed back unchanged so its thought signatures survive
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const r = await ai.models.generateContent({ model: MODEL, contents, config })
       const calls = r.functionCalls || []
+      log(`gemini round ${round}: ${calls.map((c) => c.name).join(',') || 'answer'}`)
       if (!calls.length) { return answer(res, r.text || '') }
       contents.push(r.candidates[0].content)
       const results = await Promise.all(calls.map(async (c) => ({ functionResponse: { id: c.id, name: c.name, response: { result: await runTool(originOf(req), c.name, c.args) } } })))
       contents.push({ role: 'user', parts: results })
+      log('tools')
     }
     const r = await ai.models.generateContent({ model: MODEL, contents, config: { ...config, toolConfig: { functionCallingConfig: { mode: 'NONE' } } } })
     answer(res, r.text || '')
   } catch (e) {
     if (res.headersSent) { res.end('\n\n(The answer was cut off. Please ask again.)'); return }
     if (e instanceof ApiError && e.status === 429) return fail(res, 429, 'Lots of questions right now. Please try again in a minute.')
-    if (e instanceof ApiError) { console.error('gemini', e.status, e.message); return fail(res, 502, 'The assistant is unavailable right now. Please try again shortly.') }
+    console.error('chat failed', e?.status, e?.name, String(e?.message).slice(0, 300))
+    if (e instanceof ApiError) { return fail(res, 502, 'The assistant is unavailable right now. Please try again shortly.') }
     await crash(res, e, 'The assistant is unavailable right now. Please try again shortly.')
   }
 }
