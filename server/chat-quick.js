@@ -79,9 +79,17 @@ export function parseTransport(text) {
   if (!m) return null
   const clean = (s) => s && s.replace(/^(the|stop)\s+/i, '').trim()
   const mode = /\b(dart|train|trains|rail)\b/i.test(q) ? 'rail' : /\b(luas|tram|trams)\b/i.test(q) ? 'tram' : undefined
-  const route = (q.match(/\b(?:the|a|route)\s+([a-z]?\d{1,3}[a-z]?)\b/i) || q.match(/\b([a-z]?\d{1,3}[a-z]?)\s+bus\b/i) || [])[1]
+  const route = (q.match(/\b(?:the|a|route|next)\s+([a-z]?\d{1,3}[a-z]?)\b/i) || q.match(/\b([a-z]?\d{1,3}[a-z]?)\s+bus\b/i) || [])[1]
   const last = /\blast\b/i.test(q)
   return { from: clean(m[1]), to: clean(m[2]) || undefined, ...(mode && { mode }), ...(route && { route: route.toUpperCase() }), ...(last && { last }) }
+}
+
+/** Departing trains only (not ones ending here), and those for the destination asked when any match. */
+function trainsFor(b, to) {
+  const n = (x) => String(x || '').toLowerCase().replace(/^dublin\s+/, '')
+  const leaving = (b.trains || []).filter((t) => n(t.destination) !== n(b.station) && t.departs && t.departs !== '00:00')
+  const want = to && leaving.filter((t) => n(t.destination).includes(n(to)) || n(to).includes(n(t.destination)))
+  return want && want.length ? want : leaving
 }
 
 /** The tool result, written out for a student. */
@@ -95,7 +103,7 @@ export function formatDepartures(r, { from: f, to: t }) {
     const b = r.liveBoards[0]
     const rows = b.kind === 'tram'
       ? b.directions.map((d) => `- **${d.name}**: ${d.trams.slice(0, 3).map((t) => `${t.destination} ${t.due === 0 ? 'due now' : `in ${t.due} min`}`).join(', ')}`)
-      : (b.trains || []).slice(0, 5).map((t) => `- **${t.destination}**: in ${t.due} min${t.late > 0 ? ` (${t.late} min late)` : ''}, departs ${t.departs}`)
+      : trainsFor(b, to).slice(0, 5).map((t) => `- **${t.destination}**: in ${t.due} min${t.late > 0 ? ` (${t.late} min late)` : ''}, departs ${t.departs}`)
     if (rows.length) return `Live ${b.kind === 'tram' ? 'Luas' : 'trains'} at **${b.station}** (now ${r.now}):\n${rows.join('\n')}${b.message ? `\n\n${b.message}` : ''}\n\nLive times from ${b.kind === 'tram' ? 'Transport Infrastructure Ireland' : 'Irish Rail'}. More on the [Commute](#/stop) page.`
   }
   if (r.lastDepartures) {
@@ -113,8 +121,17 @@ export function formatDepartures(r, { from: f, to: t }) {
   if (r.legs) {
     const legs = r.legs.map((l) => l.walk ? `- Walk ${l.walk}` : `- **${l.route}** from ${l.from} at ${l.departs}, to ${l.to} (${l.arrives})`)
     const live = r.firstLegLive?.[0]?.expected ? `\nThe first bus is expected at **${r.firstLegLive[0].expected}** (live).` : ''
-    const lead = r.changes === 0 ? `No bus stops right at ${to}, but this gets you close, arriving about ${r.arrive}:` : `No single route goes from ${from} to ${to}. Quickest from now, with ${r.changes} change${r.changes === 1 ? '' : 's'}, arriving about ${r.arrive}:`
+    const lead = r.changes === 0 ? (r.legs[0]?.walk ? `No bus goes straight from ${from}, but a short walk gets you one, arriving about ${r.arrive}:` : `No bus stops right at ${to}, but this gets you close, arriving about ${r.arrive}:`) : `No single route goes from ${from} to ${to}. Quickest from now, with ${r.changes} change${r.changes === 1 ? '' : 's'}, arriving about ${r.arrive}:`
     return `${lead}\n${legs.join('\n')}${live}\n\nTimes are from the timetable. Plan it on the [Commute](#/stop) page for live times on every leg.`
   }
   return `${r.note || 'No journey found.'}\n\nTry the journey planner on the [Commute](#/stop) page.`
+}
+
+/** "is the 39A late", "where is the 46A": a route with no stop given. Asks which stop instead of guessing. */
+export function routeOnly(text) {
+  const q = String(text).toLowerCase()
+  if (/\b(from|frm|to)\b/.test(q) || !/\b(late|running|delayed|on time|where is|where's|coming)\b/.test(q)) return null
+  const m = q.match(/\b(?:the\s+)?([a-z]?\d{1,3}[a-z]?)\b(?=.*\b(late|running|delayed|on time|coming)\b)|\b(?:where is|where's)\s+(?:the\s+)?([a-z]?\d{1,3}[a-z]?)\b/)
+  const r = m && (m[1] || m[3]); if (!r) return null
+  return `Which stop are you at? Ask **"next ${r.toUpperCase()} from"** and the stop name or number on the pole (for example "next ${r.toUpperCase()} from stop 786"), and I'll show its live times and how late it is. You can also open the stop on the [Commute](#/stop) page.`
 }

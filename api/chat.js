@@ -6,7 +6,7 @@
 import { GoogleGenAI, ApiError } from '@google/genai'
 import { buildKnowledge, RULES } from '../server/chat-knowledge.js'
 import { TOOLS, runTool, nextDepartures } from '../server/chat-tools.js'
-import { quickAnswer, parseTransport, formatDepartures } from '../server/chat-quick.js'
+import { quickAnswer, parseTransport, formatDepartures, routeOnly } from '../server/chat-quick.js'
 import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 
 // first that answers wins: a model Google has overloaded is skipped for the next one (Google's minimum deadline is 10 s)
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     const contents = cleanMessages(await readJson(req, 32 * 1024))
     if (!contents) return fail(res, 400, 'Send messages: a short conversation ending with your question')
     const t0 = Date.now(), log = (step) => console.log(`chat ${step} ${Date.now() - t0}ms`)
-    const quick = quickAnswer(contents[contents.length - 1].parts[0].text)
+    const quick = quickAnswer(contents[contents.length - 1].parts[0].text) || routeOnly(contents[contents.length - 1].parts[0].text)
     if (quick) { log('quick answer'); return answer(res, quick) }
     // a plain "next bus from X to Y": looked up and written in code, no AI needed
     const trip = parseTransport(contents[contents.length - 1].parts[0].text)

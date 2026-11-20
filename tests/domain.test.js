@@ -480,3 +480,20 @@ test('chat tools: a budget that nothing fits tries common sharing set-ups before
   assert.match(r.sharingNote, /Sharing a 2-bed between 3 people/); assert.ok(r.cheapestFirst.every((x) => x.yourShare <= 800))
   assert.ok(chatRank(data, { college: 'UCD', budget: 5000 }).cheapestFirst.length === 2)
 })
+
+import { routeOnly } from '../server/chat-quick.js'
+test('chat QA round 4: named routes after next, a route with no stop, train boards, whole homes, closest first, walk first', () => {
+  assert.equal(parseTransport('next 39a from leeson street').route, '39A')
+  assert.equal(parseTransport('when is the next 15 from rathmines').route, '15')
+  assert.match(routeOnly('is the 39a running late'), /Which stop are you at\? Ask \*\*"next 39A from"\*\*/)
+  assert.equal(routeOnly('next 39a from leeson street'), null)
+  const board = { kind: 'rail', station: 'Dublin Connolly', trains: [{ destination: 'Dublin Connolly', due: 4, late: 94, departs: '00:00' }, { destination: 'Bray', due: 5, late: 4, departs: '11:15' }, { destination: 'Malahide', due: 3, late: 0, departs: '11:13' }] }
+  const out = formatDepartures({ now: '11:10', departures: [], liveBoards: [board] }, { from: 'connolly', to: 'bray' })
+  assert.match(out, /\*\*Bray\*\*: in 5 min \(4 min late\)/); assert.doesNotMatch(out, /Connolly\*\*: in 4|Malahide/)
+  const area = (id, r1, r2, mins) => ({ id, label: id, rent: { cells: { '1:any': { v: r1, how: 'published' }, '2:any': { v: r2, how: 'published' } } }, toCampus: { dcu: { transit: { minutes: mins } } } })
+  const data = { campuses: [{ id: 'dcu', name: 'DCU' }], areas: [area('a', 1500, 2000, 25), area('b', 1300, 2400, 10)] }
+  const w = chatRank(data, { college: 'DCU', bedrooms: 1, whole: true })
+  assert.equal(w.cheapestFirst[0].area, 'b'); assert.equal(w.cheapestFirst[0].yourShare, w.cheapestFirst[0].wholeHome); assert.match(w.home, /^whole 1-bedroom/)
+  assert.deepEqual(chatRank(data, { college: 'DCU', sortBy: 'time' }).cheapestFirst.map((x) => x.area), ['b', 'a'])
+  assert.match(formatDepartures({ legs: [{ walk: '5 min (298 m) to Parnell Sq East' }, { route: '11', from: 'Parnell Sq East', to: 'Ranelagh', departs: '11:17', arrives: '11:33' }], changes: 0, arrive: '11:33' }, { from: "o'connell street", to: 'ranelagh' }), /No bus goes straight from O'connell Street, but a short walk gets you one/)
+})
