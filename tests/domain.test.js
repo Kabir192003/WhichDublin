@@ -355,7 +355,7 @@ import { quickAnswer } from '../server/chat-quick.js'
 test('chat quick answers: common facts come straight from facts.js; anything mixed or long goes to the AI', () => {
   const july = new Date('2026-07-10T12:00:00Z'), nov = new Date('2026-11-20T12:00:00Z')
   assert.match(quickAnswer('How many hours can I work on stamp 2?', nov), /up to 20 hours a week in term.*Right now the limit is \*\*20 hours/s)
-  assert.match(quickAnswer('how many hours can i work in summer', july), /Right now the limit is \*\*40 hours/)
+  assert.match(quickAnswer('how many hours can i work in summer', july), /On 15 July the limit is \*\*40 hours/)
   assert.match(quickAnswer("What's the minimum wage?"), /€14\.15 an hour/)
   assert.match(quickAnswer('how much notice do I give my landlord after 8 months?'), /6 months to 1 year.*35 days/s)
   assert.match(quickAnswer('notice to leave after 3 years'), /2 to 4 years.*56 days/s)
@@ -409,4 +409,21 @@ test('chat: edge cases found in testing (O Connell spacing, DART vs bus stop, a 
   assert.deepEqual(parseTransport("when's the 46a from stop 2338"), { from: '2338', to: undefined, route: '46A' })
   assert.deepEqual(parseTransport('next bus frm rathmines to trinity'), { from: 'rathmines', to: 'trinity' })
   assert.equal(parseTransport('how much is rent from 2 people'), null)
+})
+
+import { rankWork } from '../server/chat-tools.js'
+test('chat: second round of edge cases (a date for work hours, a deposit verdict, last bus, jobs, a default limit)', () => {
+  const nov = new Date('2026-11-20T12:00:00Z')
+  assert.match(quickAnswer('can I work 40 hours on 20 December', nov), /On 20 December the limit is \*\*40 hours a week\*\* \(holiday period/)
+  assert.match(quickAnswer('can I work 40 hours on 3 March', nov), /On 3 March the limit is \*\*20 hours a week\*\* \(term time\)/)
+  assert.match(quickAnswer('my landlord wants €3,000 deposit for a €1,500 room, is that ok?'), /\*\*No\.\*\*.*€1,500 deposit/s)
+  assert.match(quickAnswer('is a €1,200 deposit ok for €1,400 rent'), /Yes, that's within the limit/)
+  assert.match(quickAnswer('how much notice after 2.5 years'), /56 days/)
+  assert.deepEqual(parseTransport('last bus from town to Rathmines tonight'), { from: 'town', to: 'Rathmines', last: true })
+  const area = (id, retail, mins) => ({ id, label: id, work: { retail: { n: retail, capped: false } }, toCampus: { ucd: { transit: { minutes: mins } } }, rent: { cells: { '2:any': { v: 2000, how: 'published' } } } })
+  const data = { campuses: [{ id: 'ucd', name: 'University College Dublin' }], areas: [area('a', 10, 20), area('b', 90, 60), area('c', 50, 25)] }
+  assert.deepEqual(rankWork(data, { kind: 'retail' }).mostFirst.map((x) => x.area), ['b', 'c', 'a'])
+  assert.deepEqual(rankWork(data, { kind: 'shops', college: 'UCD', maxMinutes: 30 }).mostFirst.map((x) => x.area), ['c', 'a'])
+  const near = chatRank(data, { college: 'UCD' })   // no limit given: 35 minutes, and it says so
+  assert.deepEqual(near.cheapestFirst.map((x) => x.area).sort(), ['a', 'c']); assert.match(near.limitNote, /35 minutes/)
 })

@@ -99,13 +99,14 @@ export async function findStops(origin, { query }) {
 }
 
 /** The next departures from one place towards another (or every route at a stop when `to` is empty). */
-export async function nextDepartures(origin, { from, to, mode, route }, now = dublinNow(), liveFor = stopRouteLive) {
+export async function nextDepartures(origin, { from, to, mode, route, last }, now = dublinNow(), liveFor = stopRouteLive) {
   const data = await stopsData(origin)
   const prefer = (groups) => { const m = mode && groups.filter((g) => g.mode === mode); return m && m.length ? m : groups }   // "dart from pearse" -> the station
-  const fromG = prefer(searchPlace(data, from, 40)).slice(0, 3), toG = to ? prefer(searchPlace(data, to, 40)).slice(0, 8) : []
+  const isLandmark = (q) => !!LANDMARKS[norm(q || '').replace(/^(the|dublin) /, '')]
+  const fromG = prefer(searchPlace(data, from, 40)).slice(0, isLandmark(from) ? 8 : 3), toG = to ? prefer(searchPlace(data, to, 40)).slice(0, 8) : []
   if (!fromG.length) return { error: `No stop found for "${from}". Ask the user for the stop name or number.` }
   if (to && !toG.length) return { error: `No stop found for "${to}". For a landmark, try the street it is on (e.g. Spire -> O'Connell Street).` }
-  const fromIds = fromG.slice(0, 2).flatMap((g) => g.ids), toSet = new Set(toG.flatMap((g) => g.ids))
+  const fromIds = fromG.slice(0, isLandmark(from) ? 8 : 2).flatMap((g) => g.ids), toSet = new Set(toG.flatMap((g) => g.ids))
   const cands = []
   for (const sid of fromIds) for (const [rid, dir] of data.stopRoutes[sid] || []) {
     const shape = data.shapes[`${rid}:${dir}`], off = data.offsets[`${rid}:${dir}`]; if (!shape) continue
@@ -121,6 +122,17 @@ export async function nextDepartures(origin, { from, to, mode, route }, now = du
       return { error: `Route ${want} doesn't stop at ${data.stops[fromIds[0]][1]}${to ? ` on the way to ${to}` : ''}. Routes that do: ${here.join(', ')}.` }
     }
     cands.splice(0, cands.length, ...mine)
+  }
+  if (last && cands.length) {   // "last bus tonight": the final departure of each route from here
+    const rows = []
+    for (const c of cands.slice(0, 12)) {
+      const sh = await file(origin, `/data/trips/${now.daytype}/${shardOf(c.sid)}.json`), l = sh[`${c.sid}:${c.rid}:${c.dir}`]
+      if (!l?.length) continue
+      const mins = l.map(([m]) => m), night = [1, 2, 3, 4].every((h) => mins.some((m) => m >= 1440 + h * 60 && m < 1440 + (h + 1) * 60))   // a bus every hour 1am-5am: a 24-hour route
+      rows.push({ route: data.routes[c.rid]?.[0], from: `${data.stops[c.sid][1]} (stop ${data.stops[c.sid][0]})`, last: night ? 9999 : mins[mins.length - 1], allNight: night, ride: c.ride })
+    }
+    const best = new Map(); for (const r of rows) if (!best.has(r.route) || best.get(r.route).last < r.last) best.set(r.route, r)
+    return { now: clock(now.mins), lastDepartures: [...best.values()].sort((a, b) => b.last - a.last).slice(0, 6).map((r) => ({ ...r, last: r.allNight ? null : clock(r.last) })), note: `Times are from the ${now.daytype === 'wk' ? 'weekday' : now.daytype === 'sat' ? 'Saturday' : 'Sunday'} timetable.` }
   }
   const head = (rid, dir) => { const s = data.shapes[`${rid}:${dir}`]; return s ? data.stops[s[s.length - 1]]?.[1] : null }
   if (cands.length) {
@@ -159,6 +171,7 @@ export function collegeId(name, campuses) {
 
 /** Areas ranked by your share of the rent, for a college, a travel time limit and a home: sorted in code, not by the AI. */
 export function rankAreas(data, { college, maxMinutes, bedrooms = 2, people, homeType = 'any', travel = 'transit', limit = 8 }) {
+  const assumed = !maxMinutes; maxMinutes ||= travel === 'walk' ? 30 : 35   // "near" without a number: a sensible limit, said in the answer
   const id = collegeId(college || '', data.campuses)
   if (!id) return { error: `Unknown college "${college}". Colleges: ${data.campuses.map((c) => c.name).join(', ')}.` }
   const bed = String(Math.min(4, Math.max(1, Number(bedrooms) || 2))), n = Math.max(1, Number(people) || Number(bed))
@@ -171,7 +184,24 @@ export function rankAreas(data, { college, maxMinutes, bedrooms = 2, people, hom
     rows.push({ area: a.label, link: `#/areas/${a.id}`, yourShare: r.perPerson, wholeHome: r.total, rentIs: r.how, minutes: mins, changes: travel === 'transit' ? t.transit?.changes : undefined })
   }
   rows.sort((x, y) => x.yourShare - y.yourShare || x.minutes - y.minutes)
-  return { college: data.campuses.find((c) => c.id === id).name, home: `${bed}-bedroom, ${homeType === 'any' ? 'any type' : homeType}, shared by ${n}`, travel, maxMinutes: maxMinutes || null, matches: rows.length, cheapestFirst: rows.slice(0, limit) }
+  return { college: data.campuses.find((c) => c.id === id).name, home: `${bed}-bedroom, ${homeType === 'any' ? 'any type' : homeType}, shared by ${n}`, travel, maxMinutes, limitNote: assumed ? `No time limit was given, so this uses ${maxMinutes} minutes; ask for another limit if you like.` : undefined, matches: rows.length, cheapestFirst: rows.slice(0, limit) }
+}
+
+const JOB_KIND = { retail: 'retail', shop: 'retail', shops: 'retail', food: 'food', restaurant: 'food', cafe: 'food', bar: 'food', hospitality: 'food', hotel: 'hotels', hotels: 'hotels', gym: 'leisure', cinema: 'leisure', leisure: 'leisure' }
+/** Areas with the most places that could hire a student nearby, for a kind of work; optionally within a trip of a college. */
+export function rankWork(data, { kind = 'retail', college, maxMinutes, limit = 8 }) {
+  const k = JOB_KIND[norm(kind).split(' ')[0]] || (['retail', 'food', 'hotels', 'leisure'].includes(kind) ? kind : 'retail')
+  const id = college ? collegeId(college, data.campuses) : null
+  if (college && !id) return { error: `Unknown college "${college}".` }
+  const rows = []
+  for (const a of data.areas) {
+    const w = a.work?.[k]; if (!w) continue
+    const mins = id ? a.toCampus?.[id]?.transit?.minutes : undefined
+    if (id && maxMinutes && (mins == null || mins > maxMinutes)) continue
+    rows.push({ area: a.label, link: `#/areas/${a.id}`, places: w.capped ? `${w.n}+` : w.n, n: w.n, minutesToCollege: mins })
+  }
+  rows.sort((x, y) => y.n - x.n)
+  return { kind: k, meaning: 'places (shops, cafes, hotels or gyms) within about 1 km that could hire a student, counted from OpenStreetMap: not vacancies', college: id ? data.campuses.find((c) => c.id === id).name : undefined, mostFirst: rows.slice(0, limit).map(({ n, ...r }) => r), page: '#/work' }
 }
 
 /** One or more areas in full: rent by home size, the trip to every college, shops, transport and jobs. */
@@ -184,6 +214,7 @@ export function areaDetails(data, { area }) {
 }
 
 export const TOOLS = [{ functionDeclarations: [
+  { name: 'rank_work', description: 'Areas with the most places nearby that could hire a student, for a kind of part-time work (retail, food, hotels, leisure), optionally within a trip of a college. Use for any question about where the part-time jobs are.', parametersJsonSchema: { type: 'object', properties: { kind: { type: 'string', enum: ['retail', 'food', 'hotels', 'leisure'], description: 'retail = shops and supermarkets, food = cafes, restaurants and bars, hotels, leisure = gyms and cinemas.' }, college: { type: 'string' }, maxMinutes: { type: 'number' } }, required: ['kind'] } },
   { name: 'area_details', description: "One area's figures: whole-home rent by bedrooms, travel time to every college, nearest supermarkets, stops and routes, stations and student jobs. Use for any question about a specific area.", parametersJsonSchema: { type: 'object', properties: { area: { type: 'string', description: 'Area name, e.g. Rathmines, Ranelagh, Phibsborough.' } }, required: ['area'] } },
   { name: 'rank_areas', description: 'Areas ranked from cheapest (your share of the rent) for a college, a travel-time limit and a home. Use for any question about the cheapest, best or closest areas: never sort or filter areas yourself.', parametersJsonSchema: { type: 'object', properties: { college: { type: 'string', description: 'College name, e.g. UCD, Trinity, DCU, TU Dublin.' }, maxMinutes: { type: 'number', description: 'Longest acceptable trip in minutes (8am weekday arrival).' }, bedrooms: { type: 'number', description: 'Bedrooms in the home, 1-4. Default 2.' }, people: { type: 'number', description: 'People sharing the rent. Default: one per bedroom.' }, homeType: { type: 'string', enum: ['any', 'apartment', 'terrace', 'semi', 'detached'] }, travel: { type: 'string', enum: ['transit', 'cycle', 'walk'], description: 'transit = bus, Luas or rail (default).' } }, required: ['college'] } },
   { name: 'find_stops', description: 'Find bus, Luas or rail stops by name or stop number, with the routes that serve them. Use when the user names a place and you need the stop.', parametersJsonSchema: { type: 'object', properties: { query: { type: 'string', description: "Stop name, street or stop number, e.g. 'Waterville', 'O'Connell Street', '786'. For a landmark use its street (the Spire -> O'Connell Street)." } }, required: ['query'] } },
@@ -192,6 +223,7 @@ export const TOOLS = [{ functionDeclarations: [
 
 export async function runTool(origin, name, args) {
   try {
+    if (name === 'rank_work') return rankWork(await file(origin, '/data/areas.json'), args || {})
     if (name === 'area_details') return areaDetails(await file(origin, '/data/areas.json'), args || {})
     if (name === 'rank_areas') return rankAreas(await file(origin, '/data/areas.json'), args || {})
     if (name === 'find_stops') return await findStops(origin, args || {})
