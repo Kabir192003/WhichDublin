@@ -43,7 +43,8 @@ export function cleanMessages(body) {
 const PAGES = new Set(['#/areas', '#/shortlist', '#/cost', '#/stop', '#/settle', '#/renting', '#/work', '#/method', '#/explore', '#/eircode'])
 /** Links the model wrote to pages that don't exist become plain text, so a made-up link never reaches a student. */
 export function realLinks(text, ids) {
-  return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (all, label, href) => {
+  return text.replace(/\s?\[[A-Z][A-Z_]{3,}\]/g, '')   // internal labels such as [GROCERIES]
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (all, label, href) => {
     if (/^https:\/\/(www\.)?(rtb\.ie|threshold\.ie|irishimmigration\.ie|citizensinformation\.ie)\b/.test(href)) return all
     const area = href.match(/^#\/areas\/([\w-]+)$/)
     return PAGES.has(href) || (area && ids.has(area[1])) ? all : label

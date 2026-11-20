@@ -1,7 +1,7 @@
 // Instant answers to the common factual questions, straight from Settld's facts (no AI call): free, instant, and
 // they work when the AI is busy. Only a clear match on exactly one topic is answered; anything else goes to the AI.
 import { WAGE, STUDENT_WORK, IRP, LEAP, RIGHTS, RENTING } from '../src/content/facts.js'
-import { hourLimit } from '../src/domain/model.js'
+import { hourLimit, grossPay } from '../src/domain/model.js'
 
 const eur = (n) => `€${Number(n).toFixed(2).replace(/\.00$/, '')}`
 const dublinDate = (d) => new Date(d.toLocaleString('en-US', { timeZone: 'Europe/Dublin' }))
@@ -24,28 +24,36 @@ function noticeBand(months) {
   return i < 0 ? RIGHTS.notice.length - 1 : i
 }
 
+const EARN = /\b(earn|earning|make|paid|pay|income|salary|wages?)\b/
 const TOPICS = [
-  ['hours', (q) => /\b(hours?|hrs)\b/.test(q) && /\b(work|working|job|jobs|part[ -]?time|stamp ?2|allowed|limit)\b/.test(q), (q, now) => {
+  ['earn', (q) => EARN.test(q) && /\b\d{1,2}\s*(hours?|hrs|h)\b/.test(q) && !/\bdeposit|rent\b/.test(q), (q) => {
+    const h = Number(q.match(/\b(\d{1,2})\s*(hours?|hrs|h)\b/)[1]), p = grossPay(h, WAGE.adult)
+    return `At the minimum wage of ${eur(WAGE.adult)} an hour, **${h} hours a week** earns about **${eur(Math.round(p.week))} a week**, or **${eur(Math.round(p.month))} a month**, before tax. Tax, USC and PRSI reduce this; most students on low hours pay little or no income tax once their tax credits are set up.\n\nOn Stamp 2 you can work up to ${STUDENT_WORK.termHours} hours a week in term and ${STUDENT_WORK.holidayHours} in the holidays. Try other hours on the [Part-time work](#/work) page.`
+  }],
+  ['hours', (q) => /\b(hours?|hrs)\b/.test(q) && /\b(work|working|job|jobs|part[ -]?time|stamp ?2|allowed|limit)\b/.test(q) && !(EARN.test(q) && /\b\d{1,2}\s*(hours?|hrs|h)\b/.test(q)), (q, now) => {
     const asked = askedDate(q, dublinDate(now)), lim = hourLimit(asked || dublinDate(now), STUDENT_WORK)
     const verdict = asked ? `On ${asked.toLocaleDateString('en-IE', { day: 'numeric', month: 'long' })} the limit is **${lim.hours} hours a week** (${lim.period === 'holiday' ? `holiday period, ${lim.label}` : 'term time'}).\n\n` : ''
     return `${verdict}On Stamp 2 (non-EEA students on a full-time course on the official list) you can work **up to ${STUDENT_WORK.termHours} hours a week in term** and **up to ${STUDENT_WORK.holidayHours} hours a week in the holidays** (${STUDENT_WORK.holidays.map((h) => h.label).join(' and ')}). ${asked ? '' : `Right now the limit is **${lim.hours} hours a week**. `} ${STUDENT_WORK.rule} Stamp 2A does not allow work; EU/EEA and Irish students have no cap.\n\nMore on the [Part-time work](#/work) page. The official source is irishimmigration.ie.`
   }],
   ['wage', (q) => /minimum wage|min wage|\bwage\b|hourly (rate|pay)|per hour|an hour/.test(q) && !/\bhours? a week\b/.test(q), () =>
     `The national minimum wage is **${eur(WAGE.adult)} an hour** for ${WAGE.ageNote}, from ${WAGE.from}. Younger workers have a lower legal minimum: ${WAGE.youth.map((y) => `${y.label} ${eur(Math.round(WAGE.adult * y.pct) / 100)}`).join(', ')}.\n\nSee what a week or month of work earns on the [Part-time work](#/work) page.`],
-  ['notice', (q) => /\bnotice\b/.test(q) && /(leav|move out|moving out|end|landlord|tenan|lease|give|quit|after|\d+\s*(month|year|yr))/.test(q), (q) => {
+  ['notice', (q) => /\bnotice\b/.test(q) && /(leav|move out|moving out|end|landlord|tenan|lease|give|quit|after|accommodation|student|\d+\s*(month|year|yr))/.test(q), (q) => {
     const m = q.match(/(\d+(?:\.\d+)?)\s*(month|months|mo|year|years|yr|yrs)\b/)
     const months = m ? Number(m[1]) * (m[2].startsWith('y') ? 12 : 1) : null
     const head = months != null ? (() => { const [len, days] = RIGHTS.notice[noticeBand(months)]; return `After ${m[1]} ${m[2]}, that's the **${len.toLowerCase()}** band: you give **${days}' notice**.\n\n` })() : ''
-    return `${head}The notice you give your landlord depends on how long you've lived there:\n${RIGHTS.notice.map(([k, v]) => `- ${k}: ${v}`).join('\n')}\n\n${RIGHTS.noticeNotes.join(' ')}\n\nMore on [Renting safely](#/renting).`
+    const ssa = /accommodation|student/.test(q) ? `In student specific accommodation (college or private student blocks) **you give 28 days' notice** to leave, however long you've been there.\n\n` : ''
+    return `${ssa}${head}The notice you give your landlord depends on how long you've lived there:\n${RIGHTS.notice.map(([k, v]) => `- ${k}: ${v}`).join('\n')}\n\n${RIGHTS.noticeNotes.join(' ')}\n\nMore on [Renting safely](#/renting).`
   }],
   ['deposit', (q) => /\bdeposit\b/.test(q), (q) => {
-    if (/\b(back|return|keep|kept|refund)\b/.test(q)) return `${RIGHTS.deposit}\n\nMore on [Renting safely](#/renting).`
+    if (/\b(back|return\w*|keep\w*|kept|refund\w*|withh\w*|won.t give|not giv\w*)\b/.test(q)) return `${RIGHTS.deposit}\n\nIf your landlord won't return it:\n${RIGHTS.disputes.map(([k, v]) => `- **${k}**: ${v}`).join('\n')}\n\nFree, independent advice: Threshold, 1800 454 454. More on [Renting safely](#/renting).`
     const amounts = [...q.matchAll(/€\s?([\d,]+)|([\d,]{3,})\s?(?:euro|eur)\b/g)].map((m) => Number((m[1] || m[2]).replace(/,/g, '')))
     const dep = amounts[0], rent = amounts[1]
     const verdict = dep && rent ? (dep > rent ? `**No.** A deposit can be at most one month's rent, so for a €${rent.toLocaleString('en-IE')} rent the most you can be asked for is **€${rent.toLocaleString('en-IE')} deposit** (plus at most one month's rent in advance). €${dep.toLocaleString('en-IE')} is over the legal limit, unless it's purpose-built student accommodation with its own rules. Ask for it in writing, and if they insist, contact Threshold (1800 454 454) or the RTB.\n\n` : `**Yes, that's within the limit:** a deposit can be up to one month's rent (€${rent.toLocaleString('en-IE')}).\n\n`) : ''
     return `${verdict}${RENTING.deposit} ${RENTING.depositNote}\n\nMore on [Renting safely](#/renting).`
   }],
-  ['irp', (q) => /\b(irp|gnib|immigration registration|register with immigration|residence permit)\b/.test(q), () =>
+  ['irp', (q) => /\b(irp|gnib|immigration registration|register with immigration|residence permit)\b/.test(q), (q) => /\b(documents?|docs|papers|paperwork|bring|need to bring)\b/.test(q)
+    ? `For your IRP registration appointment, people are usually asked for:\n${IRP.docs.map((d) => `- ${d}`).join('\n')}\n\n${IRP.docsNote} The fee is **€${IRP.fee}** (card only).\n\nThe official list and booking link are on [Moving to Dublin](#/settle).`
+    :
     `If you're from outside the EU/EEA and studying for more than 90 days, register for an Irish Residence Permit (IRP) within **${IRP.deadline}**. The fee is **€${IRP.fee}** (card only). In Dublin it's at ${IRP.where}.\n${IRP.steps.map((s) => `- ${s}`).join('\n')}\n\nThe documents list and booking link are on [Moving to Dublin](#/settle).`],
   ['leap', (q) => /\bleap\b|\bfares?\b|ticket price|how much is the bus/.test(q), () =>
     `With a Leap card, one Dublin 90-minute fare covers unlimited bus, Luas and DART/Commuter rail rides within 90 minutes:\n${LEAP.cards.map((c) => `- ${c.name} (${c.who.split(' (')[0]}): ${eur(c.fare)}`).join('\n')}\n\nA student or young adult card halves most fares. ${LEAP.notConfirmed}\n\nMore on [Moving to Dublin](#/settle).`],

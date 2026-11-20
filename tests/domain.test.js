@@ -460,3 +460,11 @@ test('chat tools: a month in an area uses the cost page sums, and the first mont
   assert.equal(r.typicalMonth.food, 120)
   assert.match(chatMonth({ areas: [a] }, { area: 'nowhere' }).error, /No Settld area/)
 })
+
+test('chat QA round 3: earnings, deposit not returned, IRP documents, student accommodation notice, no internal labels', () => {
+  assert.match(quickAnswer('how much will I earn working 20 hours a week at minimum wage'), /€283 a week.*€1,?226 a month/s)
+  assert.match(quickAnswer('my landlord is not returning my deposit what do I do'), /Mediation.*Threshold/s)
+  assert.match(quickAnswer('what documents do I need for IRP registration'), /Valid passport/)
+  assert.match(quickAnswer('notice for student accommodation'), /you give 28 days' notice/)
+  assert.equal(realLinks('Budget €120 a month [GROCERIES]. Rules [STUDENT_WORK] apply.', new Set()), 'Budget €120 a month. Rules apply.')
+})
