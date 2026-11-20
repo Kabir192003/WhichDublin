@@ -43,7 +43,7 @@ function useHash() {
 export default function App() {
   const [data, setData] = useState(null), [err, setErr] = useState(null)
   const hash = useHash()
-  const [s, setS] = useState(() => parseState(location.search, []))
+  const [s, setS] = useState(() => parseState(location.search, null))
   const [menu, setMenu] = useState(false)
   useEffect(() => { fetch(DATA_URL).then((r) => { if (!r.ok) throw new Error(r.status); return r.json() }).then((d) => { setData(d); setS(parseState(location.search, d.campuses.map((c) => c.id))) }).catch((e) => setErr(String(e))) }, [])
   useEffect(() => { checkSession() }, [])

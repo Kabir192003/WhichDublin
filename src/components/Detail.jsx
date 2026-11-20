@@ -1,5 +1,5 @@
 import React from 'react'
-import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor } from '../domain/model.js'
+import { RENT_TYPES, HOME_TYPES, MODES, rentPerPerson, commuteFor, livingText, livingLabel } from '../domain/model.js'
 import { eur, SHORT, HOW_CHIP, Icon } from './ui.jsx'
 import { SaveButton } from './Shortlist.jsx'
 import { CostCard } from './Cost.jsx'
@@ -9,13 +9,13 @@ import { Essentials, RoomReports, Section, RentTable, Colleges, collegeRowsForAr
 const mapsLink = (a, campus, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lon}&destination=${campus.lat},${campus.lon}&travelmode=${mode === 'transit' ? 'transit' : mode === 'walk' ? 'walking' : 'bicycling'}`
 
 export default function Detail({ area, s, campus, rank, data, onBack }) {
-  const rent = rentPerPerson(area, s.type, s.ptype), commute = commuteFor(area, s.campus, s.mode)
+  const rent = rentPerPerson(area, s.type, s.ptype, s.people), commute = commuteFor(area, s.campus, s.mode)
   const src = data.sources, college = SHORT[s.campus]
   return (
     <article className="detail" aria-label={area.label}>
       <button className="link back" onClick={onBack}><Icon name="back" size={16} />Back to results</button>
       <h1>{area.label}</h1>
-      <p className="verdict">{rank ? <>Position <b>{rank.rank}</b> in your list, for {college} and {RENT_TYPES[s.type].short}.</> : <>Over your budget, or no journey by this travel mode.</>}</p>
+      <p className="verdict">{rank ? <>Position <b>{rank.rank}</b> in your list, for {college} and {livingText(s)}.</> : <>Over your budget, or no journey by this travel mode.</>}</p>
       <div className="glance">
         <div className="stat s-rent"><b>{rent ? eur(rent.perPerson) : '–'}</b><small>your share / month</small></div>
         <div className="stat s-time"><b>{commute ? `${commute.minutes} min` : '–'}</b><small>to {college}</small></div>
@@ -30,7 +30,7 @@ export default function Detail({ area, s, campus, rank, data, onBack }) {
 
       {rent && <Section icon="home" badge="b-teal" title="Your rent" conf={rent.confidence} source={`RTB via CSO, ${src.rent.asOf}, ${src.rent.licence}`}>
         <p className="big"><b>{eur(rent.perPerson)}</b> a month, your share</p>
-        <p>{RENT_TYPES[s.type].label}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
+        <p>{livingLabel(s)}, {HOME_TYPES[s.ptype].toLowerCase()}: average {eur(rent.total)}{rent.people > 1 ? ` split ${rent.people} ways` : ' for the whole home'}. <span className={`chip ${rent.how === 'published' ? 'pub' : rent.how}`}>{HOW_CHIP[rent.how]}{rent.how === 'carried' ? ` from ${rent.q}` : ''}</span></p>
         <p className="hint">Scaled up from the RTB's published existing-tenancy figure ({eur(rent.rtbTotal)}) to new-tenancy level, using the RTB's own new-vs-existing split for Dublin. Still not a live asking price for a specific listing. <a href="#/method">How this is worked out, and how it compares with Daft.ie's own report</a></p>
       </Section>}
 

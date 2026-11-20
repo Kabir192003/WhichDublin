@@ -4,7 +4,7 @@ import Detail from './Detail.jsx'
 import Controls from './Controls.jsx'
 import { SaveButton, ShortlistBar } from './Shortlist.jsx'
 import { rankAreas, PRESETS } from '../domain/rank.js'
-import { RENT_TYPES, HOME_TYPES, MODES, WORK_CATEGORIES, buildRows, workMix } from '../domain/model.js'
+import { RENT_TYPES, HOME_TYPES, MODES, WORK_CATEGORIES, buildRows, workMix, isShared, sharers, livingText, livingLabel } from '../domain/model.js'
 import { eur, SHORT, Pill, HOW_CHIP, Icon, Modal, ExploreSwitch } from './ui.jsx'
 
 const BUDGETS = Array.from({ length: 23 }, (_, i) => 400 + i * 100)
@@ -18,7 +18,7 @@ export default function Finder({ data, s, set, initial }) {
   const [q, setQ] = useState('')
   const campus = data.campuses.find((c) => c.id === s.campus)
 
-  const rows = useMemo(() => buildRows(data.areas, s), [data, s.campus, s.type, s.mode, s.ptype])
+  const rows = useMemo(() => buildRows(data.areas, s), [data, s.campus, s.type, s.mode, s.ptype, s.people])
   const result = useMemo(() => rankAreas(rows, { budget: s.budget, weights: PRESETS[s.priority].weights }), [rows, s.budget, s.priority])
   const byId = useMemo(() => Object.fromEntries(data.areas.map((a) => [a.id, a])), [data])
   const rowById = useMemo(() => Object.fromEntries(rows.map((r) => [r.id, r])), [rows])
@@ -40,9 +40,10 @@ export default function Finder({ data, s, set, initial }) {
       <div className="filters" role="group" aria-label="Your choices">
         <ExploreSwitch view="matched" />
         <span className="sep" />
-        <button type="button" className="filter-summary" onClick={() => setEditing(true)}><span>{SHORT[s.campus]} · up to {eur(s.budget)} · {RENT_TYPES[s.type].label} · {MODE_LABEL[s.mode]}</span><b>Edit</b></button>
+        <button type="button" className="filter-summary" onClick={() => setEditing(true)}><span>{SHORT[s.campus]} · up to {eur(s.budget)} · {livingLabel(s)} · {MODE_LABEL[s.mode]}</span><b>Edit</b></button>
         <Pill className="collapsible" label="College" value={s.campus} onChange={(v) => set({ campus: v })} options={data.campuses.map((c) => [c.id, SHORT[c.id]])} />
-        <Pill className="collapsible" label="Living" value={s.type} onChange={(v) => set({ type: v })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
+        <Pill className="collapsible" label="Living" value={s.type} onChange={(v) => set({ type: v, people: RENT_TYPES[v].people })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
+        {isShared(s.type) && <Pill className="collapsible" label="People" value={sharers(s.type, s.people)} onChange={(v) => set({ people: Number(v) })} options={Array.from({ length: Number(RENT_TYPES[s.type].bed) * 2 - 1 }, (_, i) => [i + 2, `${i + 2} sharing`])} />}
         <Pill className="collapsible" label="Home" value={s.ptype} onChange={(v) => set({ ptype: v })} options={Object.entries(HOME_TYPES)} />
         <Pill className="collapsible" label="Budget" value={s.budget} onChange={(v) => set({ budget: Number(v) })} options={budgets.map((b) => [b, `up to ${eur(b)}`])} />
         <Pill className="collapsible" label="Travel" value={s.mode} onChange={(v) => set({ mode: v })} options={Object.keys(MODES).map((k) => [k, MODE_LABEL[k]])} />
@@ -64,13 +65,13 @@ export default function Finder({ data, s, set, initial }) {
               <Pill label="Sort" value={s.priority} onChange={(v) => set({ priority: v })} options={Object.entries(PRESETS).map(([k, v]) => [k, v.label])} />
             </div>
             <input className="select" style={{ width: '100%', minHeight: 40, marginBottom: 8 }} type="search" placeholder="Search these areas by name" aria-label="Search areas" value={q} onChange={(e) => setQ(e.target.value)} />
-            <p className="hint" style={{ margin: 0 }}>{PRESETS[s.priority].label} first, for {RENT_TYPES[s.type].short}{s.ptype !== 'any' ? `, ${HOME_TYPES[s.ptype].toLowerCase()}` : ''}. Rent is an area average, not a quote.</p>
+            <p className="hint" style={{ margin: 0 }}>{PRESETS[s.priority].label} first, for {livingText(s)}{s.ptype !== 'any' ? `, ${HOME_TYPES[s.ptype].toLowerCase()}` : ''}. Rent is an area average, not a quote.</p>
             <details className="explain"><summary>How the order is worked out</summary>
               <p>Areas over your budget are set aside. The rest are compared with each other on three things: rent, travel time to {SHORT[s.campus]} and the walk to a Lidl or Aldi. Your sort choice decides how much each one counts. The number is a position in this list for your choices, not a rating of the area, and it says nothing about safety or what a place is like to live in. <a href="#/method">Sources and methods</a></p></details>
 
             {result.ranked.length === 0 && (
               <div className="notice-inline">
-                {result.overBudget.length ? <>Nothing fits {eur(s.budget)} a month for {RENT_TYPES[s.type].short}. The cheapest is <b>{byId[result.overBudget[0].id].label}</b> at {eur(rowById[result.overBudget[0].id].rent)}.{' '}
+                {result.overBudget.length ? <>Nothing fits {eur(s.budget)} a month for {livingText(s)}. The cheapest is <b>{byId[result.overBudget[0].id].label}</b> at {eur(rowById[result.overBudget[0].id].rent)}.{' '}
                   <button className="link" onClick={() => set({ budget: Math.ceil(rowById[result.overBudget[0].id].rent / 100) * 100 })}>Raise my budget to {eur(Math.ceil(rowById[result.overBudget[0].id].rent / 100) * 100)}</button></>
                   : <>No areas have a usable journey for this travel mode. Try another.</>}
               </div>)}

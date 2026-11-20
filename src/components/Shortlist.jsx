@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useShortlist, toggle, setAll, shareUrl } from '../domain/shortlist.js'
-import { rentPerPerson, commuteFor, travelCost, costRange, RENT_TYPES, HOME_TYPES, MODES } from '../domain/model.js'
+import { rentPerPerson, commuteFor, travelCost, costRange, RENT_TYPES, HOME_TYPES, MODES, isShared, sharers, livingLabel } from '../domain/model.js'
 import { BILLS, GROCERIES, PHONE, BER_FACTOR } from '../content/facts.js'
 import { useCostSettings, fareFor } from './Cost.jsx'
 import { useAccount } from '../domain/account.js'
@@ -55,7 +55,7 @@ export default function Shortlist({ data, s, set, shared }) {
 
   const travel = travelCost(s.mode, { daysPerWeek: Number(c.days) || 0, fare: fareFor(c.card) })
   const cols = ids.map((id) => data.areas.find((a) => a.id === id)).filter(Boolean).map((area) => {
-    const r = rentPerPerson(area, s.type, s.ptype), t = area.toCampus[s.campus], trip = commuteFor(area, s.campus, s.mode)
+    const r = rentPerPerson(area, s.type, s.ptype, s.people), t = area.toCampus[s.campus], trip = commuteFor(area, s.campus, s.mode)
     const month = r ? costRange({ rentShare: r.perPerson, travel, people: r.people, berFactor: BER_FACTOR[c.ber]?.f ?? null, bills: BILLS, groceries: GROCERIES, phone: PHONE, own: { bills: num(c.bills), food: num(c.food), phone: num(c.phone) } }).typical.total : null
     return { area, r, rent: r?.perPerson ?? null, month, trip, commute: trip?.minutes ?? null, late: t?.late?.minutes ?? null, groceries: area.nearestBudgetGroceryMinutes ?? null }
   })
@@ -87,7 +87,8 @@ export default function Shortlist({ data, s, set, shared }) {
             <div className="card">
               <div className="filters" style={{ border: 0, padding: 0 }}>
                 <Pill label="College" value={s.campus} onChange={(v) => set({ campus: v })} options={data.campuses.map((x) => [x.id, SHORT[x.id]])} />
-                <Pill label="Living" value={s.type} onChange={(v) => set({ type: v })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
+                <Pill label="Living" value={s.type} onChange={(v) => set({ type: v, people: RENT_TYPES[v].people })} options={Object.entries(RENT_TYPES).map(([k, v]) => [k, v.label])} />
+                {isShared(s.type) && <Pill label="People" value={sharers(s.type, s.people)} onChange={(v) => set({ people: Number(v) })} options={Array.from({ length: Number(RENT_TYPES[s.type].bed) * 2 - 1 }, (_, i) => [i + 2, `${i + 2} sharing`])} />}
                 <Pill label="Home" value={s.ptype} onChange={(v) => set({ ptype: v })} options={Object.entries(HOME_TYPES)} />
                 <Pill label="Travel" value={s.mode} onChange={(v) => set({ mode: v })} options={Object.keys(MODES).map((k) => [k, MODE_LABEL[k]])} />
                 <span className="grow" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -118,7 +119,7 @@ export default function Shortlist({ data, s, set, shared }) {
                       </span></th>))}</tr></thead>
                   <tbody>
                     {group('Cost each month')}
-                    {row('Rent, your share', RENT_TYPES[s.type].label, (x) => x.r && <><b className="num">{eur(x.rent)}</b><br /><span className={`chip ${x.r.how === 'published' ? 'pub' : x.r.how}`}>{HOW_CHIP[x.r.how]}</span></>, (x) => x.rent)}
+                    {row('Rent, your share', livingLabel(s), (x) => x.r && <><b className="num">{eur(x.rent)}</b><br /><span className={`chip ${x.r.how === 'published' ? 'pub' : x.r.how}`}>{HOW_CHIP[x.r.how]}</span></>, (x) => x.rent)}
                     {row('Typical month in total', 'Rent, travel, bills, groceries, phone', (x) => x.month != null && <b className="num">{eur(x.month)}</b>, (x) => x.month)}
                     {group(`Getting to ${college}`)}
                     {row(MODES[s.mode].label, s.mode === 'transit' ? 'Timetabled, leaving around 8am' : 'Estimate from distance', (x) => x.trip && <><b className="num">{x.commute} min</b>{x.trip.kind === 'scheduled' && <><br /><span className="hint">{x.trip.changes} change{x.trip.changes === 1 ? '' : 's'}, {x.trip.walkMinutes} min on foot</span></>}</>, (x) => x.commute)}

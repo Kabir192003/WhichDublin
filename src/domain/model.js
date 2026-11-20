@@ -7,12 +7,33 @@ export const MARKET_FACTOR = RENT_NEW_TENANCY.dublinNew / RENT_NEW_TENANCY.dubli
 export const toMarket = (v) => Math.round(v * MARKET_FACTOR)
 
 export const RENT_TYPES = {
-  own1: { label: 'Own 1-bed', short: 'a 1-bed on your own', bed: '1', people: 1, hint: 'A whole 1-bedroom home, all yours.' },
-  own2: { label: 'Own 2-bed', short: 'a whole 2-bed (you pay all of it)', bed: '2', people: 1, hint: 'A whole 2-bedroom home and you pay all of the rent, e.g. on your own or as a couple paying from one budget.' },
-  share2: { label: '2-bed, own room', short: 'sharing a 2-bed (own room each)', bed: '2', people: 2, hint: 'A 2-bedroom home shared by 2 people, each with their own bedroom. Your share is half the rent.' },
-  share3: { label: '3-bed, own room', short: 'sharing a 3-bed (own room each)', bed: '3', people: 3, hint: 'A 3-bedroom home shared by 3 people, each with their own bedroom. Your share is a third of the rent.' },
-  share4: { label: '4-bed, own room', short: 'sharing a 4-bed (own room each)', bed: '4', people: 4, hint: 'A 4-bedroom home shared by 4 people, each with their own bedroom. Your share is a quarter of the rent.' }
+  own1: { label: 'Whole 1-bed', short: 'a whole 1-bed (you pay all of it)', bed: '1', people: 1, hint: 'A whole 1-bedroom home, all yours.' },
+  own2: { label: 'Whole 2-bed', short: 'a whole 2-bed (you pay all of it)', bed: '2', people: 1, hint: 'A whole 2-bedroom home and you pay all of the rent, e.g. as a couple paying from one budget.' },
+  own3: { label: 'Whole 3-bed', short: 'a whole 3-bed (you pay all of it)', bed: '3', people: 1, hint: 'A whole 3-bedroom home and you pay all of the rent.' },
+  share2: { label: 'Shared 2-bed', short: 'sharing a 2-bed', bed: '2', people: 2, hint: 'A 2-bedroom home with the rent split between everyone living there.' },
+  share3: { label: 'Shared 3-bed', short: 'sharing a 3-bed', bed: '3', people: 3, hint: 'A 3-bedroom home with the rent split between everyone living there.' },
+  share4: { label: 'Shared 4-bed', short: 'sharing a 4-bed', bed: '4', people: 4, hint: 'A 4-bedroom home with the rent split between everyone living there.' }
 }
+export const isShared = (type) => RENT_TYPES[type]?.people > 1
+/** People sharing the rent: one per bedroom by default, at most two per bedroom; 1 for a whole home. */
+export function sharers(type, people) {
+  const t = RENT_TYPES[type]; if (!t || t.people === 1) return 1
+  const n = Math.round(Number(people)); return Number.isFinite(n) ? Math.min(Math.max(n, 2), Number(t.bed) * 2) : t.people
+}
+/** How the rooms work out, in words: "own room each", "1 spare room", "2 rooms shared by two". */
+export function roomsText(beds, people) {
+  const b = Number(beds), n = people
+  if (n <= b) return n === b ? 'own room each' : `own room each, ${b - n} spare`
+  const shared = n - b
+  return shared === b ? 'every room shared by two' : `${shared} ${shared === 1 ? 'room' : 'rooms'} shared by two, ${b - shared} on their own`
+}
+/** The living choice in a sentence, for headings and summaries. */
+export function livingText(s) {
+  const t = RENT_TYPES[s.type]; if (!isShared(s.type)) return t.short
+  const n = sharers(s.type, s.people)
+  return `sharing a ${t.bed}-bed with ${n - 1} ${n - 1 === 1 ? 'other' : 'others'} (${roomsText(t.bed, n)})`
+}
+export const livingLabel = (s) => isShared(s.type) ? `${RENT_TYPES[s.type].label}, ${sharers(s.type, s.people)} people` : RENT_TYPES[s.type].label
 export const HOME_TYPES = { any: 'Any type', apartment: 'Apartment', terrace: 'Terraced house', semi: 'Semi-detached', detached: 'Detached house' }
 const HOW_LABEL = { published: 'Published', carried: 'Carried forward', estimated: 'Estimated' }
 
@@ -24,8 +45,8 @@ export function cellConfidence(area, c) {
 }
 
 /** Monthly rent per person for the chosen setup. Every area has a figure; `how` says whether it is published or derived. */
-export function rentPerPerson(area, type, ptype = 'any') {
-  const t = RENT_TYPES[type]
+export function rentPerPerson(area, type, ptype = 'any', people) {
+  const t = { ...RENT_TYPES[type], people: sharers(type, people) }
   const c = area.rent.cells[`${t.bed}:${ptype}`]
   if (!c) return null
   const rtb = typeof c === 'number' ? c : c.v
@@ -64,27 +85,30 @@ export function commuteFor(area, campusId, mode) {
            changes: c.transit.changes, walkMinutes: c.transit.walkMinutes, departures: c.transit.departures }
 }
 
-export function buildRows(areas, { campus, type, mode, ptype = 'any' }) {
+export function buildRows(areas, { campus, type, mode, ptype = 'any', people }) {
   return areas.map((a) => {
-    const rent = rentPerPerson(a, type, ptype), commute = commuteFor(a, campus, mode)
+    const rent = rentPerPerson(a, type, ptype, people), commute = commuteFor(a, campus, mode)
     return { id: a.id, rent: rent ? rent.perPerson : null, commute: commute ? commute.minutes : null, groceries: a.nearestBudgetGroceryMinutes ?? null, _rent: rent, _commute: commute }
   })
 }
 
-export const DEFAULTS = { campus: 'tcd', type: 'share2', ptype: 'any', mode: 'transit', budget: 1100, priority: 'balanced' }
+export const DEFAULTS = { campus: 'tcd', type: 'share2', ptype: 'any', mode: 'transit', budget: 1100, priority: 'balanced', people: 2 }
 const OK = { ptype: Object.keys(HOME_TYPES), type: Object.keys(RENT_TYPES), mode: Object.keys(MODES), priority: ['balanced', 'cheapest', 'shortest'] }
 
 /** Read and sanitise state from a query string, so shared links can't put the app into an invalid state. */
 export function parseState(search, campusIds) {
   const p = new URLSearchParams(search)
   const pick = (key, list, fb) => (list.includes(p.get(key)) ? p.get(key) : fb)
+  // before the college list has loaded (campusIds null), keep a plausible id so the link isn't rewritten to the default
+  const campus = campusIds ? pick('campus', campusIds, DEFAULTS.campus) : (/^[a-z]{2,12}$/.test(p.get('campus') || '') ? p.get('campus') : DEFAULTS.campus)
   const b = Number(p.get('budget'))
   return {
-    campus: pick('campus', campusIds, DEFAULTS.campus), type: pick('type', OK.type, DEFAULTS.type), ptype: pick('ptype', OK.ptype, DEFAULTS.ptype), mode: pick('mode', OK.mode, DEFAULTS.mode),
-    priority: pick('priority', OK.priority, DEFAULTS.priority), budget: Number.isFinite(b) && b >= 200 && b <= 6000 ? Math.round(b) : DEFAULTS.budget
+    campus, type: pick('type', OK.type, DEFAULTS.type), ptype: pick('ptype', OK.ptype, DEFAULTS.ptype), mode: pick('mode', OK.mode, DEFAULTS.mode),
+    priority: pick('priority', OK.priority, DEFAULTS.priority), budget: Number.isFinite(b) && b >= 200 && b <= 6000 ? Math.round(b) : DEFAULTS.budget,
+    people: sharers(pick('type', OK.type, DEFAULTS.type), p.get('people') ?? undefined)
   }
 }
-export const stateToSearch = (s) => new URLSearchParams({ campus: s.campus, type: s.type, ptype: s.ptype, mode: s.mode, priority: s.priority, budget: String(s.budget) }).toString()
+export const stateToSearch = (s) => new URLSearchParams({ campus: s.campus, type: s.type, ptype: s.ptype, mode: s.mode, priority: s.priority, budget: String(s.budget), ...(isShared(s.type) && { people: String(sharers(s.type, s.people)) }) }).toString()
 
 // ---- part-time work -------------------------------------------------------------------------------------------
 

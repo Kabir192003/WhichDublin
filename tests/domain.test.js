@@ -65,7 +65,7 @@ test('model: commute follows the chosen mode; no transit journey means no commut
 })
 test('model: shared links are sanitised', () => {
   const ok = parseState('?campus=ucd&type=own1&mode=cycle&priority=cheapest&budget=750', ['tcd', 'ucd'])
-  assert.deepEqual(ok, { campus: 'ucd', type: 'own1', ptype: 'any', mode: 'cycle', priority: 'cheapest', budget: 750 })
+  assert.deepEqual(ok, { campus: 'ucd', type: 'own1', ptype: 'any', mode: 'cycle', priority: 'cheapest', budget: 750, people: 1 })
   const bad = parseState('?campus=<script>&type=x&mode=y&priority=z&budget=-5', ['tcd', 'ucd'])
   assert.deepEqual(bad, { ...DEFAULTS, campus: 'tcd' })
   assert.equal(parseState('?budget=999999', ['tcd']).budget, DEFAULTS.budget)
@@ -433,4 +433,20 @@ test('chat: links to pages that do not exist are turned into plain text', () => 
   const ids = new Set(['rathmines-6'])
   assert.equal(realLinks('[Trinity](#/areas/trinity) and [Rathmines](#/areas/rathmines-6), see [Cost](#/cost) or [RTB](https://www.rtb.ie/) or [x](https://evil.example)', ids),
     'Trinity and [Rathmines](#/areas/rathmines-6), see [Cost](#/cost) or [RTB](https://www.rtb.ie/) or x')
+})
+
+import { sharers, roomsText, livingText, isShared } from '../src/domain/model.js'
+test('living: shared homes split the rent between everyone, up to two per bedroom; whole homes are one payer', () => {
+  const a = { rent: { confidence: 'high', cells: { '2:any': { v: 2000, how: 'published' } } } }
+  assert.equal(rentPerPerson(a, 'share2', 'any', 4).perPerson, Math.round(toMarket(2000) / 4))   // 4 people in a 2-bed
+  assert.equal(rentPerPerson(a, 'share2').people, 2)                                            // default: one per bedroom
+  assert.equal(rentPerPerson(a, 'own2', 'any', 4).people, 1)                                    // a whole home ignores sharers
+  assert.equal(sharers('share2', 9), 4); assert.equal(sharers('share3', 1), 2)                 // clamped to 2..2 per bedroom
+  assert.equal(roomsText(2, 2), 'own room each'); assert.equal(roomsText(3, 2), 'own room each, 1 spare')
+  assert.equal(roomsText(2, 3), '1 room shared by two, 1 on their own'); assert.equal(roomsText(2, 4), 'every room shared by two')
+  assert.equal(livingText({ type: 'share2', people: 4 }), 'sharing a 2-bed with 3 others (every room shared by two)')
+  assert.ok(isShared('share3') && !isShared('own3'))
+  assert.equal(parseState('?type=share2&people=4', ['tcd']).people, 4)
+  assert.equal(parseState('?type=share2&people=99', ['tcd']).people, 4)
+  assert.match(stateToSearch({ ...DEFAULTS, type: 'share3', people: 5 }), /people=5/)
 })
