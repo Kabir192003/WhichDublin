@@ -13,6 +13,7 @@ import { Logo, Icon } from './components/ui.jsx'
 import Feedback from './components/Feedback.jsx'
 import Account from './components/Account.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import Chat from './components/Chat.jsx'
 
 // The map library is most of the bundle, so the pages that draw a map load on demand.
 const Finder = lazy(() => import('./components/Finder.jsx'))
@@ -90,6 +91,7 @@ export default function App() {
       <main id="main" className={bleed ? 'bleed' : 'scroll'}>
         <ErrorBoundary resetKey={hash}><Suspense fallback={<p className="notice" role="status">Loading…</p>}>{body}</Suspense></ErrorBoundary>
       </main>
+      <Chat />
     </>
   )
 }

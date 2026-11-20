@@ -19,6 +19,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@google/genai": "^3.6.1",
     "@neondatabase/serverless": "^0.10.4",
     "@sentry/node": "^11.11.0",
     "@sentry/react": "^11.11.0",
