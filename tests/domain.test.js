@@ -427,3 +427,10 @@ test('chat: second round of edge cases (a date for work hours, a deposit verdict
   const near = chatRank(data, { college: 'UCD' })   // no limit given: 35 minutes, and it says so
   assert.deepEqual(near.cheapestFirst.map((x) => x.area).sort(), ['a', 'c']); assert.match(near.limitNote, /35 minutes/)
 })
+
+import { realLinks } from '../api/chat.js'
+test('chat: links to pages that do not exist are turned into plain text', () => {
+  const ids = new Set(['rathmines-6'])
+  assert.equal(realLinks('[Trinity](#/areas/trinity) and [Rathmines](#/areas/rathmines-6), see [Cost](#/cost) or [RTB](https://www.rtb.ie/) or [x](https://evil.example)', ids),
+    'Trinity and [Rathmines](#/areas/rathmines-6), see [Cost](#/cost) or [RTB](https://www.rtb.ie/) or x')
+})

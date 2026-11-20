@@ -13,7 +13,7 @@ import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 // lightest first: each model has its own free-plan allowance, and Flash-Lite is the fastest
 const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.6-flash').split(',').map((m) => m.trim()).filter(Boolean)
 const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 3
-let knowledge = { at: 0, text: null }
+let knowledge = { at: 0, text: null, ids: new Set() }
 
 /** The area data is the same file the app loads, so the assistant can never drift from what the pages show. */
 const originOf = (req) => { const host = req.headers['x-forwarded-host'] || req.headers.host; return `${req.headers['x-forwarded-proto'] || (String(host).startsWith('localhost') ? 'http' : 'https')}://${host}` }
@@ -21,7 +21,8 @@ async function getKnowledge(req) {
   if (knowledge.text && Date.now() - knowledge.at < 3_600_000) return knowledge.text
   const r = await fetch(`${originOf(req)}/data/areas.json`, { signal: AbortSignal.timeout(8000) })
   if (!r.ok) throw new Error(`areas.json ${r.status}`)
-  knowledge = { at: Date.now(), text: buildKnowledge(await r.json()) }
+  const data = await r.json()
+  knowledge = { at: Date.now(), text: buildKnowledge(data), ids: new Set(data.areas.map((a) => a.id)) }
   return knowledge.text
 }
 
@@ -39,12 +40,22 @@ export function cleanMessages(body) {
   return out[out.length - 1].role === 'user' ? out : null
 }
 
+const PAGES = new Set(['#/areas', '#/shortlist', '#/cost', '#/stop', '#/settle', '#/renting', '#/work', '#/method', '#/explore', '#/eircode'])
+/** Links the model wrote to pages that don't exist become plain text, so a made-up link never reaches a student. */
+export function realLinks(text, ids) {
+  return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (all, label, href) => {
+    if (/^https:\/\/(www\.)?(rtb\.ie|threshold\.ie|irishimmigration\.ie|citizensinformation\.ie)\b/.test(href)) return all
+    const area = href.match(/^#\/areas\/([\w-]+)$/)
+    return PAGES.has(href) || (area && ids.has(area[1])) ? all : label
+  })
+}
+
 function answer(res, text) {
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/plain; charset=utf-8')
   res.setHeader('Cache-Control', 'no-store')
   res.setHeader('X-Content-Type-Options', 'nosniff')
-  res.end(text.trim() || 'Sorry, I couldn’t answer that. Try asking another way.')
+  res.end(realLinks(text.trim(), knowledge.ids) || 'Sorry, I couldn’t answer that. Try asking another way.')
 }
 
 export default async function handler(req, res) {
