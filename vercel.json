@@ -8,9 +8,6 @@
   ],
   "functions": {
     "api/*.js": {
-      "maxDuration": 10
-    },
-    "api/chat.js": {
       "maxDuration": 30
     }
   },
