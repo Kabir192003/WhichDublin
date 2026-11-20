@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     const trip = parseTransport(contents[contents.length - 1].parts[0].text)
     if (trip) {
       const r = await nextDepartures(originOf(req), trip).catch(() => null)
-      if (r && !(r.error && /No stop found/.test(r.error))) { log('direct departures'); return answer(res, formatDepartures(r, trip)) }
+      if (r) { log('direct departures'); return answer(res, formatDepartures(r, trip)) }   // a stop that isn't found is said plainly, not guessed by the AI
     }
     const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 12000 } })
     const gen = async (params) => {

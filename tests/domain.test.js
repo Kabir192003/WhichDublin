@@ -389,7 +389,7 @@ test('chat tools: area details give the full line for the named area, or the lis
 import { parseTransport, formatDepartures } from '../server/chat-quick.js'
 test('chat: plain departure questions are read in code; anything else goes on to the AI', () => {
   assert.deepEqual(parseTransport('when is the next bus from watervillw to spire'), { from: 'watervillw', to: 'spire' })
-  assert.deepEqual(parseTransport('Next Luas from Museum?'), { from: 'Museum', to: undefined })
+  assert.deepEqual(parseTransport('Next Luas from Museum?'), { from: 'Museum', to: undefined, mode: 'tram' })
   assert.deepEqual(parseTransport('buses from stop 786 to UCD Village now'), { from: '786', to: 'UCD Village' })
   assert.equal(parseTransport('cheapest areas with a bus from UCD'), null)
   assert.equal(parseTransport('how much is rent in Rathmines'), null)
@@ -400,4 +400,13 @@ test('chat: plain departure questions are read in code; anything else goes on to
 test('chat: Luas questions answer with the live TII board', () => {
   const out = formatDepartures({ now: '9:00', departures: [], liveBoards: [{ kind: 'tram', station: 'Museum', directions: [{ name: 'Inbound', trams: [{ due: 0, destination: 'The Point' }, { due: 7, destination: 'Connolly' }] }], message: '' }] }, { from: 'Museum' })
   assert.match(out, /Live Luas at \*\*Museum\*\*/); assert.match(out, /\*\*Inbound\*\*: The Point due now, Connolly in 7 min/)
+})
+
+test('chat: edge cases found in testing (O Connell spacing, DART vs bus stop, a named route, frm)', () => {
+  const data = { stops: { a: ['45', "O'Connell St Upper", 53.35, -6.26, 'bus'], b: ['352', 'Pearse Sq', 53.34, -6.24, 'bus'], c: ['', 'Dublin Pearse', 53.34, -6.25, 'rail'] }, byCode: {} }
+  assert.equal(searchStops(data, 'O Connell st')[0].name, "O'Connell St Upper")
+  assert.deepEqual(parseTransport('next dart from pearse'), { from: 'pearse', to: undefined, mode: 'rail' })
+  assert.deepEqual(parseTransport("when's the 46a from stop 2338"), { from: '2338', to: undefined, route: '46A' })
+  assert.deepEqual(parseTransport('next bus frm rathmines to trinity'), { from: 'rathmines', to: 'trinity' })
+  assert.equal(parseTransport('how much is rent from 2 people'), null)
 })

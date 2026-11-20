@@ -27,7 +27,23 @@ let index = null
 const stopsData = (origin) => file(origin, '/data/stops.json')
 
 const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+  .replace(/\b(o|mc|mac) (?=[a-z]{3})/g, '$1')   // "O Connell" = "O'Connell"
   .replace(/\bstreet\b/g, 'st').replace(/\broad\b/g, 'rd').replace(/\bupper\b/g, 'upr').replace(/\blower\b/g, 'lwr')
+
+/** Places people say that aren't stop names: the stops that serve them. */
+const LANDMARKS = {
+  trinity: ['College Green', 'Westmoreland St', 'Nassau St', 'Trinity'], tcd: ['College Green', 'Westmoreland St', 'Nassau St', 'Trinity'],
+  ucd: ['UCD', 'Belfield'], dcu: ['DCU', 'Collins Avenue', 'Ballymun Rd'], spire: ['Spire', "O'Connell St Upper", "O'Connell - GPO"],
+  town: ["O'Connell St", 'College Green', 'Westmoreland St', 'Abbey St'], 'city centre': ["O'Connell St", 'College Green', 'Westmoreland St', 'Abbey St'],
+  'city center': ["O'Connell St", 'College Green', 'Westmoreland St', 'Abbey St'], gpo: ["O'Connell - GPO", "O'Connell St Lwr"]
+}
+export function searchPlace(data, query, limit = 4) {
+  const keys = LANDMARKS[norm(query).replace(/^(the|dublin) /, '')]
+  if (!keys) return searchStops(data, query, limit)
+  const seen = new Set(), out = []
+  for (const k of keys) for (const g of searchStops(data, k, 3)) { const key = `${g.name}|${g.mode}`; if (!seen.has(key)) { seen.add(key); out.push(g) } }
+  return out.slice(0, limit * 2)
+}
 
 /** Stops matching a name or stop number, grouped by name (both sides of the road share a name). */
 export function searchStops(data, query, limit = 8) {
@@ -54,7 +70,7 @@ export function searchStops(data, query, limit = 8) {
 async function departures(origin, data, now, sid, rid, dir, limit = 3, liveFor = stopRouteLive) {
   const shard = await file(origin, `/data/trips/${now.daytype}/${shardOf(sid)}.json`)
   const list = shard[`${sid}:${rid}:${dir}`] || []
-  const slots = list.filter(([m]) => m % 1440 >= now.mins - LATE && m % 1440 <= now.mins + AHEAD)
+  const slots = list.map(([m, start]) => [m % 1440, start]).filter(([m]) => m >= now.mins - LATE && m <= now.mins + AHEAD)   // 24:05 is 0:05 tonight
   if (!slots.length) return []
   const shape = data.shapes[`${rid}:${dir}`] || []
   let live = []
@@ -64,7 +80,7 @@ async function departures(origin, data, now, sid, rid, dir, limit = 3, liveFor =
   for (const [m, start] of slots) {
     const c = byStart.get(start)
     const exp = c ? (c.atMs != null ? now.mins + (c.atMs - Date.now()) / 60000 : m + (c.delaySec || 0) / 60) : null
-    if (m % 1440 < now.mins && !(exp != null && exp >= now.mins)) continue   // gone, and no late bus still coming
+    if (exp != null ? exp < now.mins : m < now.mins) continue   // gone (a live estimate overrides the timetable)
     out.push({ scheduled: clock(m), expected: exp != null ? clock(exp) : null, delayMin: c?.delaySec != null ? Math.round(c.delaySec / 60) : null, live: !!c, liveAtThisStop: c ? !!c.exact : false, sortKey: exp ?? m })
   }
   return out.sort((a, b) => a.sortKey - b.sortKey).slice(0, limit)
@@ -83,9 +99,10 @@ export async function findStops(origin, { query }) {
 }
 
 /** The next departures from one place towards another (or every route at a stop when `to` is empty). */
-export async function nextDepartures(origin, { from, to }, now = dublinNow(), liveFor = stopRouteLive) {
+export async function nextDepartures(origin, { from, to, mode, route }, now = dublinNow(), liveFor = stopRouteLive) {
   const data = await stopsData(origin)
-  const fromG = searchStops(data, from, 3), toG = to ? searchStops(data, to, 4) : []
+  const prefer = (groups) => { const m = mode && groups.filter((g) => g.mode === mode); return m && m.length ? m : groups }   // "dart from pearse" -> the station
+  const fromG = prefer(searchPlace(data, from, 40)).slice(0, 3), toG = to ? prefer(searchPlace(data, to, 40)).slice(0, 8) : []
   if (!fromG.length) return { error: `No stop found for "${from}". Ask the user for the stop name or number.` }
   if (to && !toG.length) return { error: `No stop found for "${to}". For a landmark, try the street it is on (e.g. Spire -> O'Connell Street).` }
   const fromIds = fromG.slice(0, 2).flatMap((g) => g.ids), toSet = new Set(toG.flatMap((g) => g.ids))
@@ -96,6 +113,14 @@ export async function nextDepartures(origin, { from, to }, now = dublinNow(), li
     const j = to ? shape.findIndex((x, k) => k > i && toSet.has(x)) : -1
     if (to && j < 0) continue
     cands.push({ sid, rid, dir, toSid: j >= 0 ? shape[j] : null, ride: j >= 0 && off ? off[j] - off[i] : null })
+  }
+  if (route) {   // "when's the 46A from ...": only that route, or say plainly it doesn't stop there
+    const want = String(route).toUpperCase(), mine = cands.filter((c) => String(data.routes[c.rid]?.[0]).toUpperCase() === want)
+    if (!mine.length) {
+      const here = [...new Set(fromIds.flatMap((sid) => (data.stopRoutes[sid] || []).map(([r]) => data.routes[r]?.[0])).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }))
+      return { error: `Route ${want} doesn't stop at ${data.stops[fromIds[0]][1]}${to ? ` on the way to ${to}` : ''}. Routes that do: ${here.join(', ')}.` }
+    }
+    cands.splice(0, cands.length, ...mine)
   }
   const head = (rid, dir) => { const s = data.shapes[`${rid}:${dir}`]; return s ? data.stops[s[s.length - 1]]?.[1] : null }
   if (cands.length) {

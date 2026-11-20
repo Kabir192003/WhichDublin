@@ -48,17 +48,20 @@ export function quickAnswer(text, now = new Date()) {
 /** "next bus from X to Y", "when is the luas from X", "buses from 786": the places, or null if it isn't that question. */
 export function parseTransport(text) {
   const q = String(text).trim().replace(/[?!.]+$/, '')
-  if (!/\b(bus|buses|luas|tram|trams|train|trains|dart)\b/i.test(q) || !/\bfrom\b/i.test(q)) return null
+  if (!/\b(bus|buses|luas|tram|trams|train|trains|dart|[a-z]?\d{1,3}[a-z]?)\b/i.test(q) || !/\b(from|frm)\b/i.test(q)) return null
+  if (!/\b(bus|buses|luas|tram|trams|train|trains|dart|next|when|when's|whens)\b/i.test(q)) return null
   if (/\b(cheap|rent|cost|price|area|areas|live)\b/i.test(q)) return null   // about where to live, not a departure
-  const m = q.match(/\bfrom\s+(.+?)(?:\s+(?:to|towards|for)\s+(?:the\s+)?(.+?))?(?:\s+(?:now|tonight|today|right now|please))?$/i)
+  const m = q.match(/\b(?:from|frm)\s+(.+?)(?:\s+(?:to|towards|for)\s+(?:the\s+)?(.+?))?(?:\s+(?:now|tonight|today|right now|please))?$/i)
   if (!m) return null
   const clean = (s) => s && s.replace(/^(the|stop)\s+/i, '').trim()
-  return { from: clean(m[1]), to: clean(m[2]) || undefined }
+  const mode = /\b(dart|train|trains|rail)\b/i.test(q) ? 'rail' : /\b(luas|tram|trams)\b/i.test(q) ? 'tram' : undefined
+  const route = (q.match(/\b(?:the|a|route)\s+([a-z]?\d{1,3}[a-z]?)\b/i) || q.match(/\b([a-z]?\d{1,3}[a-z]?)\s+bus\b/i) || [])[1]
+  return { from: clean(m[1]), to: clean(m[2]) || undefined, ...(mode && { mode }), ...(route && { route: route.toUpperCase() }) }
 }
 
 /** The tool result, written out for a student. */
 export function formatDepartures(r, { from, to }) {
-  if (r.error) return `${r.error.replace('Ask the user for', 'Try')}\n\nYou can also search by stop name or number on the [Commute](#/stop) page.`
+  if (r.error) return `${r.error.replace('Ask the user for the stop name or number.', 'Try the stop number on the pole, or another nearby street.')}\n\nYou can also search by stop name or number on the [Commute](#/stop) page.`
   if (r.liveBoards?.length) {   // Luas and trains: the operator's own live board is the real answer
     const b = r.liveBoards[0]
     const rows = b.kind === 'tram'
