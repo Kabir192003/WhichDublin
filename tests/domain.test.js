@@ -450,3 +450,13 @@ test('living: shared homes split the rent between everyone, up to two per bedroo
   assert.equal(parseState('?type=share2&people=99', ['tcd']).people, 4)
   assert.match(stateToSearch({ ...DEFAULTS, type: 'share3', people: 5 }), /people=5/)
 })
+
+import { monthlyCost as chatMonth } from '../server/chat-tools.js'
+test('chat tools: a month in an area uses the cost page sums, and the first month adds the deposit and IRP', () => {
+  const a = { id: 'r-6', name: 'Rathmines', label: 'Rathmines, Dublin 6', rent: { cells: { '2:any': { v: 2000, how: 'published' } } } }
+  const r = chatMonth({ areas: [a] }, { area: 'rathmines', bedrooms: 2, people: 2 })
+  assert.equal(r.typicalTotal, Object.values(r.typicalMonth).reduce((x, y) => x + y, 0))
+  assert.equal(r.firstMonth.total, r.firstMonth.deposit + r.typicalTotal + 300)
+  assert.equal(r.typicalMonth.food, 120)
+  assert.match(chatMonth({ areas: [a] }, { area: 'nowhere' }).error, /No Settld area/)
+})

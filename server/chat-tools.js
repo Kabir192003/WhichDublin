@@ -3,7 +3,8 @@
 import { stopRouteLive } from './live.js'
 import { luasBoard, railBoard } from './transit.js'
 import { buildIndex, plan } from '../src/domain/planner.js'
-import { rentForHome } from '../src/domain/model.js'
+import { rentForHome, costRange, travelCost, firstMonth } from '../src/domain/model.js'
+import { BILLS, GROCERIES, PHONE, IRP } from '../src/content/facts.js'
 import { areaLine, campusesOf } from './chat-knowledge.js'
 
 const SHARDS = 256, LATE = 45, AHEAD = 120
@@ -204,6 +205,18 @@ export function rankWork(data, { kind = 'retail', college, maxMinutes, limit = 8
   return { kind: k, meaning: 'places (shops, cafes, hotels or gyms) within about 1 km that could hire a student, counted from OpenStreetMap: not vacancies', college: id ? data.campuses.find((c) => c.id === id).name : undefined, mostFirst: rows.slice(0, limit).map(({ n, ...r }) => r), page: '#/work' }
 }
 
+/** A month in one area, the Cost of living page's own sums: rent share, travel, bills, groceries, phone; and the first month. */
+export function monthlyCost(data, { area, bedrooms = 2, people, travel = 'transit', daysPerWeek = 5, student = true, nonEU = true }) {
+  const q = norm(area || ''), a = data.areas.find((x) => norm(x.label).includes(q) || norm(x.name).includes(q))
+  if (!a) return { error: `No Settld area matches "${area}".` }
+  const bed = String(Math.min(4, Math.max(1, Number(bedrooms) || 2))), n = Math.max(1, Math.min(Number(bed) * 2, Number(people) || Number(bed)))
+  const r = rentForHome(a, bed, 'any', n); if (!r) return { error: `No rent figure for a ${bed}-bed in ${a.name}.` }
+  const fare = student ? 1 : 2, trip = travelCost(travel, { daysPerWeek, fare })
+  const c = costRange({ rentShare: r.perPerson, travel: trip, people: n, bills: BILLS, groceries: GROCERIES, phone: PHONE })
+  const first = firstMonth({ rentShare: r.perPerson, month: c.typical.total, irpFee: nonEU ? IRP.fee : 0 })
+  return { area: a.label, link: `#/areas/${a.id}`, home: `${bed}-bed shared by ${n}`, rentIs: r.how, typicalMonth: c.typical.parts, typicalTotal: c.typical.total, range: [c.low.total, c.high.total], firstMonth: { ...first.parts, total: first.total }, notes: 'Travel: Dublin 90-minute fare twice a day (student Leap €1). Bills: electricity, gas and broadband split between sharers. Groceries mostly Lidl/Aldi. First month = deposit (one month of rent share) + a typical month + IRP fee for non-EU/EEA students.', page: '#/cost' }
+}
+
 /** One or more areas in full: rent by home size, the trip to every college, shops, transport and jobs. */
 export function areaDetails(data, { area }) {
   const q = norm(area || '')
@@ -214,6 +227,7 @@ export function areaDetails(data, { area }) {
 }
 
 export const TOOLS = [{ functionDeclarations: [
+  { name: 'monthly_cost', description: "What a month costs in one area (rent share, travel, bills, groceries, phone) and the money needed for the first month. Use for any question about monthly cost, budget or first-month money in an area.", parametersJsonSchema: { type: 'object', properties: { area: { type: 'string' }, bedrooms: { type: 'number', description: 'Bedrooms in the home, 1-4. Default 2.' }, people: { type: 'number', description: 'People sharing the rent. Default one per bedroom.' }, travel: { type: 'string', enum: ['transit', 'cycle', 'walk'] }, nonEU: { type: 'boolean', description: 'From outside the EU/EEA (adds the IRP fee to the first month). Default true.' } }, required: ['area'] } },
   { name: 'rank_work', description: 'Areas with the most places nearby that could hire a student, for a kind of part-time work (retail, food, hotels, leisure), optionally within a trip of a college. Use for any question about where the part-time jobs are.', parametersJsonSchema: { type: 'object', properties: { kind: { type: 'string', enum: ['retail', 'food', 'hotels', 'leisure'], description: 'retail = shops and supermarkets, food = cafes, restaurants and bars, hotels, leisure = gyms and cinemas.' }, college: { type: 'string' }, maxMinutes: { type: 'number' } }, required: ['kind'] } },
   { name: 'area_details', description: "One area's figures: whole-home rent by bedrooms, travel time to every college, nearest supermarkets, stops and routes, stations and student jobs. Use for any question about a specific area.", parametersJsonSchema: { type: 'object', properties: { area: { type: 'string', description: 'Area name, e.g. Rathmines, Ranelagh, Phibsborough.' } }, required: ['area'] } },
   { name: 'rank_areas', description: 'Areas ranked from cheapest (your share of the rent) for a college, a travel-time limit and a home. Use for any question about the cheapest, best or closest areas: never sort or filter areas yourself.', parametersJsonSchema: { type: 'object', properties: { college: { type: 'string', description: 'College name, e.g. UCD, Trinity, DCU, TU Dublin.' }, maxMinutes: { type: 'number', description: 'Longest acceptable trip in minutes (8am weekday arrival).' }, bedrooms: { type: 'number', description: 'Bedrooms in the home, 1-4. Default 2.' }, people: { type: 'number', description: 'People sharing the rent. Default: one per bedroom.' }, homeType: { type: 'string', enum: ['any', 'apartment', 'terrace', 'semi', 'detached'] }, travel: { type: 'string', enum: ['transit', 'cycle', 'walk'], description: 'transit = bus, Luas or rail (default).' } }, required: ['college'] } },
@@ -223,6 +237,7 @@ export const TOOLS = [{ functionDeclarations: [
 
 export async function runTool(origin, name, args) {
   try {
+    if (name === 'monthly_cost') return monthlyCost(await file(origin, '/data/areas.json'), args || {})
     if (name === 'rank_work') return rankWork(await file(origin, '/data/areas.json'), args || {})
     if (name === 'area_details') return areaDetails(await file(origin, '/data/areas.json'), args || {})
     if (name === 'rank_areas') return rankAreas(await file(origin, '/data/areas.json'), args || {})
