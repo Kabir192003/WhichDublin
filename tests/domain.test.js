@@ -385,3 +385,19 @@ test('chat tools: area details give the full line for the named area, or the lis
   assert.match(areaDetails(data, { area: 'rathmines' }).areas[0], /Rathmines, Dublin 6 \(#\/areas\/r-6\) \| rent 2b €\d+ \| Trinity 23\/0 cyc 18 walk 33/)
   assert.match(areaDetails(data, { area: 'Narnia' }).error, /No Settld area/)
 })
+
+import { parseTransport, formatDepartures } from '../server/chat-quick.js'
+test('chat: plain departure questions are read in code; anything else goes on to the AI', () => {
+  assert.deepEqual(parseTransport('when is the next bus from watervillw to spire'), { from: 'watervillw', to: 'spire' })
+  assert.deepEqual(parseTransport('Next Luas from Museum?'), { from: 'Museum', to: undefined })
+  assert.deepEqual(parseTransport('buses from stop 786 to UCD Village now'), { from: '786', to: 'UCD Village' })
+  assert.equal(parseTransport('cheapest areas with a bus from UCD'), null)
+  assert.equal(parseTransport('how much is rent in Rathmines'), null)
+  const out = formatDepartures({ now: '8:10', departures: [{ route: '38B', towards: 'Burlington Road', from: 'Waterville Row (stop 2338)', to: 'The Spire of Dublin', rideMinutes: 42, scheduled: '8:21', expected: '8:24', delayMin: 3, live: true, liveAtThisStop: true }] }, { from: 'Waterville', to: 'Spire' })
+  assert.match(out, /\*\*38B\*\* towards Burlington Road: \*\*8:24\*\* \(due 8:21, 3 min late\), about 42 min to The Spire of Dublin/)
+  assert.match(formatDepartures({ now: '0:30', departures: [], note: 'Nothing in the next two hours. The first 38B is at 5:42.' }, { from: 'a' }), /first 38B is at 5:42/)
+})
+test('chat: Luas questions answer with the live TII board', () => {
+  const out = formatDepartures({ now: '9:00', departures: [], liveBoards: [{ kind: 'tram', station: 'Museum', directions: [{ name: 'Inbound', trams: [{ due: 0, destination: 'The Point' }, { due: 7, destination: 'Connolly' }] }], message: '' }] }, { from: 'Museum' })
+  assert.match(out, /Live Luas at \*\*Museum\*\*/); assert.match(out, /\*\*Inbound\*\*: The Point due now, Connolly in 7 min/)
+})

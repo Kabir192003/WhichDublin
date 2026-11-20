@@ -44,3 +44,40 @@ export function quickAnswer(text, now = new Date()) {
   const hits = TOPICS.filter(([, test]) => test(q))
   return hits.length === 1 ? hits[0][2](q, now) : null
 }
+
+/** "next bus from X to Y", "when is the luas from X", "buses from 786": the places, or null if it isn't that question. */
+export function parseTransport(text) {
+  const q = String(text).trim().replace(/[?!.]+$/, '')
+  if (!/\b(bus|buses|luas|tram|trams|train|trains|dart)\b/i.test(q) || !/\bfrom\b/i.test(q)) return null
+  if (/\b(cheap|rent|cost|price|area|areas|live)\b/i.test(q)) return null   // about where to live, not a departure
+  const m = q.match(/\bfrom\s+(.+?)(?:\s+(?:to|towards|for)\s+(?:the\s+)?(.+?))?(?:\s+(?:now|tonight|today|right now|please))?$/i)
+  if (!m) return null
+  const clean = (s) => s && s.replace(/^(the|stop)\s+/i, '').trim()
+  return { from: clean(m[1]), to: clean(m[2]) || undefined }
+}
+
+/** The tool result, written out for a student. */
+export function formatDepartures(r, { from, to }) {
+  if (r.error) return `${r.error.replace('Ask the user for', 'Try')}\n\nYou can also search by stop name or number on the [Commute](#/stop) page.`
+  if (r.liveBoards?.length) {   // Luas and trains: the operator's own live board is the real answer
+    const b = r.liveBoards[0]
+    const rows = b.kind === 'tram'
+      ? b.directions.map((d) => `- **${d.name}**: ${d.trams.slice(0, 3).map((t) => `${t.destination} ${t.due === 0 ? 'due now' : `in ${t.due} min`}`).join(', ')}`)
+      : (b.trains || []).slice(0, 5).map((t) => `- **${t.destination}**: in ${t.due} min${t.late > 0 ? ` (${t.late} min late)` : ''}, departs ${t.departs}`)
+    if (rows.length) return `Live ${b.kind === 'tram' ? 'Luas' : 'trains'} at **${b.station}** (now ${r.now}):\n${rows.join('\n')}${b.message ? `\n\n${b.message}` : ''}\n\nLive times from ${b.kind === 'tram' ? 'Transport Infrastructure Ireland' : 'Irish Rail'}. More on the [Commute](#/stop) page.`
+  }
+  if (r.departures) {
+    if (!r.departures.length) return `${r.note || 'No departures found.'}\n\nThe live board is on the [Commute](#/stop) page.`
+    const lines = r.departures.slice(0, 5).map((d) => {
+      const when = d.live && d.expected ? `**${d.expected}** (due ${d.scheduled}${d.delayMin ? `, ${d.delayMin > 0 ? `${d.delayMin} min late` : `${-d.delayMin} min early`}` : ', on time'}${d.liveAtThisStop ? '' : ', estimated'})` : `**${d.scheduled}** (timetable only)`
+      return `- **${d.route}** towards ${d.towards}: ${when}${d.rideMinutes != null ? `, about ${d.rideMinutes} min to ${d.to}` : ''}, from ${d.from}`
+    })
+    return `Next departures from ${from}${to ? ` to ${to}` : ''} (now ${r.now}):\n${lines.join('\n')}\n\nLive times come from the National Transport Authority. The live board is on the [Commute](#/stop) page.`
+  }
+  if (r.legs) {
+    const legs = r.legs.map((l) => l.walk ? `- Walk ${l.walk}` : `- **${l.route}** from ${l.from} at ${l.departs}, to ${l.to} (${l.arrives})`)
+    const live = r.firstLegLive?.[0]?.expected ? `\nThe first bus is expected at **${r.firstLegLive[0].expected}** (live).` : ''
+    return `No single route goes from ${from} to ${to}. Quickest from now, with ${r.changes} change${r.changes === 1 ? '' : 's'}, arriving about ${r.arrive}:\n${legs.join('\n')}${live}\n\nTimes are from the timetable. Plan it on the [Commute](#/stop) page for live times on every leg.`
+  }
+  return `${r.note || 'No journey found.'}\n\nTry the journey planner on the [Commute](#/stop) page.`
+}

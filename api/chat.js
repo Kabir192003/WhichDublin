@@ -5,8 +5,8 @@
 // Answers only from Settld's own published data and facts (server/chat-knowledge.js). Nothing is stored here.
 import { GoogleGenAI, ApiError } from '@google/genai'
 import { buildKnowledge, RULES } from '../server/chat-knowledge.js'
-import { TOOLS, runTool } from '../server/chat-tools.js'
-import { quickAnswer } from '../server/chat-quick.js'
+import { TOOLS, runTool, nextDepartures } from '../server/chat-tools.js'
+import { quickAnswer, parseTransport, formatDepartures } from '../server/chat-quick.js'
 import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 
 // first that answers wins: a model Google has overloaded is skipped for the next one (Google's minimum deadline is 10 s)
@@ -59,6 +59,12 @@ export default async function handler(req, res) {
     const t0 = Date.now(), log = (step) => console.log(`chat ${step} ${Date.now() - t0}ms`)
     const quick = quickAnswer(contents[contents.length - 1].parts[0].text)
     if (quick) { log('quick answer'); return answer(res, quick) }
+    // a plain "next bus from X to Y": looked up and written in code, no AI needed
+    const trip = parseTransport(contents[contents.length - 1].parts[0].text)
+    if (trip) {
+      const r = await nextDepartures(originOf(req), trip).catch(() => null)
+      if (r && !(r.error && /No stop found/.test(r.error))) { log('direct departures'); return answer(res, formatDepartures(r, trip)) }
+    }
     const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 12000 } })
     const gen = async (params) => {
       let last
@@ -70,7 +76,7 @@ export default async function handler(req, res) {
       }
       throw last
     }
-    const config = { systemInstruction: `${RULES}\n\n${await getKnowledge(req)}`, maxOutputTokens: 1500, tools: TOOLS }
+    const config = { systemInstruction: `${RULES}\n\n${await getKnowledge(req)}`, maxOutputTokens: 8192, tools: TOOLS }
     log('knowledge')
     // tool rounds (live transport) first; the model's own turn is passed back unchanged so its thought signatures survive
     let lastNote = null
