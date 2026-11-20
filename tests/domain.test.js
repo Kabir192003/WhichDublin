@@ -339,3 +339,14 @@ test('chat: the knowledge has every area with its page link, rents and college t
   assert.match(k, /Testtown, Dublin 1 \(#\/areas\/x-1\) \| rent 1b €\d+, 2b €\d+ est \| Trinity 20\/1 cyc 12 walk 30/)
   assert.match(k, /shops Lidl 5/); assert.match(k, /routes 39A/); assert.match(k, /RIGHTS/)
 })
+
+import { searchStops } from '../server/chat-tools.js'
+test('chat tools: stops are found by name (both sides of the road grouped), by number, and despite a typo at the end', () => {
+  const data = { stops: { a: ['2338', 'Waterville Row', 53.39, -6.38, 'bus'], b: ['1816', 'Waterville Row', 53.39, -6.38, 'bus'], c: ['6059', 'The Spire of Dublin', 53.35, -6.26, 'bus'], d: ['45', "O'Connell St Upper", 53.35, -6.26, 'bus'] }, byCode: { 2338: ['a'], 6059: ['c'] } }
+  assert.deepEqual(searchStops(data, 'Waterville Row').map((g) => [g.name, g.ids]), [['Waterville Row', ['a', 'b']]])
+  assert.equal(searchStops(data, 'watervillw')[0].name, 'Waterville Row')
+  assert.equal(searchStops(data, 'spire')[0].name, 'The Spire of Dublin')
+  assert.equal(searchStops(data, "O'Connell Street Upper")[0].name, "O'Connell St Upper")
+  assert.deepEqual(searchStops(data, '2338')[0].ids, ['a'])
+  assert.deepEqual(searchStops(data, 'zzzz'), [])
+})
