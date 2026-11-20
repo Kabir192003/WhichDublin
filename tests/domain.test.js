@@ -366,3 +366,14 @@ test('chat quick answers: common facts come straight from facts.js; anything mix
   assert.equal(quickAnswer('next bus from Waterville to the Spire'), null)
   assert.equal(quickAnswer('x'.repeat(250) + ' minimum wage'), null)
 })
+
+import { rankAreas as chatRank, collegeId } from '../server/chat-tools.js'
+test('chat tools: areas are ranked cheapest first, within the time limit, for the right college', () => {
+  const area = (id, rent2, mins) => ({ id, label: id, rent: { cells: { '2:any': { v: rent2, how: 'published' } } }, toCampus: { ucd: { transit: { minutes: mins, changes: 0 }, cycleMinutes: 10, walkMinutes: 40 } } })
+  const data = { campuses: [{ id: 'ucd', name: 'University College Dublin (Belfield)' }, { id: 'tcd', name: 'Trinity College Dublin' }], areas: [area('a', 2600, 20), area('b', 2000, 25), area('c', 1500, 45), area('d', 2200, 30)] }
+  const r = chatRank(data, { college: 'UCD', maxMinutes: 30, bedrooms: 2, people: 2 })
+  assert.deepEqual(r.cheapestFirst.map((x) => x.area), ['b', 'd', 'a'])   // c is over 30 minutes
+  assert.ok(r.cheapestFirst[0].yourShare < r.cheapestFirst[1].yourShare)
+  assert.equal(collegeId('trinity college', data.campuses), 'tcd')
+  assert.match(chatRank(data, { college: 'Hogwarts' }).error, /Unknown college/)
+})

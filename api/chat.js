@@ -10,8 +10,9 @@ import { quickAnswer } from '../server/chat-quick.js'
 import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 
 // first that answers wins: a model Google has overloaded is skipped for the next one (Google's minimum deadline is 10 s)
-const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.6-flash,gemini-3.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean)
-const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 4
+// lightest first: each model has its own free-plan allowance, and Flash-Lite is the fastest
+const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.6-flash').split(',').map((m) => m.trim()).filter(Boolean)
+const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 3
 let knowledge = { at: 0, text: null }
 
 /** The area data is the same file the app loads, so the assistant can never drift from what the pages show. */
@@ -72,18 +73,19 @@ export default async function handler(req, res) {
     const config = { systemInstruction: `${RULES}\n\n${await getKnowledge(req)}`, maxOutputTokens: 1500, tools: TOOLS }
     log('knowledge')
     // tool rounds (live transport) first; the model's own turn is passed back unchanged so its thought signatures survive
+    let lastNote = null
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const r = await gen({ contents, config })
       const calls = r.functionCalls || []
       log(`gemini round ${round}: ${calls.map((c) => c.name).join(',') || 'answer'}`)
-      if (!calls.length) { return answer(res, r.text || '') }
+      if (!calls.length) return answer(res, r.text || lastNote || '')
       contents.push(r.candidates[0].content)
-      const results = await Promise.all(calls.map(async (c) => ({ functionResponse: { id: c.id, name: c.name, response: { result: await runTool(originOf(req), c.name, c.args) } } })))
+      const results = await Promise.all(calls.map(async (c) => { const result = await runTool(originOf(req), c.name, c.args); if (result?.note && !result.departures?.length && !result.legs) lastNote = result.note; return { functionResponse: { id: c.id, name: c.name, response: { result } } } }))
       contents.push({ role: 'user', parts: results })
       log('tools')
     }
     const r = await gen({ contents, config: { ...config, toolConfig: { functionCallingConfig: { mode: 'NONE' } } } })
-    answer(res, r.text || '')
+    answer(res, r.text || lastNote || '')
   } catch (e) {
     if (res.headersSent) { res.end('\n\n(The answer was cut off. Please ask again.)'); return }
     if (e instanceof ApiError && e.status === 429) return fail(res, 429, 'Lots of questions right now. Please try again in a minute.')
