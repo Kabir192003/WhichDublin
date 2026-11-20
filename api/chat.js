@@ -1,13 +1,16 @@
 // GET  /api/chat -> { enabled }: whether the assistant is switched on (a GEMINI_API_KEY is set).
+// Common factual questions are answered instantly from facts.js (server/chat-quick.js) without calling the AI.
 // POST /api/chat { messages: [{ role: 'user' | 'assistant', text }] } -> the answer as plain text. Live bus, Luas and
 // train questions use tools (server/chat-tools.js) that read the timetable and the live NTA feeds.
 // Answers only from Settld's own published data and facts (server/chat-knowledge.js). Nothing is stored here.
 import { GoogleGenAI, ApiError } from '@google/genai'
 import { buildKnowledge, RULES } from '../server/chat-knowledge.js'
 import { TOOLS, runTool } from '../server/chat-tools.js'
+import { quickAnswer } from '../server/chat-quick.js'
 import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash'
+// first that answers wins: a model Google has overloaded is skipped for the next one
+const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.6-flash,gemini-3.5-flash,gemini-3.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean)
 const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 4
 let knowledge = { at: 0, text: null }
 
@@ -53,12 +56,24 @@ export default async function handler(req, res) {
     const contents = cleanMessages(await readJson(req, 32 * 1024))
     if (!contents) return fail(res, 400, 'Send messages: a short conversation ending with your question')
     const t0 = Date.now(), log = (step) => console.log(`chat ${step} ${Date.now() - t0}ms`)
-    const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 20000 } })
+    const quick = quickAnswer(contents[contents.length - 1].parts[0].text)
+    if (quick) { log('quick answer'); return answer(res, quick) }
+    const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 9000 } })
+    const gen = async (params) => {
+      let last
+      for (const model of MODELS) {
+        try { return await ai.models.generateContent({ ...params, model }) } catch (e) {
+          last = e; const busy = (e instanceof ApiError && [429, 500, 503].includes(e.status)) || /timed? ?out|abort/i.test(String(e?.message))
+          console.error('chat model', model, e?.status, String(e?.message).slice(0, 120)); if (!busy) throw e
+        }
+      }
+      throw last
+    }
     const config = { systemInstruction: `${RULES}\n\n${await getKnowledge(req)}`, maxOutputTokens: 1500, tools: TOOLS }
     log('knowledge')
     // tool rounds (live transport) first; the model's own turn is passed back unchanged so its thought signatures survive
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const r = await ai.models.generateContent({ model: MODEL, contents, config })
+      const r = await gen({ contents, config })
       const calls = r.functionCalls || []
       log(`gemini round ${round}: ${calls.map((c) => c.name).join(',') || 'answer'}`)
       if (!calls.length) { return answer(res, r.text || '') }
@@ -67,7 +82,7 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: results })
       log('tools')
     }
-    const r = await ai.models.generateContent({ model: MODEL, contents, config: { ...config, toolConfig: { functionCallingConfig: { mode: 'NONE' } } } })
+    const r = await gen({ contents, config: { ...config, toolConfig: { functionCallingConfig: { mode: 'NONE' } } } })
     answer(res, r.text || '')
   } catch (e) {
     if (res.headersSent) { res.end('\n\n(The answer was cut off. Please ask again.)'); return }

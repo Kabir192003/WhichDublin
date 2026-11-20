@@ -350,3 +350,19 @@ test('chat tools: stops are found by name (both sides of the road grouped), by n
   assert.deepEqual(searchStops(data, '2338')[0].ids, ['a'])
   assert.deepEqual(searchStops(data, 'zzzz'), [])
 })
+
+import { quickAnswer } from '../server/chat-quick.js'
+test('chat quick answers: common facts come straight from facts.js; anything mixed or long goes to the AI', () => {
+  const july = new Date('2026-07-10T12:00:00Z'), nov = new Date('2026-11-20T12:00:00Z')
+  assert.match(quickAnswer('How many hours can I work on stamp 2?', nov), /up to 20 hours a week in term.*Right now the limit is \*\*20 hours/s)
+  assert.match(quickAnswer('how many hours can i work in summer', july), /Right now the limit is \*\*40 hours/)
+  assert.match(quickAnswer("What's the minimum wage?"), /€14\.15 an hour/)
+  assert.match(quickAnswer('how much notice do I give my landlord after 8 months?'), /6 months to 1 year.*35 days/s)
+  assert.match(quickAnswer('notice to leave after 3 years'), /2 to 4 years.*56 days/s)
+  assert.match(quickAnswer('will I get my deposit back?'), /returned|come back/i)
+  assert.match(quickAnswer('how much is the IRP fee'), /€300/)
+  assert.match(quickAnswer('student leap card fare'), /Student Leap.*€1/s)
+  assert.equal(quickAnswer('cheapest area near UCD under 30 minutes'), null)
+  assert.equal(quickAnswer('next bus from Waterville to the Spire'), null)
+  assert.equal(quickAnswer('x'.repeat(250) + ' minimum wage'), null)
+})
