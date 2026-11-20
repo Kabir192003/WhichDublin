@@ -9,8 +9,8 @@ import { TOOLS, runTool } from '../server/chat-tools.js'
 import { quickAnswer } from '../server/chat-quick.js'
 import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 
-// first that answers wins: a model Google has overloaded is skipped for the next one
-const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.6-flash,gemini-3.5-flash,gemini-3.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean)
+// first that answers wins: a model Google has overloaded is skipped for the next one (Google's minimum deadline is 10 s)
+const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.6-flash,gemini-3.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean)
 const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 4
 let knowledge = { at: 0, text: null }
 
@@ -58,12 +58,12 @@ export default async function handler(req, res) {
     const t0 = Date.now(), log = (step) => console.log(`chat ${step} ${Date.now() - t0}ms`)
     const quick = quickAnswer(contents[contents.length - 1].parts[0].text)
     if (quick) { log('quick answer'); return answer(res, quick) }
-    const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 9000 } })
+    const ai = new GoogleGenAI({ apiKey: key, httpOptions: { timeout: 12000 } })
     const gen = async (params) => {
       let last
       for (const model of MODELS) {
         try { return await ai.models.generateContent({ ...params, model }) } catch (e) {
-          last = e; const busy = (e instanceof ApiError && [429, 500, 503].includes(e.status)) || /timed? ?out|abort/i.test(String(e?.message))
+          last = e; const busy = (e instanceof ApiError && [429, 500, 503, 504].includes(e.status)) || /timed? ?out|abort/i.test(String(e?.message))
           console.error('chat model', model, e?.status, String(e?.message).slice(0, 120)); if (!busy) throw e
         }
       }
