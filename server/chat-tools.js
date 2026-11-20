@@ -4,6 +4,7 @@ import { stopRouteLive } from './live.js'
 import { luasBoard, railBoard } from './transit.js'
 import { buildIndex, plan } from '../src/domain/planner.js'
 import { rentForHome } from '../src/domain/model.js'
+import { areaLine, campusesOf } from './chat-knowledge.js'
 
 const SHARDS = 256, LATE = 45, AHEAD = 120
 const shardOf = (stopId) => { let h = 0x811c9dc5; for (const c of stopId) { h ^= c.charCodeAt(0); h = Math.imul(h, 0x01000193) } return (h >>> 0) % SHARDS }
@@ -148,7 +149,17 @@ export function rankAreas(data, { college, maxMinutes, bedrooms = 2, people, hom
   return { college: data.campuses.find((c) => c.id === id).name, home: `${bed}-bedroom, ${homeType === 'any' ? 'any type' : homeType}, shared by ${n}`, travel, maxMinutes: maxMinutes || null, matches: rows.length, cheapestFirst: rows.slice(0, limit) }
 }
 
+/** One or more areas in full: rent by home size, the trip to every college, shops, transport and jobs. */
+export function areaDetails(data, { area }) {
+  const q = norm(area || '')
+  const hits = data.areas.filter((a) => norm(a.label).includes(q) || norm(a.name).includes(q)).slice(0, 3)
+  if (!hits.length) return { error: `No Settld area matches "${area}". Areas: ${data.areas.map((a) => a.name).join(', ')}.` }
+  const campuses = campusesOf(data)
+  return { legend: 'rent = whole-home monthly rent for 1, 2, 3 bedrooms (est = estimated, carried = older quarter); per college "minutes/changes" by bus, Luas or rail for an 8am weekday arrival, cyc = cycling minutes, walk = walking minutes; shops = walking minutes; jobs = places that could hire a student within ~1 km', areas: hits.map((a) => areaLine(a, campuses)) }
+}
+
 export const TOOLS = [{ functionDeclarations: [
+  { name: 'area_details', description: "One area's figures: whole-home rent by bedrooms, travel time to every college, nearest supermarkets, stops and routes, stations and student jobs. Use for any question about a specific area.", parametersJsonSchema: { type: 'object', properties: { area: { type: 'string', description: 'Area name, e.g. Rathmines, Ranelagh, Phibsborough.' } }, required: ['area'] } },
   { name: 'rank_areas', description: 'Areas ranked from cheapest (your share of the rent) for a college, a travel-time limit and a home. Use for any question about the cheapest, best or closest areas: never sort or filter areas yourself.', parametersJsonSchema: { type: 'object', properties: { college: { type: 'string', description: 'College name, e.g. UCD, Trinity, DCU, TU Dublin.' }, maxMinutes: { type: 'number', description: 'Longest acceptable trip in minutes (8am weekday arrival).' }, bedrooms: { type: 'number', description: 'Bedrooms in the home, 1-4. Default 2.' }, people: { type: 'number', description: 'People sharing the rent. Default: one per bedroom.' }, homeType: { type: 'string', enum: ['any', 'apartment', 'terrace', 'semi', 'detached'] }, travel: { type: 'string', enum: ['transit', 'cycle', 'walk'], description: 'transit = bus, Luas or rail (default).' } }, required: ['college'] } },
   { name: 'find_stops', description: 'Find bus, Luas or rail stops by name or stop number, with the routes that serve them. Use when the user names a place and you need the stop.', parametersJsonSchema: { type: 'object', properties: { query: { type: 'string', description: "Stop name, street or stop number, e.g. 'Waterville', 'O'Connell Street', '786'. For a landmark use its street (the Spire -> O'Connell Street)." } }, required: ['query'] } },
   { name: 'next_departures', description: "Next buses, Luas or trains from one place, optionally towards another, with live expected times and delays from the National Transport Authority. If no single route goes there, returns a journey with changes. Use for any question about the next bus or tram, when it is due, or how to get somewhere now.", parametersJsonSchema: { type: 'object', properties: { from: { type: 'string', description: 'Where the user is leaving from: stop name, street or stop number.' }, to: { type: 'string', description: "Where they are going (stop, street or landmark street, e.g. 'O'Connell Street' for the Spire). Leave out for every departure at the stop." } }, required: ['from'] } }
@@ -156,6 +167,7 @@ export const TOOLS = [{ functionDeclarations: [
 
 export async function runTool(origin, name, args) {
   try {
+    if (name === 'area_details') return areaDetails(await file(origin, '/data/areas.json'), args || {})
     if (name === 'rank_areas') return rankAreas(await file(origin, '/data/areas.json'), args || {})
     if (name === 'find_stops') return await findStops(origin, args || {})
     if (name === 'next_departures') return await nextDepartures(origin, args || {})

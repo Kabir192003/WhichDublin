@@ -336,7 +336,7 @@ test('chat: only a short, well-formed conversation ending with the user is sent 
 test('chat: the knowledge has every area with its page link, rents and college trips, and the facts', () => {
   const area = { id: 'x-1', label: 'Testtown, Dublin 1', rent: { cells: { '1:any': { v: 1000, how: 'published' }, '2:any': { v: 1500, how: 'estimated' } } }, toCampus: { tcd: { transit: { minutes: 20, changes: 1 }, cycleMinutes: 12, walkMinutes: 30 } }, groceries: { Lidl: { walkMinutes: 5 } }, transit: { nearestStop: { name: 'Main St', walkMinutes: 2 }, routes: { bus: ['39A'], tram: [], rail: [] } }, stations: [], work: { retail: { n: 3, capped: false } } }
   const k = buildKnowledge({ campuses: [{ id: 'tcd', name: 'Trinity College Dublin' }], areas: [area] })
-  assert.match(k, /Testtown, Dublin 1 \(#\/areas\/x-1\) \| rent 1b €\d+, 2b €\d+ est \| Trinity 20\/1 cyc 12 walk 30/)
+  assert.match(k, /Testtown, Dublin 1 \(#\/areas\/x-1\)/)
   assert.match(k, /shops Lidl 5/); assert.match(k, /routes 39A/); assert.match(k, /RIGHTS/)
 })
 
@@ -376,4 +376,12 @@ test('chat tools: areas are ranked cheapest first, within the time limit, for th
   assert.ok(r.cheapestFirst[0].yourShare < r.cheapestFirst[1].yourShare)
   assert.equal(collegeId('trinity college', data.campuses), 'tcd')
   assert.match(chatRank(data, { college: 'Hogwarts' }).error, /Unknown college/)
+})
+
+import { areaDetails } from '../server/chat-tools.js'
+test('chat tools: area details give the full line for the named area, or the list of areas', () => {
+  const a = { id: 'r-6', name: 'Rathmines', label: 'Rathmines, Dublin 6', rent: { cells: { '2:any': { v: 2000, how: 'published' } } }, toCampus: { tcd: { transit: { minutes: 23, changes: 0 }, cycleMinutes: 18, walkMinutes: 33 } }, groceries: {}, transit: {}, stations: [], work: {} }
+  const data = { campuses: [{ id: 'tcd', name: 'Trinity College Dublin' }], areas: [a] }
+  assert.match(areaDetails(data, { area: 'rathmines' }).areas[0], /Rathmines, Dublin 6 \(#\/areas\/r-6\) \| rent 2b €\d+ \| Trinity 23\/0 cyc 18 walk 33/)
+  assert.match(areaDetails(data, { area: 'Narnia' }).error, /No Settld area/)
 })
