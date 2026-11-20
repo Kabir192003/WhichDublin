@@ -144,6 +144,7 @@ export async function nextDepartures(origin, { from, to, mode, route, last }, no
     let m = Infinity
     for (const f of fromIds) for (const t of named) { const a = data.stops[f], b = data.stops[t]; if (a && b) m = Math.min(m, Math.hypot((a[2] - b[2]) * 111320, (a[3] - b[3]) * 67000)) }
     if (m <= 700) return { walkOnly: { metres: Math.round(m / 10) * 10, minutes: Math.max(2, Math.round(m * 1.3 / 80)) } }
+    var walkM = m   // kept: walking may still beat changing buses if no direct route goes there
   }
   const cands = []
   for (const sid of fromIds) for (const [rid, dir] of data.stopRoutes[sid] || []) {
@@ -193,6 +194,7 @@ export async function nextDepartures(origin, { from, to, mode, route, last }, no
     return { now: clock(now.mins), direct: true, departures: rows.slice(0, 8).map(({ sortKey, ...r }) => r), liveBoards: boards.length ? boards : undefined, note: 'expected = live NTA estimate; live:false means timetable only. liveAtThisStop:false means the delay is carried from the last stop the bus reported.' }
   }
   if (!to) return { now: clock(now.mins), departures: [], note: 'No departures found from this stop in the next two hours.' }
+  if (typeof walkM === 'number' && walkM <= 1300) return { walkOnly: { metres: Math.round(walkM / 10) * 10, minutes: Math.max(2, Math.round(walkM * 1.3 / 80)) } }   // ~15 min walk beats two buses
   // no single bus or tram goes there: plan a journey with changes (weekday timetable)
   index ||= buildIndex(data)
   const journeys = plan(index, new Set(fromIds), new Set(toSet), now.mins)

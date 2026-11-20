@@ -72,8 +72,9 @@ export function quickAnswer(text, now = new Date()) {
 /** "next bus from X to Y", "when is the luas from X", "buses from 786": the places, or null if it isn't that question. */
 export function parseTransport(text) {
   const q = String(text).trim().replace(/[?!.]+$/, '')
-  if (!/\b(bus|buses|luas|tram|trams|train|trains|dart|[a-z]?\d{1,3}[a-z]?)\b/i.test(q) || !/\b(from|frm)\b/i.test(q)) return null
-  if (!/\b(bus|buses|luas|tram|trams|train|trains|dart|next|when|when's|whens)\b/i.test(q)) return null
+  const getting = /\b(get|go|travel|commute|reach)\b.*\bfrom\b.+\bto\b/i.test(q)   // "how do I get from X to Y"
+  if (!getting && (!/\b(bus|buses|luas|tram|trams|train|trains|dart|[a-z]?\d{1,3}[a-z]?)\b/i.test(q) || !/\b(from|frm)\b/i.test(q))) return null
+  if (!getting && !/\b(bus|buses|luas|tram|trams|train|trains|dart|next|when|when's|whens)\b/i.test(q)) return null
   if (/\b(cheap|rent|cost|price|area|areas|live)\b/i.test(q)) return null   // about where to live, not a departure
   const m = q.match(/\b(?:from|frm)\s+(.+?)(?:\s+(?:to|towards|for)\s+(?:the\s+)?(.+?))?(?:\s+(?:now|tonight|today|right now|please))*$/i)
   if (!m) return null

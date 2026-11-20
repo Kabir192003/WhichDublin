@@ -497,3 +497,8 @@ test('chat QA round 4: named routes after next, a route with no stop, train boar
   assert.deepEqual(chatRank(data, { college: 'DCU', sortBy: 'time' }).cheapestFirst.map((x) => x.area), ['b', 'a'])
   assert.match(formatDepartures({ legs: [{ walk: '5 min (298 m) to Parnell Sq East' }, { route: '11', from: 'Parnell Sq East', to: 'Ranelagh', departs: '11:17', arrives: '11:33' }], changes: 0, arrive: '11:33' }, { from: "o'connell street", to: 'ranelagh' }), /No bus goes straight from O'connell Street, but a short walk gets you one/)
 })
+test('chat QA round 5: "how do I get from X to Y" is a journey question', () => {
+  assert.deepEqual(parseTransport('how do I get from Rathmines to DCU'), { from: 'Rathmines', to: 'DCU' })
+  assert.deepEqual(parseTransport('how can I travel from UCD to Temple Bar?'), { from: 'UCD', to: 'Temple Bar' })
+  assert.equal(parseTransport('how do I get a PPS number'), null)
+})

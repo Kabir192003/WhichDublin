@@ -12,7 +12,7 @@ import { send, fail, crash, readJson, sameOrigin } from '../server/http.js'
 // first that answers wins: a model Google has overloaded is skipped for the next one (Google's minimum deadline is 10 s)
 // lightest first: each model has its own free-plan allowance, and Flash-Lite is the fastest
 const MODELS = (process.env.GEMINI_MODELS || 'gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.6-flash').split(',').map((m) => m.trim()).filter(Boolean)
-const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 3
+const MAX_TURNS = 12, MAX_CHARS = 1200, MAX_TOOL_ROUNDS = 3, BUDGET_MS = 16000   // the function stops at 30 s: leave time for one last call
 let knowledge = { at: 0, text: null, ids: new Set() }
 
 /** The area data is the same file the app loads, so the assistant can never drift from what the pages show. */
@@ -81,18 +81,19 @@ export default async function handler(req, res) {
     const gen = async (params) => {
       let last
       for (const model of MODELS) {
+        if (Date.now() - t0 > BUDGET_MS) break   // out of time: answer with what we have rather than time out
         try { return await ai.models.generateContent({ ...params, model }) } catch (e) {
           last = e; const busy = (e instanceof ApiError && [429, 500, 503, 504].includes(e.status)) || /timed? ?out|abort/i.test(String(e?.message))
           console.error('chat model', model, e?.status, String(e?.message).slice(0, 120)); if (!busy) throw e
         }
       }
-      throw last
+      throw last || Object.assign(new Error('slow'), { slow: true })
     }
     const config = { systemInstruction: `${RULES}\n\n${await getKnowledge(req)}`, maxOutputTokens: 8192, tools: TOOLS }
     log('knowledge')
     // tool rounds (live transport) first; the model's own turn is passed back unchanged so its thought signatures survive
     let lastNote = null
-    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    for (let round = 0; round < MAX_TOOL_ROUNDS && Date.now() - t0 < BUDGET_MS; round++) {
       const r = await gen({ contents, config })
       const calls = r.functionCalls || []
       log(`gemini round ${round}: ${calls.map((c) => c.name).join(',') || 'answer'}`)
@@ -102,10 +103,12 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: results })
       log('tools')
     }
+    if (Date.now() - t0 > BUDGET_MS && lastNote) return answer(res, lastNote)
     const r = await gen({ contents, config: { ...config, toolConfig: { functionCallingConfig: { mode: 'NONE' } } } })
     answer(res, r.text || lastNote || '')
   } catch (e) {
     if (res.headersSent) { res.end('\n\n(The answer was cut off. Please ask again.)'); return }
+    if (e?.slow) return fail(res, 503, 'The assistant is slow right now. Please ask again in a moment.')
     if (e instanceof ApiError && e.status === 429) return fail(res, 429, 'Lots of questions right now. Please try again in a minute.')
     console.error('chat failed', e?.status, e?.name, String(e?.message).slice(0, 300))
     if (e instanceof ApiError) { return fail(res, 502, 'The assistant is unavailable right now. Please try again shortly.') }
