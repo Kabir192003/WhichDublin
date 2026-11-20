@@ -85,7 +85,11 @@ export function parseTransport(text) {
 }
 
 /** The tool result, written out for a student. */
-export function formatDepartures(r, { from, to }) {
+export function formatDepartures(r, { from: f, to: t }) {
+  const ACR = /^(ucd|dcu|tcd|tud|rcsi|nci|dbs|ifsc|gpo|iadt|dart)$/i
+  const cap = (x) => x && x.split(' ').map((w) => (ACR.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))).join(' ')   // 'waterville row' -> 'Waterville Row'
+  const from = /^\d+$/.test(f) ? `stop ${f}` : cap(f), to = cap(t)
+  if (r.walkOnly) return `${from} and ${to} are close together: about **${r.walkOnly.minutes} min walk** (${r.walkOnly.metres} m), quicker than waiting for a bus.\n\nFor buses from ${from}, ask "next bus from ${from}", or see the [Commute](#/stop) page.`
   if (r.error) return `${r.error.replace('Ask the user for the stop name or number.', 'Try the stop number on the pole, or another nearby street.')}\n\nYou can also search by stop name or number on the [Commute](#/stop) page.`
   if (r.liveBoards?.length) {   // Luas and trains: the operator's own live board is the real answer
     const b = r.liveBoards[0]
@@ -109,7 +113,8 @@ export function formatDepartures(r, { from, to }) {
   if (r.legs) {
     const legs = r.legs.map((l) => l.walk ? `- Walk ${l.walk}` : `- **${l.route}** from ${l.from} at ${l.departs}, to ${l.to} (${l.arrives})`)
     const live = r.firstLegLive?.[0]?.expected ? `\nThe first bus is expected at **${r.firstLegLive[0].expected}** (live).` : ''
-    return `No single route goes from ${from} to ${to}. Quickest from now, with ${r.changes} change${r.changes === 1 ? '' : 's'}, arriving about ${r.arrive}:\n${legs.join('\n')}${live}\n\nTimes are from the timetable. Plan it on the [Commute](#/stop) page for live times on every leg.`
+    const lead = r.changes === 0 ? `No bus stops right at ${to}, but this gets you close, arriving about ${r.arrive}:` : `No single route goes from ${from} to ${to}. Quickest from now, with ${r.changes} change${r.changes === 1 ? '' : 's'}, arriving about ${r.arrive}:`
+    return `${lead}\n${legs.join('\n')}${live}\n\nTimes are from the timetable. Plan it on the [Commute](#/stop) page for live times on every leg.`
   }
   return `${r.note || 'No journey found.'}\n\nTry the journey planner on the [Commute](#/stop) page.`
 }

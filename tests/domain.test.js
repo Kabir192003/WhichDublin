@@ -468,3 +468,15 @@ test('chat QA round 3: earnings, deposit not returned, IRP documents, student ac
   assert.match(quickAnswer('notice for student accommodation'), /you give 28 days' notice/)
   assert.equal(realLinks('Budget €120 a month [GROCERIES]. Rules [STUDENT_WORK] apply.', new Set()), 'Budget €120 a month. Rules apply.')
 })
+test('chat: places are capitalised and acronyms kept; places next door say walk', () => {
+  assert.match(formatDepartures({ walkOnly: { metres: 600, minutes: 10 } }, { from: 'drumcondra', to: 'croke park' }), /Drumcondra and Croke Park are close together: about \*\*10 min walk\*\*/)
+  assert.match(formatDepartures({ now: '9:00', departures: [], note: 'x' }, { from: 'ucd', to: 'temple bar' }), /x/)
+  assert.match(formatDepartures({ now: '9:00', departures: [{ route: '39A', towards: 'T', from: 'F', scheduled: '9:05', live: false }] }, { from: 'ucd', to: 'temple bar' }), /from UCD to Temple Bar/)
+})
+test('chat tools: a budget that nothing fits tries common sharing set-ups before saying no', () => {
+  const area = (id, r2, r3) => ({ id, label: id, rent: { cells: { '2:any': { v: r2, how: 'published' }, '3:any': { v: r3, how: 'published' } } }, toCampus: { ucd: { transit: { minutes: 20 } } } })
+  const data = { campuses: [{ id: 'ucd', name: 'UCD' }], areas: [area('a', 2000, 2400), area('b', 2200, 2700)] }
+  const r = chatRank(data, { college: 'UCD', budget: 800 })   // 2 in a 2-bed is ~€1,000+; 3 in a 2-bed fits
+  assert.match(r.sharingNote, /Sharing a 2-bed between 3 people/); assert.ok(r.cheapestFirst.every((x) => x.yourShare <= 800))
+  assert.ok(chatRank(data, { college: 'UCD', budget: 5000 }).cheapestFirst.length === 2)
+})
